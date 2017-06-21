@@ -1,0 +1,30 @@
+\chapter{Internet measurement with RIPE Atlas}
+
+\section*{Abstract}
+We show that it is common to lose some datapoints for measurements scheduled at regular interval on RIPE Atlas. 
+%Some hints on possible reasons are revealed by taking probe-to-controller connection activity into account.
+The temporal correlation between missing measurements and connection events are %illustrated and 
+analyzed, in the pursuit of understanding reasons behind such missings.
+To our surprise, a big part of measurements are lost while probes are connected.
+\section{Reproducibility of measurement researches}
+\section{RIPE Atlas and other platforms}
+\section{Measurement quality}
+\subsection{Issue with RIPE Atlas}
+\subsection{Same path different paths}
+For multi-homed networks, inter-domain traffic engineering (TE) 
+consists in selecting the best path available through the available transit providers,
+so that the overall transmission quality is dynamically improved in front of network events, such as congestion and fail-over. 
+
+In practice, the best next hop is chosen based on end-to-end (e2e) performance measurements toward destination networks. 
+This requires reliable e2e measurements that estimate as accurately as possible inter-domain path characteristics, in particular Round-Trip Time (RTT).
+
+These measurements usually prob
+hosts with open ports, which are deliberately discovered in destination networks.
+RTT traces so obtained can be affected by local factors, e.g. CPU load, that are not relevant for inter-domain routing and could thus mislead global route decisions. 
+
+We data-mined the RTT time-series between two ASes with unsupervised learning method -- namely clustering.
+%%%[TODO:] justify clustering method here
+Achieved results show that our method is capable of improving measurement data quality, by excluding less reliable probes.
+Moreover, we considered traceroute as well. 
+Early results suggest that most variations of e2e delay actually occur in access networks. We thus believe that the proposed scheme can improve the accuracy and stability of the route selection for multi-homed networks.
+\section{Synchronized RTT changes over different paths}

@@ -1,0 +1,22 @@
+\chapter{Scalable prefix selection}
+The industrial background of this thesis and its practical implications.
+Border 6 and NSI. Not sure if necessary to put it here.
+
+\section*{Abstract}
+Inter-domain Traffic Engineering (TE) in a multi-homed or multi-connected network faces a scalability challenge as the the size of global routing table (RIB) continue to grow at a high speed. However not all the routes/prefixes are important to a certain network at a certain moment. On average, merely $0.1\% \sim 1\%$ of them are used in forwarding each hour, depending on the network. On top of that, some of them are responsible for much more traffic than the rest, which is known as the highly uneven internet traffic distribution.
+Therefore, a nature reflection is to perform TE only for those prefixes that matter.
+However, traffic volume associated to a prefix varies over time. And we have little knowledge on the dynamism of traffic across BGP (Broad Gateway Protocol) prefixes. 
+Moreover, it is not trivial predictively identifying prefixes of significance among the crowd, since sophisticated methods predicting volume for each single prefix won't scale in this context.
+
+We revealed in this work the relationships among prefix volume importance, stability and predictability basing on recent working traffic traces from 9 networks of diverse profiles. 
+With these findings, we proposed three resource-efficient metrics to predictively select prefixes of important volume. The proposed metrics yielded both satisfying volume coverage and pretty low prefix churn. Furthermore, we showcased that the performance in terms of RTT could differ a lot among different transit providers, which calls for fine-grained dynamic route selection mechanism to drain this gain. The route selection algorithm simulated in the work outperformed the best available transit by $20\%$ on certain networks. 
+
+\section{Prefix selection: a problem of scalability}
+
+\section{Time-series forcasting}
+
+\section{Character of Internet traffic temporal dynamism}
+
+\section{Description of traffic burstiness}
+
+\section{Moving average: simple but good enough}
