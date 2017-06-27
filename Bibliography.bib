@@ -624,4 +624,168 @@ year = {2011}
   publisher={NIH Public Access}
 }
 
+@book{nmap,
+ author = {Lyon, Gordon Fyodor},
+ title = {Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning},
+ year = {2009},
+ isbn = {0979958717, 9780979958717},
+ publisher = {Insecure},
+ address = {USA}
+} 
 
+@article{Poese2011,
+abstract = {The most widely used technique for IP geolocation consists in building a database to keep the mapping between IP blocks and a geographic location. Several databases are available and are frequently used by many services and web sites in the Internet. Contrary to widespread belief, geolocation databases are far from being as reliable as they claim. In this paper, we conduct a comparison of several current geolocation databases -both commercial and free- to have an insight of the limitations in their usability. First, the vast majority of entries in the databases refer only to a few popular countries (e.g., U.S.). This creates an imbalance in the representation of countries across the IP blocks of the databases. Second, these entries do not reflect the original allocation of IP blocks, nor BGP announcements. In addition, we quantify the accuracy of geolocation databases on a large European ISP based on ground truth information. This is the first study using a ground truth showing that the overly fine granularity of database entries makes their accuracy worse, not better. Geolocation databases can claim country-level accuracy, but certainly not city-level.},
+author = {Poese, Ingmar and Uhlig, Steve and Kaafar, Mohamed Ali and Donnet, Benoit and Gueye, Bamba},
+doi = {10.1145/1971162.1971171},
+file = {:Users/wenqin/Documents/reference base/ACM SIGCOMM Computer Communication Review/2011/Poese et al. - IP geolocation databases - 2011.pdf:pdf},
+isbn = {0146-4833 (ISSN)},
+issn = {01464833},
+journal = {ACM SIGCOMM Computer Communication Review},
+keywords = {accuracy,reliability},
+mendeley-groups = {Measurement and Analysis/Topology,Measurement and Analysis/geoloc},
+number = {2},
+pages = {53},
+title = {{IP geolocation databases}},
+volume = {41},
+year = {2011}
+}
+
+@article{Muhlbauer2006,
+abstract = {An understanding of the topological structure of the Internet is needed for quite a number of networking tasks, e. g., making decisions about peering relationships, choice of upstream providers, inter-domain traffic engineering. One essential component of these tasks is the ability to predict routes in the Internet. However, the Internet is composed of a large number of independent autonomous systems (ASes) resulting in complex interactions, and until now no model of the Internet has succeeded in producing predictions of acceptable accuracy.We demonstrate that there are two limitations of prior models: (i) they have all assumed that an Autonomous System (AS) is an atomic structure - it is not, and (ii) models have tended to oversimplify the relationships between ASes. Our approach uses multiple quasi-routers to capture route diversity within the ASes, and is deliberately agnostic regarding the types of relationships between ASes. The resulting model ensures that its routing is consistent with the observed routes. Exploiting a large number of observation points, we show that our model provides accurate predictions for unobserved routes, a first step towards developing structural mod-els of the Internet that enable real applications.},
+author = {M{\"{u}}hlbauer, Wolfgang and Feldmann, Anja and Maennel, Olaf and Roughan, Matthew and Uhlig, Steve},
+doi = {10.1145/1151659.1159937},
+file = {:Users/wenqin/Documents/reference base/ACM SIGCOMM Computer Communication Review/2006/M{\"{u}}hlbauer et al. - Building an AS-topology model that captures route diversity - 2006.pdf:pdf},
+isbn = {1595933085},
+issn = {01464833},
+journal = {ACM SIGCOMM Computer Communication Review},
+keywords = {bgp,inter-domain routing,route diversity,routing},
+mendeley-groups = {Measurement and Analysis/Topology},
+number = {4},
+pages = {195},
+title = {{Building an AS-topology model that captures route diversity}},
+volume = {36},
+year = {2006}
+}
+
+@article{Lee2016,
+author = {Lee, Youndo and Spring, Neil},
+doi = {10.1145/2987443.2987448},
+file = {:Users/wenqin/Documents/reference base/Unknown/2016/Lee, Spring - Identifying and Aggregating Homogeneous IPv4 24 Blocks with Hobbit - 2016.pdf:pdf},
+isbn = {9781450345262},
+keywords = {24 block,ipv4,last-hop router,topological proximity},
+mendeley-groups = {Measurement and Analysis,Measurement and Analysis/Topology},
+pages = {151--165},
+title = {{Identifying and Aggregating Homogeneous IPv4 / 24 Blocks with Hobbit}},
+year = {2016}
+}
+
+@article{LoPresti2002,
+abstract = {Robust measurements of network dynamics are increasingly important to the design and operation of large internetworks like the Internet. However, administrative diversity makes it impractical to monitor every link on an end-to-end path. At the same time, it is difficult to determine the performance characteristics of individual links from end-to-end measurements of unicast traffic. In this paper, we introduce the use of end-to-end measurements of multicast traffic to infer network-internal characteristics. The bandwidth efficiency of multicast traffic makes it suitable for large-scale measurements of both end-to-end and internal network dynamics. We develop a maximum-likelihood estimator for loss rates on internal links based on losses observed by multicast receivers. It exploits the inherent correlation between such observations to infer the performance of paths between branch points in the tree spanning a multicast source and its receivers. We derive its rate of convergence as the number of measurements increases, and we establish robustness with respect to certain generalizations of the underlying model. We validate these techniques through simulation and discuss possible extensions and applications of this work.},
+author = {{Lo Presti}, Francesco and Duffield, N. G. and Horowitz, Joe and Towsley, Don},
+doi = {10.1109/TNET.2002.805026},
+file = {:Users/wenqin/Documents/reference base/IEEEACM Transactions on Networking/2002/Lo Presti et al. - Multicast-based inference of network-internal delay distributions - 2002.pdf:pdf},
+issn = {10636692},
+journal = {IEEE/ACM Transactions on Networking},
+keywords = {End-to-end measurements,Estimation theory,Multicast tree,Network tomography,Queueing delay},
+mendeley-groups = {Measurement and Analysis,Network tomography},
+number = {6},
+pages = {761--775},
+title = {{Multicast-based inference of network-internal delay distributions}},
+volume = {10},
+year = {2002}
+}
+
+@article{Shih2003,
+abstract = {Providers of high quality-of-service over telecommunication networks require accurate methods for remote measurement of link-level performance. Recent research in network tomography has demonstrated that it is possible to estimate internal link characteristics, e.g., link delays and packet losses, using unicast probing schemes in which probes are exchanged between several pairs of sites in the network. We present a new method for estimation of internal link delay distributions using the end-to-end packet pair delay statistics gathered by back-to-back packet-pair unicast probes. Our method is based on a variant of the penalized maximum likelihood expectation-maximization (PML-EM) algorithm applied to an additive finite mixture model for the link delay probability density functions. The mixture model incorporates a combination of discrete and continuous components, and we use a minimum message length (MML) penalty for selection of model order. We present results of Matlab and ns-2 simulations to illustrate the promise of our network tomography algorithm for light cross-traffic scenarios.},
+author = {Shih, Meng Fu and Hero, Alfred O.},
+doi = {10.1109/TSP.2003.814468},
+file = {:Users/wenqin/Documents/reference base/IEEE Transactions on Signal Processing/2003/Shih, Hero - Unicast-based inference of network link delay distributions with finite mixture models - 2003.pdf:pdf},
+isbn = {0780374029},
+issn = {1053587X},
+journal = {IEEE Transactions on Signal Processing},
+keywords = {EM algorithm,MML penalties,Mixture models,Network tomography,Signal processing in networking},
+mendeley-groups = {Measurement and Analysis,Network tomography},
+number = {8},
+pages = {2219--2228},
+title = {{Unicast-based inference of network link delay distributions with finite mixture models}},
+volume = {51},
+year = {2003}
+}
+@article{Tsang2003,
+abstract = {The substantial overhead of performing internal network monitoring motivates techniques for inferring spatially localized information about performance using only end-to-end measurements. In this paper, we present a novel methodology for inferring the queuing delay distributions across internal links in the network based solely on unicast, end-to-end measurements. The major contributions are: 1) we formulate a measurement procedure for estimation and localization of delay distribution based on end-to-end packet pairs; 2) we develop a simple way to compute maximum likelihood estimates (MLEs) using the expectation-maximization (EM) algorithm; 3) we develop a new estimation methodology based on recently proposed nonparametric, wavelet-based density estimation method; and 4) we optimize the computational complexity of the EM algorithm by developing a new fast Fourier transform implementation. Realistic network simulations are carried out using network-level simulator ns-2 to demonstrate the accuracy of the estimation procedure.},
+author = {Tsang, Yolanda and Coates, Mark and Nowak, Robert D.},
+doi = {10.1109/TSP.2003.814520},
+file = {:Users/wenqin/Documents/reference base/IEEE Transactions on Signal Processing/2003/Tsang, Coates, Nowak - Network delay tomography - 2003.pdf:pdf},
+issn = {1053587X},
+journal = {IEEE Transactions on Signal Processing},
+keywords = {Computer network performance,Delay estimation,Internet,Tomography},
+mendeley-groups = {Network tomography},
+number = {8},
+pages = {2125--2136},
+title = {{Network delay tomography}},
+volume = {51},
+year = {2003}
+}
+
+@article{Lawrence2006,
+abstract = {During the last two decades, many areas of statistical inference have experienced phenomenal growth. This book presents a timely analysis and overview of some of these new developments and a contemporary outlook on the various frontiers of statistics. Eminent leaders in the field have contributed 16 review articles and 6 research articles covering areas including semi-parametric models, data analytical nonparametric methods, statistical learning, network tomography, longitudinal data analysis, financial econometrics, time series, bootstrap and other re-sampling methodologies, statistical computing, generalized nonlinear regression and mixed effects models, martingale transform tests for model diagnostics, robust multivariate analysis, single index models and wavelets. This volume is dedicated to Prof. Peter J Bickel in honor of his 65th birthday. The first article of this volume summarizes some of Prof. Bickel's distinguished contributions.},
+author = {Lawrence, Earl and Michailidis, George and Nair, Vijayan N. and Xi, Bowei},
+doi = {10.1142/9781860948886_0016},
+file = {:Users/wenqin/Documents/reference base/Frontiers in Statistics/2006/Lawrence et al. - Network Tomography A Review and Recent Developments - 2006.pdf:pdf},
+isbn = {9781860948886},
+journal = {Frontiers in Statistics},
+mendeley-groups = {Measurement and Analysis,Network tomography},
+pages = {345--366},
+title = {{Network Tomography: A Review and Recent Developments}},
+url = {http://www.worldscientific.com/doi/abs/10.1142/9781860948886{\_}0016},
+year = {2006}
+}
+
+@article{Liang2003,
+abstract = { Network monitoring and diagnosis are key to improving network performance. The difficulties of performance monitoring lie in today's fast growing Internet, accompanied by increasingly heterogeneous and unregulated structures. Moreover, these tasks become even harder since one cannot rely on the collaboration of individual routers and servers to measure network traffic directly. Even though the aggregative nature of possible network measurements gives rise to inverse problems, existing methods for solving inverse problems are usually computationally intractable or statistically inefficient. A pseudo likelihood approach is proposed to solve a group of network tomography problems. The basic idea of pseudo likelihood is to form simple subproblems and ignore the dependences among the subproblems to form a product likelihood of the subproblems. As a result, this approach keeps a good balance between the computational complexity and the statistical efficiency of the parameter estimation. Some statistical properties of the pseudo likelihood estimator, such as consistency and asymptotic normality, are established. A pseudo expectation-maximization (EM) algorithm is developed to maximize the pseudo log-likelihood function. Two examples, with simulated or real data, are used to illustrate the pseudo likelihood proposal: 1) inference of the internal link delay distributions through multicast end-to-end measurements; 2) origin-destination matrix estimation through link traffic counts.},
+author = {Liang, Gang and Yu, Bin},
+doi = {10.1109/TSP.2003.814464},
+file = {:Users/wenqin/Documents/reference base/IEEE Transactions on Signal Processing/2003/Liang, Yu - Maximum pseudo likelihood estimation in network tomography - 2003.pdf:pdf},
+isbn = {0-7803-7752-4},
+issn = {1053587X},
+journal = {IEEE Transactions on Signal Processing},
+keywords = {End-to-end measurement,Multicast tree,Network tomography,Origin-destination matrix,Pseudo likelihood},
+mendeley-groups = {Measurement and Analysis,Network tomography},
+number = {8},
+pages = {2043--2053},
+title = {{Maximum pseudo likelihood estimation in network tomography}},
+volume = {51},
+year = {2003}
+}
+
+@article{Coates2002,
+abstract = {Today's Internet is a massive, distributed network which continues to explode in size as e-commerce and related activities grow. The heterogeneous and largely unregulated structure of the Internet renders tasks such as dynamic routing, optimized service provision, service-level verification, and detection of anomalous/malicious behavior increasingly challenging tasks. The problem is compounded by the fact that one cannot rely on the cooperation of individual servers and routers to aid in the collection of network traffic measurements vital for these tasks. In many ways, network monitoring and inference problems bear a strong resemblance to other "inverse problems" in which key aspects of a system are not directly observable. Familiar signal processing problems such as tomographic image reconstruction, system identification, and array processing all have interesting interpretations in the networking context. This article introduces the new field of network tomography, a field which we believe will benefit greatly from the wealth of signal processing theory and algorithms.},
+author = {Coates, Mark and Hero, Alfred O. and Nowak, Robert and Yu, Bin},
+doi = {10.1109/79.998081},
+file = {:Users/wenqin/Documents/reference base/IEEE Signal Processing Magazine/2002/Coates et al. - Internet tomography - 2002.pdf:pdf},
+isbn = {1053-5888},
+issn = {10535888},
+journal = {IEEE Signal Processing Magazine},
+mendeley-groups = {Measurement and Analysis/Delay/pathology,Network tomography},
+number = {3},
+pages = {47--65},
+title = {{Internet tomography}},
+volume = {19},
+year = {2002}
+}
+
+@article{Coates2002a,
+abstract = {On-line, spatially localized information about internal network performance can greatly assist dynamic routing algorithms and traffic transmission protocols. However, it is imprac- tical to measure network traffic at all points in the network. A promising alternative is to measure only at the edge of the network and infer internal behavior from these measure- ments. In this paper we concentrate on the estimation and localization of internal delays based on end-to-end delay measurements from a source to receivers. We propose a sequen- tial Monte Carlo (SMC) procedure capable of tracking nonstationary network behavior and estimating time-varying, internal delay characteristics. Simulation experiments demonstrate the performance of the SMC approach.},
+author = {Coates, Mark J. and Nowak, Robert D.},
+doi = {10.1109/78.978391},
+file = {:Users/wenqin/Documents/reference base/IEEE Transactions on Signal Processing/2002/Coates, Nowak - Sequential Monte Carlo inference of internal delays in nonstationary data networks - 2002.pdf:pdf},
+issn = {1053587X},
+journal = {IEEE Transactions on Signal Processing},
+keywords = {Network tomography,Sequential Monte Carlo},
+mendeley-groups = {Measurement and Analysis,Network tomography},
+number = {2},
+pages = {366--376},
+title = {{Sequential Monte Carlo inference of internal delays in nonstationary data networks}},
+volume = {50},
+year = {2002}
+}
