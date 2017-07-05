@@ -93,7 +93,12 @@ It is first conceived for intradomain uses and are in most cases validated solel
 
 \section{RTT change cause inference}
 \label{sec:inference}
-In this section, we describe the inputs and output of the RTT change cause inference functionality, as well as its internal buildings blocks. The assumptions to initiate the inference are presented in a more formal way, along with..(complete this part later)
+In this section, we describe the input and output of the RTT change cause inference functionality, as well as its internal buildings blocks. 
+Two assumptions to initiate the inference are formulated and justified.
+We carefully explain our choice of performing inference on AS-level topology, bearing in mind that the true cause of RTT changes could come from sub-AS level structure, like \ac{PoP}.
+In order to cope with the discrepancy between inference granularity and true cause scope, we introduce two quantitative heuristics for node and link liability judgment.
+Finally, the inference logic is developed based solely on the introduced assumptions for links nodes and links under all possible topology layouts.
+
 \subsection{The big picture}
 
 \begin{figure}[!htb]
@@ -122,6 +127,7 @@ Spatial and temporal granularity deal with the inference precision in space and 
 We state and justify the our choice in this section. Multiple aspects are taken into consideration, including data collection cost, its marginal utility in TE, the necessity and feasibility of achieving high time resolution.
 
 \subsubsection{Spatial granularity}
+\label{sec:chap5_spatial}
 Spatial granularity defines the finest element to which an RTT change cause can be attributed to.
 It basically depends on the the granularity of the path and topology graph. 
 It is obvious that we can construct the AS-level topology with AS paths from BGP table.
@@ -170,7 +176,7 @@ Several methods are possible to address this issue.
 The time bins/windows themselves can be regards as the moments when shared RTT changes happen. Therefore the temporal granularity would be equivalent to the bin size for bucketing by non-overlapping time bins. If by sliding window, the step size decides the time resolution.
 
 The bin/window size should be the time range that tolerates the time shift for one shared RTT change. With that, the normalized event count per bin can be interpreted as the percentage of event sequences/streams that undergo the shared RTT change at that time bin/window. 
-10 min is a reasonable value, given that the RTT change detection tolerance window in Section~\ref{sec:cpt_rtt} is 8 min corresponding to two measurement intervals of RIPE Atlas built-in ping measurement.
+10 min is a reasonable value, given that 1) the RTT change detection tolerance window in Section~\ref{sec:cpt_rtt} is 8 min corresponding to two measurement intervals of RIPE Atlas built-in ping measurement; 2) a shortest RTT segment spans over 3 ping measurements.
 In terms of sliding step, one can choose from 1 sec, the time resolution of measurement timestamps, up to 10 min which degenerates the sliding window to non-overlapping time bins. It's a trade-off between time resolution and calculation complexity.
 
 How to choose? As a matter of fact, bucketing by sliding window can be regarded as an discrete approximating to density estimation with special kernel function (1 within the window, 0 outside). Event count at each time step is just an intermediate result, as one has to to search for local maximums to pinpoint the moments of potential shared RTT change.
@@ -181,37 +187,246 @@ Given the above, we settled on bucketing by non-overlapping time bins. The resul
 \subsection{Assumptions}
 In order to kick-off the inference, we made two assumptions.
 
-\paragraph{1: Common parts cause the shared event.} This assumption briefly mentioned before states that if measurements over multiple paths experience a shared RTT change, it is more likely that the common parts of these measurement path are the cause. It is not necessary true all the time, but just more likely. We use this assumption to design special sets of measurements (inference metric) for each node and link in topology graphs to test their liability at each time bin for RTT change events.
+\begin{assumption}{1}{common parts}\label{as:1}
+If measurements over multiple paths experience a shared RTT change, it is more likely that the common parts of these measurement path are the cause.
+\end{assumption}
+It is not necessary true all the time, but is more likely than having multiple scattered parts of Internet simultaneously cause a significant change on intersecting paths. We use this assumption to design special sets of measurements (inference metric) for each node and link in topology graphs to test their liability at each 10min time bin for RTT change events.
 
-\paragraph{2: Single cause for an event.} Either for a standalone RTT change on one measurement, or for a shared event among multiple paths, there shall be no more then one causes for it. It is reasonable with AS-level topology, though don't necessary to be always true. With this assumption, we are able to distinct the contributions of node, links and neighbouring links to an RTT change event.
+\begin{assumption}{2}{single cause}\label{as:2}
+Either for a standalone RTT change on one measurement, or for a shared event across multiple paths, there shall be no more then one causes for it.
+\end{assumption}
+It is a reasonable assumption under AS-level topology for 10 min time bins, though don't necessary to be always true. With this assumption, we are able to distinct the contributions of node, links and neighbouring links to an RTT change event.
 
 \subsection{Inference metric and logic}
 \subsubsection{Node}
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=.9\textwidth]{gfx/chap5/dms.pdf}
-\caption{Example of \acf{DMS}.}
+\includegraphics[width=1\textwidth]{gfx/chap5/dms.pdf}
+\caption{Example of \acf{DM} set for AS0.}
 \label{fig:chap5_dms}
 \end{figure}
 
-To exclusive verify whether a node (AS) is be the cause for shared RTT changes, we define for each node measurement sets satisfying following criteria \acf{DMS}:
-\begin{itemize}
-\item All the measurements pass the node in question;
-\item Between any pair of measurement in the set, the only common part is the node in question.
-\end{itemize}
-For AS0 in Fig.~\ref{fig:chap5_dms}, it has three DMS. Each covered four divergent links and ASes other than AS0 itself. If multiple measurements within any of these DMS experience same RTT change at a certain moment, we can exclusively infer that AS0 is the cause according to the 1st assumption.
+To verify whether a node (AS) $n$ is the exclusive cause for shared RTT changes, we
+design for it measurement sets (inference metric), within in which the only common element is the node itself. If a majority measurements in such set experience at the same time an RTT change, we can then pinpoint it to the node under investigation, according to Assumption~\ref{as:1}.
 
-More formally, we infer that a node $n$  is the cause for shared RTT change at time bin $t$ if there exists one DMS $D$ that:
-\begin{itemize}
-\item $|D| >= 2$;
-\item and RTT change event count for $D$ at $t$, $count(D, t)$, is larger than half of the node degree $degree(n)$.
-\end{itemize}
-These requires ensures a majority of measurements in $D$ experience RTT change at $t$ and there are multiple of them.
+More formally, we describe a measurement $m$ by a set of nodes it traverses: $m:\{n1, n2,..\}$. 
+If two measurements $m1, m2$, satisfy $m1 \cap m2 = \{n\}$, we call them \acf{DM} of $n$.
+A $DM$ set of $n$, called $D$, shall have at least two measurements. It contains measurements that are divergent with each other (except for node $n$), i.e. $\forall m1, m2 \in D, m1 \cap m2 = \{n\}$.
+For example, AS0 in Fig.~\ref{fig:chap5_dms} has three \acp{DM} sets. Each covers four divergent links adjacent to AS0.
 
-Why not all links
-Why not just 2
+\begin{heuristic}{Node}{majority adjacent links}\label{hu:node}
+If there exists one \ac{DM} set $D$ of node $n$ satisfying $count(D, t) > 0.5 \times degree(n)$,  node $n$ is then the cause for shared RTT change at time bin $t$. 
+\end{heuristic}
+In other words, it requires a majority of adjacent links of node $n$ (measured in a non-overlapping manner) experience RTT change within a certain 10min time bin. This heuristic/criterion is a compromise of following two extreme cases.
 
+\paragraph{The lower bar} According to Assumption~\ref{as:1} attributing cause to the common part of the paths, it suffices to have only two measurements solely intersecting at $n$ (makes the two measuremens \ac{DM}) and covering only two adjacent edges to $n$, to judge $n$ liable for the synchronized the RTT change witnessed by the two measurements. This could happen by chance for a high degree node (AS) with some bad quality links.
+
+\paragraph{The higher bar} If we regard node $n$ as an atomic point, and it causes an RTT change, then measurements following through all of its adjacent edges should be impacted. One thus should expect to find a \ac{DM} set $D$ at time bin $t$ satisfying $count(D, t) = degree(n)$. Such a strict criterion is somehow not realistic from two aspects. First, a node (AS) is not an atomic point. A real issue could be only PoP-wide instead of AS-wide, as showcased in Section~\ref{sec:chap5_spatial}, where only a fraction of links would be impact. Second, due to topology constraints not all the adjacent edges of node $n$ can be covered by any single \ac{DM} set, for example AS0 in Fig.~\ref{fig:chap5_dms}.
+
+Heuristic~\ref{hu:node} is not perfect. It might still give rise to both false positive and false negative inference results. Hopefully, false positive more likely occurs to low degree nodes, for which the heuristic requirement is relatively easier to meet. Meantime, high degree nodes are prone to false negative inference. However, these RTT change events are not ignored, as they will reflect on some of the adjacent links to concerned nodes, and shall eventually be captured in link inference. When having multiple adjacent links of a node inferred as cause of RTT change within a 10 min bin, Assumption~\ref{as:2} is broken. We then know the real issue could possible be on the intersecting node according to Assumption~\ref{as:1}.
 
 \subsection{Link}
 
-\section{Case studies}
+\subsubsection{Early exemption}
+After cause inference for each node, we can exclude all the links with any of its two nodes inferred as cause from further investigation, according to Assumption~\ref{as:2}.
+
+Afterwards, if a link causes indeed an RTT change, we shall expect a majority of measurements traversing that link to experience simultaneously (within in a same time bin) RTT change, which is a necessary but not a sufficient condition for link liability. In other words, violating this condition, the link can be exempted from cause for RTT change.
+More formally, we define the ensemble of measurements that traverse link $l$ as the \acf{FM} set of link $l$, denoted as $FMS(l)$. 
+
+\begin{heuristic}{Link}{majority of \ac{FM} set}\label{hu:link}
+Link $l$ is exempted from further cause inference at time bin $t$, if $Nc(FMS(l), t) = \frac{count(FMS(l), t)}{|FMS(l)|} \leq 0.5$, where $Nc$ stands for normalized event count.
+\end{heuristic}
+
+In plain language, if no greater than half of the measurements passing through link $l$ experience an RTT change at time bin $t$, link $l$ is deemed not likely to be the cause. 
+Ideally, all the measurements in \ac{FM} set shall be impacted if the link is the cause. However, due to imperfection of RTT change detection and sub-AS level structure, e.g multiple separate links between two ASes, requiring the totality of \ac{FM} set would be way too strict. That is why we lower the bar to half of the measurements and widen the scope for further investigation, in order to mitigate potential false negative, of course, at the cost of more false positive that is less unwanted.
+
+\subsubsection{Case by case inference}
+For remaining links after early exemption, their liability depends on both adjacent and non-adjacent links. Imagine an incident happens at the core of the Internet or at one large IXP, a wide range of measurements traversing peripheral links, from right next the cause till the edge of the Internet, can be potentially impacted. Yet these peripheral links are not responsible for the RTT change. 
+To traceback the true cause of change, different criteria are needed for links in different topological positions.
+
+To facilitate the discussion, we denote the two nodes of link $l$ as $n1_l$ and $n2_l$.
+Following definitions apply to both nodes.
+We define the \acf{EXT} at node $n1_l$ as adjacent links (at $n1_l$) whose \ac{FM} set has non-empty intersection with $FMS(l)$.
+The ensemble of \ac{EXT} at node $n1_l$ is denoted as $EXT(n1_l, l)$.
+We then refer to a link $el \in EXT(n1_1, l)$ as an \acf{iEXT} of $l$ at time bin $t$, if $Nc(FMS(el) \cap FMS(l), t) > 0.5$ following the Heuristic~\ref{hu:link}.
+The number of \acp{iEXT} in $EXT(n1_1, l)$ at time bin $t$ is denoted as $\langle EXT(n1_l, l), t \rangle$. 
+
+
+\paragraph{Two open ends} \textbf{if} $|EXT(n_1, l)| >1$ and $|EXT(n_2, l)| > 1$.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.9\textwidth]{gfx/chap5/two_open_ends.pdf}
+\caption{Illustration of link $l$ with two open ends.}
+\label{fig:chap5_two_open_ends}
+\end{figure}
+
+This is the case where link $l$ has multiple extension links at both ends, as shown in Fig.~\ref{fig:chap5_two_open_ends}. 
+If at both ends/nodes, there are more than one \ac{iEXT}, link $l$ as the only common part besides its two nodes (previously not judged liable) can be inferred as the cause of the RTT changes experienced by $l$ itself and all its \acp{iEXT}, according to Assumption~\ref{as:1}.
+Otherwise, we don't have enough evidence to do so. Here below the inference logic in pseudo code.
+
+\begin{algorithmic}
+\If {$\langle EXT(n1_l, l), t \rangle > 1$ and $\langle EXT(n2_l, l), t \rangle > 1$}
+\State $l$ is the cause for RTT change at $t$ \Comment{Assumption~\ref{as:1}}
+\Else
+\State $l$ is NOT the cause
+\EndIf
+\end{algorithmic}
+
+
+\paragraph{Fork shape} \textbf{else if} $|EXT(n_1, l)| = 1$ and  $|EXT(n_2, l)| > 1$.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.9\textwidth]{gfx/chap5/fork_shape.pdf}
+\caption{Illustration of link $l$ in fork shape topology.}
+\label{fig:chap5_fork_shape}
+\end{figure}
+
+This is the case where link $l$ has one \ac{EXT} at one end, and multiple at the other end, as the link $l$ in Fig.~\ref{fig:chap5_fork_shape}. If the end with multiple \acp{EXT} doesn't have multiple \acp{iEXT} at a given moment, there is just no enough evidence to judge the link responsible for the RTT changes. Otherwise, the liability lies on the link $l$ and its single \ac{EXT} at the other end, since they are the common parts of multiple measurement under RTT change, according to Assumption~\ref{as:1}.
+
+If the single \ac{EXT} is inferred as cause, we then know that link $l$ can not be the cause at the same moment, according to Assumption~\ref{as:2}. If we don't have enough evidence to attribute the cause to the single \ac{EXT}, we are actually not sure whether link $l$ is the cause. It is because, the true cause can be up in the further upstream of the single \ac{EXT}. In order to avoid passing inference results of all the upstream links to the single \ac{EXT} through stacks of recursive inference call, we flag $l$ as a \textsc{likely} cause.
+If no other established cause of RTT change sit on the paths traversed by $FMS(l)$ at time bin $t$, then link $l$ is the cause. Otherwise, according to Assumption~\ref{as:2}, link $l$ is judged free of responsibility.
+
+It is possible that link $l$ and its single \ac{EXT} run into loop of inference dependence. That is when the inference result of $l$'s single \ac{EXT} depends as well on $l$. The presence of loop indicates that the current measurements are not enough to disentangle $l$ and its single \ac{EXT}. Therefore, both links are deemed to be \textsc{likely} the cause.
+
+Here below the inference logic in pseudo code for link under fork shape topology, assuming $|EXT(n1_1,l)| = 1$. The other case with $|EXT(n2_1,l)| = 1$ and $|EXT(n1_1,l)| > 1$ is symmetric, thus not repeated.
+
+\begin{algorithmic}
+\If {$\langle EXT(n2_l, l), t \rangle > 1$} \Comment{the case where $|EXT(n1_1,l)| = 1$}
+	\If{$EXT(n1_l, l)$ can be early exempted}
+		\State $l$ is LIKELY the cause at $t$ \Comment{True cause can still be elsewhere}
+	\Else \Comment{now it depends on inference result of the only link in $EXT(n1_l, l)$}
+		\If {dependence loop between $l$ and $EXT(n1_l, l)$}
+			\State $l$ is LIKELY the cause \Comment{unable to disentangle $l$ and $EXT(n1_l, l)$}
+		\Else
+			\If {$EXT(n1_l, l)$ is the cause} 
+				\State $l$ is NOT the cause \Comment{Assumption~\ref{as:2}}
+			\Else
+				\State $l$ is LIKELY the cause \Comment{True cause can still be elsewhere}
+			\EndIf
+		\EndIf
+	\EndIf
+\Else
+	\State $l$ is NOT the cause
+\EndIf
+\end{algorithmic}
+
+\paragraph{Noodle} \textbf{else if} $|EXT(n2_1,l)| = 1$ and $|EXT(n1_1,l)| = 1$.
+
+This is the case where there is only one \ac{EXT} at both ends of the link, thus the topology is noodle like.
+Similar to inference under fork shape topology, in this case the result depends on both \acp{EXT} and can run in to dependence loop. Here below the inference logic in pseudo code.
+
+\begin{algorithmic}
+\If {both $EXT(n2_1,l)$ and $EXT(n1_1,l)$ can be early exempted}
+	\State $l$ is LIKELY the cause at $t$ \Comment{True cause can still be elsewhere}
+\Else \Comment{it depends on inference result of $EXT(n2_1,l)$ and $EXT(n1_1,l)$}
+	\If {dependence loop between $l$ and $EXT(n1_l, l)$} \Comment{now depends on $EXT(n2_1,l)$}
+		\If {$EXT(n_2, l)$ is the cause}
+			\State $l$ is NOT the cause \Comment{Assumption~\ref{as:2}}
+		\Else
+			\State $l$ is LIKELY the cause \Comment{unable to disentangle $l$ and $EXT(n1_l, l)$}
+		\EndIf
+	\ElsIf {dependence loop between $l$ and $EXT(n2_l, l)$} \Comment{symmetric case of the previous \textbf{if} clause}
+		\If {$EXT(n1_l, l)$ is the cause}
+			\State $l$ is NOT the cause \Comment{Assumption~\ref{as:2}}
+		\Else
+			\State $l$ is LIKELY the cause \Comment{unable to disentangle $l$ and $EXT(n2_l, l)$}
+		\EndIf
+	\Else \Comment{no dependence loop}
+		\If {$EXT(n1_l, l)$ or $EXT(n2_l, l)$ is the cause}
+			\State $l$ is NOT the cause \Comment{Assumption~\ref{as:2}}
+		\Else
+			\State $l$ is LIKELY the cause \Comment{True cause can still be elsewhere}
+		\EndIf
+	\EndIf
+\EndIf
+\end{algorithmic}
+
+\paragraph{Two closed end} \textbf{else if} $|EXT(n2_1,l)| = 0$ and $|EXT(n1_1,l)| = 0$.
+
+This case doesn't necessary mean link $l$ is disconnected from the rest of topology, but rather all the measurements in $FMS(l)$ are within the two nodes of $l$. According to Assumption~\ref{as:1}, $l$ as common part of $FMS(l)$ is thus the cause of the RTT changes experienced by measurements in $FMS(l)$.
+
+
+\paragraph{Closed end fork} \textbf{else if } $|EXT(n1_1,l)| = 0$ and $|EXT(n2_1,l)| > 1$.
+This is a simplified case of fork shape illustrated in Fig.~\ref{fig:chap5_fork_shape}.
+With one end completely closed, we are free of inference dependency on other links.
+Here below the inference logic in pseudo code. The case with $|EXT(n1_2,l)| = 0$ and $|EXT(n1_1,l)| > 1$ is symmetric to the case under discussion, thus not repeated.
+
+\begin{algorithmic}
+\If {$\langle EXT(n2_l, l), t \rangle > 1$}
+	\State $l$ is the cause for RTT change at $t$ \Comment{Assumption~\ref{as:1}}
+\Else
+	\State $l$ is NOT the cause
+\EndIf
+\end{algorithmic}
+
+\paragraph{Closed end noodle} \textbf{else if } $|EXT(n1_1,l)| = 0$ and $|EXT(n2_1,l)| = 1$.
+
+This case is a simplified version of noodle topology, where inference dependence can only happen at one end.
+Again symmetric case, $|EXT(n2_1,l)| = 0$ and $|EXT(n1_1,l)| = 1$, will no longer be repeated.
+
+\begin{algorithmic}
+\If {$EXT(n2_1,l)$ can be early exempted}
+	\State $l$ is LIKELY the cause at $t$ \Comment{True cause can still be elsewhere}
+\Else \Comment{it depends on inference result of $EXT(n2_1,l)$}
+	\If {dependence loop between $l$ and $EXT(n2_l, l)$}
+		\State $l$ is LIKELY the cause \Comment{unable to disentangle $l$ and $EXT(n2_l, l)$}
+	\Else
+		\If {$EXT(n1_l, l)$ is the cause}
+			\State $l$ is NOT the cause \Comment{Assumption~\ref{as:2}}
+		\Else
+			\State $l$ is LIKELY the cause \Comment{True cause can still be elsewhere}
+		\EndIf
+	\EndIf
+\EndIf
+\end{algorithmic}
+
+Till now, we have discussed all possibilities of the $FMS(l)$ topology layout. We only infer $l$ as causes under Assumption~\ref{as:1}. Link $l$ can as well be exempted from liability using Assumption~\ref{as:2}, or Assumption~\ref{as:1} can not be met when topology actually allows (fork and one closed end fork topology). For rest cases, when the available measurements does not allow to pinpoint one single link with Assumption~\ref{as:1}, a \textsc{likely} cause flag is attributed.
+
+\section{Case study}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=1\textwidth]{gfx/chap5/case_event_count.png}
+\caption{Normalized event count view of the visual inspection tool.}
+\label{fig:case_event_count}
+\end{figure}
+
+We implemented an interactive visualization tool to inspect the normalized event count and inference result of each link on the AS-level topology revealed by RIPE Atlas traceroute measurements.
+Fig.~\ref{fig:case_event_count} is a snapshot of the tool under normalized event count view.
+Each circle in the figure represents an AS or IXP learnt from traceroute measurements. Violet ones host RIPE Atlas probe, orange ones are IXP, while green ones are transit ASes. More \ac{FM} a link has, thicker the corresponding line is. At a given 10 min time bin, larger the normalized change event count is, deeper the red color covers the link.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=1\textwidth]{gfx/chap5/case_multi_rtt.png}
+\caption{\ac{FM} RTT measurements of link (France-IX, Hurricane).}
+\label{fig:case_multi_rtt}
+\end{figure}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=1\textwidth]{gfx/chap5/case_infer_res.png}
+\caption{Inference view of the visual inspection tool.}
+\label{fig:case_infer_res}
+\end{figure}
+
+In Fig.~\ref{fig:case_event_count}, from 2016-12-01 08:40 to 08:50 UTC time, almost all the measurements (72 out of 76) traversing the link between France-IX and Hurricane (AS6939) experienced significant RTT changes.
+The time series of these RTT measurements are given in Fig.~\ref{fig:case_multi_rtt}, visualized with another tool we developed for the inspection of multiple time-series, \url{https://github.com/WenqinSHAO/rtt_visual_multi.git}. Many \acp{EXT} of (France-IX, Hurricane) are as well coated in deep red, sign of commonly shared RTT changes on these links. As all the measurements are toward one single destination DNS b-root, 
+(France-IX, Hurricane) fit in the case of fork shape topology, with it's Hurricane end having only one single \ac{EXT}. As expected, the proposed inference logic inferred (France-IX, Hurricane) as the single cause for this massively spanned RTT change accoridng to Fig.~\ref{fig:case_infer_res}. In the figure, links inferred as cause are colored in deep violet, while orange is for \textsc{likely} causes, green for links free of liability during the time bin.
+
+As a matter of fact, node France-IX may as well be the cause, given that all its adjacent links have a near to 1 normalized event count at that moment. However, the topology, formed by all the measurements passing through it, doesn't even allow a \ac{DM} set cover half of its adjacent link so as to satisfy Heuristic~\ref{hu:node}, since all these measurements converges on (France-IX, Hurricane).
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.8\textwidth]{gfx/chap5/case_pop_issue.png}
+\caption{Violation of Assumption~\ref{as:2}, a probable PoP-level issue under inference view at 2016-12-01 11:10 UTC time.}
+\label{fig:case_pop_issue}
+\end{figure}
+
+Fig.~\ref{fig:case_pop_issue} offers a probable PoP-level issue. The node surrounded by multiple violet links is 
+Géant (AS21320). 
+Similar to Franc-IX, it is not possible to find a \ac{DM} set that covers enough of its adjacent links to make it liable. Moreover, the number of these violet links doesn't surpass half of the node degree as required by Heuristic~\ref{hu:node}. The node is thus not judged liable for the shared RTT changes. 
+However, link (Géant, Internet2-AS11537) is neither the cause of RTT change, since its normalized event count is only around 0.3, far below 0.5 required by Heuristic~\ref{hu:link}, thus judged clean in early exemption.
+Since there is not further suspects of cause along the path toward the destination, Géant is the only possible location where the shared RTT change could originate according to Assumption~\ref{as:1}. However, with current  topology granularity and Heuristic~\ref{hu:node} setting, such inference can not be straightforwardly reached.
+Hopefully, with the help of visual inspection, such case can be rather easily spotted.

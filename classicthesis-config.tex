@@ -119,6 +119,37 @@
    	\def\bflabel#1{{\acsfont{#1}\hfill}}
   	\def\aclabelfont#1{\acsfont{#1}}
 \usepackage{fancyvrb}
+\usepackage{algorithmicx, algpseudocode}
+
+\usepackage{amsthm}
+\newtheorem*{assumption*}{\assumptionnumber}
+\providecommand{\assumptionnumber}{}
+\makeatletter
+\newenvironment{assumption}[2]
+ {%
+  \renewcommand{\assumptionnumber}{Assumption #1-\textit{#2}}%
+  \begin{assumption*}%
+  \protected@edef\@currentlabel{#1-\textit{#2}}%
+ }
+ {%
+  \end{assumption*}
+ }
+\makeatother
+
+\newtheorem*{heuristic*}{\heuristicnumber}
+\providecommand{\heuristicnumber}{}
+\makeatletter
+\newenvironment{heuristic}[2]
+ {%
+  \renewcommand{\heuristicnumber}{Heuristic #1-\textit{#2}}%
+  \begin{heuristic*}%
+  \protected@edef\@currentlabel{#1-\textit{#2}}%
+ }
+ {%
+  \end{heuristic*}
+ }
+\makeatother
+
 % ****************************************************************************************************
 
 
