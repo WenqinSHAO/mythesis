@@ -3,11 +3,12 @@
 
 \section*{Abstract}
 There are two major motivations for the study on change detection for \ac{RTT} measurements, both of which contributes to measurement-based intradomain \ac{TE}.
-First, moments of important changes in RTT measurements can serve as trigger for route re-selection.
+First, moments of important changes in RTT measurements can serve as trigger for route re-selection, focus of current chapter.
 Second, it helps describe synchronized RTT observed in chapter~\ref{sec:infer}.
-In this chapter, we detail the first cause. 
+
 %In section XX, we further discuss how change detection is employed in inferring the causes of RTT changes, which eventually provide clue to TE decisions for destination prefixes with out hosts that can be probed.
 
+Change detection methods, conceived for the robust yet relevant detection of significant change in time series, is a competent tool for RTT measurement processing.
 Among the extensive works on change detection methods and their applications in various domains, few focus on RTT measurements. It is thus unclear which approach works the best on such data.  
 In this chapter, we present an evaluation framework for change detection on RTT times series, consisting of:
 \begin{enumerate}
@@ -22,56 +23,35 @@ We apply our change detection methods to a large set of measurements from RIPE A
 The characteristics of both RTT and path changes are analyzed; the correlation between the two are also illustrated. 
 \clearpage
 
-\section{Code space and data}
-\label{sec:cpt_data}
-%%% Why is it part of the "Related Work" section ? 
-%%% Wenqin: it is not. The related work section remains to be filled.
-The main code space for work in this chapter is made public on Github with documentation: \url{https://github.com/WenqinSHAO/rtt}.
-The implementations of proposed methods are decoupled from the context of this project, and thus can easily be employed elsewhere.  
-
-We applied our methods on RIPE Atlas built-in measurements~\cite{atlas} and performed data analysis.
-These measurements are openly available so that the results of this work can be reproduced by other researchers or compared to alternative approaches.
-We collected RIPE Atlas built-in ping and traceroute measurement toward DNS b-root (measurement ID 1010, 5010) from 6029 v3 probes located in 2050 different ASes, 153 countries from 2016-10-01 to 2017-01-01~\footnote{Measurements to other destinations might as well do. The fact whether the destination is anycast or not is of few importance in this work. The focus is on method rather than on a specific dataset.}.
-184,358,516 ping and 23,507,910 traceroute measurements are collected and analyzed.
-The traceroute measurements flowed through 3036 ASes, 120 IXPs, containing 10720 different AS paths.
-%The script and the configurations to collect above data are as well included in the project repository.
-
 
 \section{RTT changes: the trigger for interdomain TE}
-One essential question in measurement-based TE is how to employ RTT measurement so that transmission performence is optimized.
-To explore the answers, we first introduce some possible practices while revealing their limitation.
-Then, we argue that change detection is rather a more preferable approach and explaine how it can contribute to TE.
+RTT measurements intervene in measurement-based interdomain TE at two phases. 
+First, RTT measurements reveals the moments when route re-selection is needed, otherwise the transmission performance may undergo avoidable degradation.  
+Second, RTT measurements serve as decision making material in route re-selection. We relay on the measured delay, transmission cost and routing politics and etc., to decide which path/transit provider is the best choice  in reaching a each destination at certain moment. 
+We focus on the first phase in this chapter.
 
-\marginpar{Strawmen to be attacked.}
-\paragraph{Preference over smaller baseline} Continuously reptead RTT measurements over time can tell which transit provider among availble ones offer smallest delay in general in reaching a specific destination. Employing hence this transit provider for the destination can ensure a good performance. However, this approach is not reactive in front of transient RTT deviations from the baseline during for example congestion.
+Moments when route re-selection is needed are basically when significant changes happen in certain RTT measurements. In order to detect changes in numerous RTT time series of different characteristics stemmed from various underlying Internet paths, the detection method should 1) be capable of tolerating noises in RTT measurements, such as short living spikes, yet remain sensitive to events that really matter; 2) be free of ad hoc, e.g. destination dependent, parameters in achieving the desired robustness. 
+Change detection methods, fitted candidate for such task, aim exactly at detecting moments of changes that cut time series into segment of different statistic characteristics.
 
-\paragraph{Threshold of RTT value} In order to mitigate the consequence of stiff route choice, one can introduce some dyamism by simply comparing the instant RTT measurements with a hard-coded threshold. Once the RTT supasses the threshold value, even throght the transit with smallest baseline RTT, route re-selection can be trigger to look for a better performance path at the moment.
-The drawback of this method is that the threshold value depends on each individual destination, and thus not trivial to configure.
+Before studying how change detection methods work on RTT time series, we first look at some straightforward way of employing RTT measurements in TE. We explain why these possible practices are not good enough and hence justify our study on change detection methods.
 
+\marginpar{Some straw-man practices. Other possibilities may as well work.}
+\paragraph{Preference over smaller average RTT} Continuously repeated RTT measurements over time can tell which transit provider among available ones offers the smallest delay in average in reaching a specific destination. Employing this transit provider can thus ensure a good overall performance. However, this approach falls short in handling transient RTT augmentation during for example congestion.
 
-\paragraph{Threshold of RTT change amplitude} Focusing on the difference of neighbouring measurements in time rather than the instant RTT value itself can transform the ad hoc RTT value threshold to a change amplitude threshold sharable among all destinations. \marginpar{Here RTT change means specifically the value difference among neighbouring RTT measurements. Elsewhere, RTT change refers more often than not to the RTT changes detected by change detection methods.}
-This change amplitude threshold could be absolute values such as 30msec or a percentage, say 30\% that makes the change amplitude in msec proportionally adapted to the level of RTT.
-The shortcoming of this approach comes from the fact that RTT measurements (via ICMP or TCP) could be pretty noisy, full of shorting living yet large amplitude variations. 
-With this method, unnecessary frequent route re-selection could be triggered.
+\paragraph{Threshold of RTT value} In order to mitigate the consequence of stiff route choice, one can introduce some dynamism by simply comparing the instant RTT measurements with a hard-coded threshold. Once the RTT surpasses the threshold value, even through the transit with smallest average RTT, route re-selection can be trigger to look for a better performance path at that specific moment.
+The drawback of this method is that the threshold values depend on each individual destination, and are thus not trivial to configure.
 
-\marginpar{Could give a number here on how many path changes occur using Akella's method. I had the impression that I had such data somewhere when working on NOMS paper.}
-\paragraph{Smoothing the RTT measurements} One straightforward to remain robust when handling noisy RTT measurement is to smooth it before usage. A possible way is the perform \ac{EWMA} over a couple of past measurements~\cite{Akella2008}. However, the application of such filters as well introduce additional parameters to be tuned, and potentially in an ad hoc manner. Moreover, such filter will as well introduce a delay to the perception of an actual change.
+\paragraph{Threshold of RTT change amplitude} Focusing on the difference of consecutive measurements in time rather than the instant RTT value can transform the ad hoc RTT value threshold to a change amplitude threshold reused by all destinations. \marginpar{Here RTT change refers to the value difference between two RTT measurements. Elsewhere, RTT change means the change in RTT time series detected by change detection methods.}
+This change amplitude threshold could be absolute values such as 30 msec or a percentage, e.g. $30\%$,  making the change amplitude in msec proportionally adapted to the level of RTT.
+The shortcoming of this approach comes from the fact that RTT measurements (via ICMP or TCP) could be pretty noisy, full of shorting living yet large amplitude variations, leading to unnecessarily frequent route re-selection.
 
-Through the above discussion, we made it clear that there are two obvious requirements for the way we exploit RTT measurements: 1) the method should tolerate noises, short living spikes in RTT measurements, yet remain sensitive to events that really matter; 2) in achieving the described robustness, no ad hoc/destination dependant parameters are required so that it scales well over thousands of potential destinations. Generic change detection methods aim exactly at detecting relevant changes in time-series and is designed to work with generic time-series data type, beyond RTT time series. What we need to do is to figure out which method and what configuration perform best on RTT measurements. This pursuit naturally leads to our study on the evaluation method presented later on in Sec.~\ref{sec:eval_frame}.
-
-Apart from that, there is one more clarification to be made. There are actually two usages of RTT measurements at different phases during a TE operation, and are somewhat mixed up in some of the above discussed approaches. First, RTT measurements is a trigger for TE operations. We learn from measurements the moments when TE operations is needed, otherwise the transmission performance could deviate from potential optimal status. These moments are basically when RTT measurements toward destinations of interest experience significant changes. 
-Second, RTT measurements serve as decision making material in TE operations. We relay on the measured data, among other elements, e.g. transmission cost and routing politics, to decide which path/transit provider is the best choice at that moment in reaching a certain destination.
-
-Since there are factors other than RTT measurements involved in decision making, we do not advocate RTT change detection as a major enabler in that part of TE operatios.
-\marginpar{Nonetheless, RTT change detection potentially provides a concise, yet robust representation of the current status of RTT measurement, which eventually contributes to the robustness and reactivity of route selection logic.}
-However, it is without doubt that a well tuned change detection method could serve as the trigger for more sophisticated TE operation, and thus being the base for measurement-based TE.
+\paragraph{Smoothing the RTT measurements} One straightforward to remain robust when handling noisy RTT measurement is to smooth it before usage. A possible way is the perform \ac{EWMA} over a couple of past measurements~\cite{Akella2008}. However, the application of such filters introduces additional parameters to be tuned, and likely in an ad hoc manner. Moreover, such filter will as well introduce a delay to the perception of an actual change.
 
 
 \section{RTT change, network events and TE}
 \label{sec:rtt_path}
 In this section, we summarize previous studies on RTT variations and the network events that causes RTT changes.
-Some conflicting observations are juxtaposed to showcase that it is toolset that allows reproducible and iterative study on RTT measurements that is rather needed.
-We as well explain why certain RTT analysis method adopted in mentioned works is not a good fit for TE uses.
+We explain why certain RTT analysis method adopted in mentioned works is not a good fit for TE uses.
 
 Path changes and congestion are known to be the major reasons for RTT changes.
 It is generally agreed that inter-domain routing changes impact the RTT level greatly.
@@ -97,6 +77,21 @@ RTT measurements are first grouped by underlying paths; impact of path changes a
 In our TE scheme, RTT rather than path are more intensively measured~\cite{shao2016}.
 This is because path measurements do not necessarily reflect all the changes in RTT, meanwhile being more resource-consuming.
 For example, congestion in upstream network can only be learnt through change detection on RTT measurements.
+
+\section{Code space and data}
+\label{sec:cpt_data}
+%%% Why is it part of the "Related Work" section ? 
+%%% Wenqin: it is not. The related work section remains to be filled.
+The main code space for work in this chapter is made public on Github with documentation: \url{https://github.com/WenqinSHAO/rtt}.
+The implementations of proposed methods are decoupled from the context of this project, and thus can easily be employed elsewhere.  
+
+We applied our methods on RIPE Atlas built-in measurements~\cite{atlas} and performed data analysis.
+These measurements are openly available so that the results of this work can be reproduced by other researchers or compared to alternative approaches.
+We collected RIPE Atlas built-in ping and traceroute measurement toward DNS b-root (measurement ID 1010, 5010) from 6029 v3 probes located in 2050 different ASes, 153 countries from 2016-10-01 to 2017-01-01~\footnote{Measurements to other destinations might as well do. The fact whether the destination is anycast or not is of few importance in this work. The focus is on method rather than on a specific dataset.}.
+184,358,516 ping and 23,507,910 traceroute measurements are collected and analyzed.
+The traceroute measurements flowed through 3036 ASes, 120 IXPs, containing 10720 different AS paths.
+%The script and the configurations to collect above data are as well included in the project repository.
+
 
 \section{Changepoint detection}
 \label{sec:cpt}
@@ -384,9 +379,9 @@ Meanwhile, a relatively bigger fraction of RTT changes detected by \texttt{cpt\_
 They are mostly associated with short RTT segments caused by frequent timeouts in certain probe traces. For example, probe 20854 had 2308 timeout measurements dispersed in the entire trace.
 \texttt{cpt\_poisson} appears to be more sensitive to such sporadic but short living deviations.
 
-\spacedallcaps{Wrap-up} In this part, we described an evaluation framework adapted to change detection on RTT time series.
-A data transformation to improve the detection sensitivity is proposed,
-with which, Poisson distribution + MBIC achieves the most appropriate balance between sensitivity and relevance. The nuance between \texttt{cpt\_np} and \texttt{cpt\_poisson} will be further discussed in Sec~\ref{sec:corr}.
+%\spacedallcaps{Wrap-up} In this part, we described an evaluation framework adapted to change detection on RTT time series.
+%A data transformation to improve the detection sensitivity is proposed,
+%with which, Poisson distribution + MBIC achieves the most appropriate balance between sensitivity and relevance. The nuance between \texttt{cpt\_np} and \texttt{cpt\_poisson} will be further discussed in Sec~\ref{sec:corr}.
 
 \section{Detecting path changes}
 \label{sec:path}
@@ -670,6 +665,7 @@ Second, congestion. Fig.~\ref{fig:case_26328} gives an typical example of RTT ch
 Congestion like this doesn't repeat periodically, and thus can not be detected with existing methods~\cite{Luckie2014}.
 Changepoint methods studied in this work can be potentially employed to pinpoint such transient congestion and estimate their
 impact on the tranmission performance. We envision it as future work.
+If we boldly assume that path changes on reverse paths cause comparable amount of RTT changes as forwarding paths do, there are still many RTT change unmatched. Some of them might be effectively attributed to congestion.
 Third, RTT change detection can be over-sensitive. We revealed from a macroscopic view in Sec.~\ref{sec:cpt_trace} and ~\ref{sec:as_match_diff} that \texttt{cpt\_poisson} tend to overestimate the number of changepoints when the RTT trace is noisy, while \texttt{cpt\_np} is capable of detecting delicate RTT changes. Individual traces are given in Fig.~\ref{fig:case_sensitivity} to illustrate the sensitivity difference from a microscopic view. In Fig.~\ref{fig:case_28002}, \texttt{cpt\_np} detected all the periodic small amplitude congestion. In Fig.~\ref{fig:case_26328}, both methods identified the two large `plumbs' near the end of the trace. The difference is that \texttt{cpt\_poisson} marked intermediate level changes as well.
 
 \section*{Conclusion}
