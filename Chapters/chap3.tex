@@ -1,9 +1,37 @@
 \chapter{Internet measurement with RIPE Atlas}
 \label{sec:ripe_atlas}
 \section*{Abstract}
+transition from volume to RTT measurements.
+transition from client data to public data.
 
-\section{Reproducibility of measurement researches}
-\section{RIPE Atlas and other platforms}
+
+\section{RIPE Atlas for reproducibility}
+\subsection{Reproducibility}
+\marginpar{Issue with previous dataset.}
+We collected traffic volume and delay data from real client networks in Section~\ref{sec:pref_selec} and developed all the studies concerning prefix selection on that dataset.
+Having access to real client data increases the credibility of the discoveries made in the study, and enhances the relevance of proposed schemes basing on these findings.
+The other side of coin is that such private dataset hinder the reproducibility, a paramount feature in metrology researches.
+
+\marginpar{What we talk about when we talk about reproducibility?}
+The \acf{ACM} offers definition for various terms referring to different degrees of research repoducibility, ranging from repeating the same result by the same team to reproducing the same result with independent implementation of proposed methods or measurement system.
+The way the measurement data is generated, stored and accessed is one of the key elements for all these degrees of reproducibility.
+
+\marginpar{data generation}
+Previous data from client network comes from measurements performed by proprietary commercial platforms~\ref{b6}.
+By nature, it is against the fundamental benefit of the company to reveal all the technical details of measurements collection. Even permission of disclosure granted, we as research more often than not do not have enough space to include such technical details in publication.
+
+\marginpar{data storage}
+Since the collected data contain sensible information, e.g. the destination prefixes they talked to, client IP addressing schemes, transit provider choices etc., they are required to remain on client owned platforms otherwise permission required. Due to capacity limitation and decreasing utility of old data, these measurements will not stay forever available on client servers. If measurements are allowed to be retrieved, we as researchers are then responsible for the storage of these data. Server clusters in research institution may offer temporary (available till graduation) infrastructure, yet researchers are responsible for the security of these data. Once data compromised, researchers may face serious legal consequences.
+
+\marginpar{access to data}
+Due to the sensitivity nature of data collected from client platforms, direct open access to the research community/public is not an option. Data anonymization is required. The process is not trivial as an appropriate degree is hard to hit. If not enough, some features of the client data can still be deduced and subject to unwanted exposure. If too much, the interpretation based on the anonymized data could become obscure and lack of credibility. Moreover, for better representativeness and statistical confidence, Internet measurement researches stress on large dataset over long period. This inevitably increases the size of dataset. Maintaining the access to these large dataset is clearly not cost free. However current publication reviewing process provides limited support on submitting voluminous supporting material without breaking the identity author/review anonymity~\ref{bajpai2017challenges}.
+
+Bearing these considerations in mind, we look for measurement platforms alleviate the burden in measurement execution, storage and public access.
+
+\subsection{RIPE Atlas and other platforms}
+list of platforms with open access
+the advantage of using RIPE Atlas data for the sake of reproducibility.
+
 \section{Measurement quality}
 \subsection{Issue with RIPE Atlas}
 We show that it is common to lose some datapoints for measurements scheduled at regular interval on RIPE Atlas. 
@@ -11,7 +39,8 @@ We show that it is common to lose some datapoints for measurements scheduled at 
 The temporal correlation between missing measurements and connection events are %illustrated and 
 analyzed, in the pursuit of understanding reasons behind such missings.
 To our surprise, a big part of measurements are lost while probes are connected.
-\subsection{Same path different paths}
+
+\subsection{Same AS path measured by different probes}
 For multi-homed networks, inter-domain traffic engineering (TE) 
 consists in selecting the best path available through the available transit providers,
 so that the overall transmission quality is dynamically improved in front of network events, such as congestion and fail-over. 
@@ -28,5 +57,6 @@ We data-mined the RTT time-series between two ASes with unsupervised learning me
 Achieved results show that our method is capable of improving measurement data quality, by excluding less reliable probes.
 Moreover, we considered traceroute as well. 
 Early results suggest that most variations of e2e delay actually occur in access networks. We thus believe that the proposed scheme can improve the accuracy and stability of the route selection for multi-homed networks.
+
 \section{Synchronized RTT changes over different paths}
 \label{sec:ripe_case_study}
