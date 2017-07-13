@@ -110,15 +110,15 @@ These changepoints are given in an ordered way such that $\tau_i < \tau_j$ if an
 We define $\tau_0 = 0$ and $\tau_{m+1} = n$.
 Together with the detected $m$ changepoints, they cut $y_{1:n}$ into $m+1$ segments, with the $i_{th}$ segment containing $y_{\tau_{i-1}+1:\tau_i}$.
 For each segment, a cost is calculated. The detection method seeks to minimize the cost sum of all the segments: 
-\begin{equation}
+\begin{equation*}
 \sum_{i=1}^{m+1}[C(y_{\tau_{i-1}:\tau_i-1})] + \beta f(m).
-\end{equation}
+\end{equation*}
 Here $C$ is a cost function while $\beta f(m)$ is a penalty to prevent over-fitting ---  the two major parameters to be set.
 
 One commonly used cost function is minus of the maximum log-likelihood of the segment following a certain distribution~\cite{Killick2011,Horvath1993,Chen2001}:
-\begin{equation}
+\begin{equation*}
 C(y_{s:t}) = - \max_\theta \sum_{i=s}^t \log f(y_i|\theta).
-\end{equation}
+\end{equation*}
 Here $f(y|\theta)$ is a density function with distribution parameter $\theta$. 
 For example, if we assume a Normal distribution, then we have $\theta = (\mu, \delta^2)$:
 $f(y|\theta) = f(y|\mu, \delta^2) = \frac{1}{\sqrt{2\delta^2\pi}} e^{-\frac{(x-\mu)}{2\delta^2}}$.
@@ -201,19 +201,19 @@ We propose to weight a ground truth change $T_i$ according to the following thre
 \item the RTT volatility difference across $T_i$, denoted as $\Delta_i$.
 \end{enumerate}
 More formally for each $T_i \in T_{i:k}$, with $T_0=1, T_{k+1} = n$, we define:
-\begin{equation}
+\begin{equation*}
 M_i = |Median(y_{T_{i-1}+1:T_i}) - Median(y_{T_i+1:T_{i+1}})|.
-\end{equation}
+\end{equation*}
 We use median instead of mean in the purpose of reducing the impact of abnormally large RTT measurements.
 We define:
-\begin{equation}
+\begin{equation*}
 \Delta_i = |Std(y_{T_{i-1}+1:T_i}) - Std(y_{T_i+1:T_{i+1}})|,
-\end{equation}
+\end{equation*}
 as the measure for variance change across the changepoint.
 We define empirically the weight associated to each $T_i \in T_{1:k}$ as:
-\begin{equation}
+\begin{equation*}
 \Omega_i = MAX(\log_2\frac{T_{i+1} - T_i}{\rho}, 0) \times (M_i + \Delta_i).
-\end{equation}
+\end{equation*}
 Here $\rho$ is a threshold for RTT segment length. 
 If $T_i$ leading to an RTT segment shorter than $\rho$, we ignore it in calculating $Recall$.
 The intuition behind this weighting is that RTT changes of large level or volatility are in practice regarded as more important. $\rho$ and $w$ tolerance window are set to $8min$ in this work, corresponding to two ping measurement intervals. 
