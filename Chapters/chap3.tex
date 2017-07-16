@@ -2,41 +2,41 @@
 \label{sec:ripe_atlas}
 \section*{Abstract}
 Starting from this chapter, the center of our study is oriented to delay and path measurements, and how to make use of them in measurement-based interdomain \ac{TE}.
-Same as volume statistics studied in Chapter~\ref{sec:pref_selec}, these measurements are readily available on client TE platforms.
-However, we decided to switch to measurements conducted by RIPE Atlas, a measurement platform offering open data access to public, for the sake of reproducibility.
+Same as volume data studied in Chapter~\ref{sec:pref_selec}, these measurements are readily available on client TE platforms.
+However, for the sake of reproducibility, we decided to switch to measurements conducted by RIPE Atlas, a world-wide measurement platform offering open data access to public. 
 
 This decision is justified through a brief analysis on the elements of reproducibility and how RIPE Atlas satisfies them in design.
 To facilitate the discussion in later chapter concerning measurement collection, we introduce succinctly the building blocks of RIPE Atlas, its measurement methods and how a particular measurement can be identified and retrieved.
 
-RIPE Atlas is a great facilitator for a better understanding of the Internet, yet it is not without out problems. We study the potential data quality issues stemmed from the platform itself, particularly missing measurements. We verified whether missing measurements were due to prone disconnection from the controller.
-Unexpected probe behavior is discovered, analyzed and reported to the RIPE Atlas engineering team, in hopes of contributing to the RIPE Atlas community.
+RIPE Atlas is a great facilitator for a better understanding of the Internet, yet it is not without out problems. We study the potential data quality issues stemmed from the platform itself, particularly missing measurements. We verified whether missing measurements were due to probe disconnection from the controller.
+Unexpected probe behavior is discovered, analyzed and reported to the RIPE Atlas engineering team, in hopes of contributing to the community.
 
-Further, we study as well data quality concern specific to measurement-based TE: does the RTT measurements mainly reflect the AS path level network characteristics?
+Further, we study as well data quality concerns specific to our TE platform: do RTT measurements mainly reflect the AS path level network characteristics?
 In order to shed light on this issue, we explore the inherent structure of a data set composed of 100 RTT time series measuring a same AS path through clustering.
 Results showcase that a part of these RTT measurements were subject to access network congestion that can not be avoided with interdomain TE. This finding confirms the need for data cleaning, a process often neglected in previous practices.
 
-At the end of this chapter, we present a case study on multiple RTT time series undergoing a similar shape RTT change at about the same moment. The presence of such case can potentially help reveal where does the change comes from, thus having important implication in TE as well as for a better understanding of the Internet. We tentatively employ time-series clustering methods to group RTT time series with similar shape together.
+At the end of this chapter, we present a case study on multiple RTT time series undergoing a similar shape RTT change at about the same moment. The presence of such case can potentially help reveal where the change comes from, thus having important implication in TE as well as for a better understanding of the Internet. We tentatively employ time-series clustering methods to group RTT time series with similar shape together.
 \clearpage
 
 \section{Reproducibility}
 \marginpar{Issue with previous dataset.}
 We collected traffic volume and delay data from real client networks in Section~\ref{sec:pref_selec} and developed all the studies concerning prefix selection on that dataset.
-Having access to real client data increases the credibility of the discoveries made in the study, and enhances the relevance of proposed schemes basing on these findings.
+Having access to real client data increases the credibility of the discoveries made, and enhances the relevance of proposed schemes basing on these findings.
 The other side of coin is that such private dataset hinder the reproducibility, a paramount feature in metrology researches.
 
 \marginpar{What we talk about when we talk about reproducibility?}
 The \acf{ACM} offers definition for various terms referring to different degrees of research repoducibility~\cite{acm}, ranging from repeating the same result by the same team to reproducing the same result with independent implementation of proposed methods or measurement system.
-The way the measurement data is generated, stored and accessed is one of the key elements for all these degrees of reproducibility.
+The way the measurement data is generated, stored and accessed is one key element for all these degrees of reproducibility.
 
 \marginpar{data generation}
-Previous data from client network comes from measurements performed by proprietary commercial platforms~\cite{b6}.
-By nature, it is against the fundamental benefit of the company to reveal the technical details on how measurements are done. Even permission of disclosure granted, we as research more often than not do not have enough space to include such technical details in publication.
+Previous client data come from measurements performed by proprietary TE commercial platforms~\cite{b6}.
+By nature, it is against the fundamental benefit of the company to reveal the technical details on how measurements are done. Even permission of disclosure granted, we as researcher more often than not do not have enough space to include such technical details in publication.
 
 \marginpar{data storage}
 Since the collected data contain sensible information, e.g. the destination prefixes clients talked to, client IP addressing schemes, transit provider choices etc., they are required to remain on client owned platforms otherwise permission required. Due to capacity limitation and decreasing utility of old data, these measurements will not stay forever available on client servers. If measurements are allowed to be retrieved, we as researchers are then responsible for the storage of these data. Server clusters in research institution may offer temporary (available till graduation) storage infrastructure, yet researchers are responsible for the security of these data. Once data compromised, researchers may face serious legal consequences.
 
 \marginpar{access to data}
-Due to the sensitivity nature of data collected from client platforms, direct open access to the research community/public is not an option. Data anonymization is required. The process is not trivial as an appropriate balance is hard to hit. If not enough, some features of the client data can still be deduced and subject to unwanted exposure. If too much, the interpretation based on the anonymized data could become obscure and lack of credibility. Moreover, for better representativeness and statistical confidence, Internet measurement researches stress on large dataset over long period. This inevitably increases the size of dataset. Maintaining the access to these large dataset is clearly not without cost. However current publication reviewing process provides limited support on submitting voluminous supporting material without breaking the identity author/review anonymity~\cite{bajpai2017challenges}.
+Due to the sensitivity nature of data collected from client platforms, direct open access to the research community/public is not an option. Data anonymization is required. The process is not trivial as an appropriate balance is hard to hit. If not enough, some features of the client data can still be deduced and subject to unwanted exposure. If too much, the interpretation based on the anonymized data could become obscure and lack of credibility. Moreover, for better representativeness and statistical confidence, Internet measurement researches stress on large dataset over long period. This inevitably increases the size of dataset. Maintaining the access to these large dataset is clearly not without cost. However current publication reviewing process provides limited support on submitting voluminous supporting material without breaking the author/review identity anonymity~\cite{bajpai2017challenges}.
 
 Bearing these considerations in mind, we look for measurement platforms alleviate the burden in measurement execution, storage and public access.
 
@@ -71,10 +71,10 @@ Ping and traceroute measurement offer the Internet delay and path information re
 Another way of classifying the measurements is via the entity of measurement creator. As shown Fig.~\ref{fig:ripe_atlas_archi}, user of the platform (does not necessarily host probes) enjoys a great degree of 
 liberty of specifying the destination and sources of supported measurements. These are \acf{UDM}. Once a user defines a measurement, the central controller clusters schedules it to corresponding probes and collects the results once the measurements started.
 On the other hand, there exist another category of measurements defined by RIPE itself call built-in measurements~\cite{atlas}. These measurements are automatically executed by the probes themselves, with out need for controller commands. These measurements, originated from all probes, are mainly ping, traceroute and DNS measurements to DNS root servers and RIPE infrastructures.
-In the later studies, we heavily rely on these built-in measurements given their world-wide footprint, super long history records (date back to the day one of each probe) and low additional measurement costs.
+In the later studies, we heavily rely on these built-in measurements given their world-wide footprint, super long history records (dating back to the day one of each probe) and low additional measurement costs.
 
 \subsection{Describe, identify and fetch measurements}
-Besides measurement type specific parameters, such as the protocol type for traceroute, following three elements are as well fundamental describing a RIPE Atlas measurement: 1) participant probes; 2) the single measurement destination per measurement; 3) the time span of the measurement. 
+Besides measurement type specific parameters, such as the protocol type for traceroute, following three elements are as well fundamental in describing a RIPE Atlas measurement: 1) participant probes; 2) the single measurement destination per measurement; 3) the time span of the measurement. 
 
 Once a \ac{UDM} is created, it can be identified by an unique measurement ID. 
 Each built-in measurement can as well be identified with a pre-assigned ID.
@@ -85,7 +85,7 @@ For example, with \url{https://atlas.ripe.net/measurements/3742863/#!openipmap},
 RIPE Atlas is a measurement platform designed to facilitate reproducible researches. RIPE take care of all the engineering challenges of 1) measurements execution from geographically distributed probes; 2) reliable and continuous data storage; 3) public access to data; 4) simple syntax for describing, identifying measurements; 5) well documented open-source programming tools for data manipulation.
 
 The advantages of RIPE Atlas go beyond reproducibility. Compared to perfSONAR, PlanetLab and DIMES, probes of RIPE Atlas, with dedicated hardware for measurement task, are supposed to deliver measurements that better reflect the network character and are less impacted by probe local resource sharing issues~\footnote{perfSONAR: ~\url{https://www.perfsonar.net}; PlanetLab:~\url{https://www.planet-lab.org}; DIMES:~\url{http://www.netdimes.org}}.
-Moreover, RIPE Atlas rapidly is gaining popularity among many non-academic networks, such as \ac{ISP}, \ac{CP} and \ac{IXP}, thanks to a wide range of monitoring applications hence enabled, to name a few, performance monitoring~\cite{latencymon, Rimondini2014}, anomalies detection~\cite{Fontugne2016, Padmanabhan, halo}, peering and IXP measurements~\cite{ixp, routeixp} etc. Increasing number of commercial networks host RIPE Atlas probes or anchors (a more powerful version of normal probe),   providing a much richer and realistic network profile from which measurements can be initiated, compared to other alternative options.
+Moreover, RIPE Atlas is rapidly gaining popularity among many non-academic networks, such as \ac{ISP}, \ac{CP} and \ac{IXP}, thanks to a wide range of monitoring applications henceforth enabled, to name a few, performance monitoring~\cite{latencymon, Rimondini2014}, anomalies detection~\cite{Fontugne2016, Padmanabhan, halo}, peering and IXP measurements~\cite{ixp, routeixp} etc. Increasing number of commercial networks host RIPE Atlas probes or anchors (a more powerful version of normal probe),   providing a much richer and realistic network profile from which measurements can be initiated, compared to other alternative options.
 
 \section{Measurement quality}
 We dedicate the discussion of this section to data quality, another key issue to metrology researches besides reproducibility. To begin with, we show that it is common to lose some datapoints for measurements scheduled at regular interval on RIPE Atlas. The temporal correlation between missing measurements and connection events are 
@@ -124,14 +124,14 @@ The built-in ping measurement is scheduled on every probe at 4min interval.
 \caption{CDF of total missing length per probe.}
 \label{fig:miss_len}
 \end{figure}
-We deem that there are missing measurements when the time interval between two neighbouring measurement are much longer than the planned value. 
+We deem that there are missing measurements when the time interval between two neighbouring measurements are much longer than the planned value. 
 Such long gaps turn out to be very close to integer times of planned interval, as a cron-like mechanism is used to run measurements at regular interval and it retakes the previous phase after interruption~\cite{source, schedule}.
 This character allows quantifying the length of missing segment by the number of measurements skipped.
 4440 probes  (60.4\%) miss no more than 2 datapoints, which is totally legitimate, as random jitter is added to each single measurement to avoid synchronization among probes.
 For the rest, the missing length spans a wide range according to Fig.~\ref{fig:miss_len}.
 1358 (18.5\%) probes miss more than 10\% of the total measurements (i.e. 72 hours over a month).
 
-\subsubsection{Cross missing measurement with connection events}
+\subsubsection{Cross missing measurements with connection events}
 
 \begin{figure}[!htb]
 \centering
@@ -140,7 +140,6 @@ For the rest, the missing length spans a wide range according to Fig.~\ref{fig:m
 \label{fig:len_ratio}
 \end{figure}
 
-\marginpar{missing overlapped with connected period}
 Several reasons may contribute to the disconnection of a probe to its controller: 1) probe not working (properly); 2) network issues preventing the connection; 3) controller not available, e.g. during maintenance~\cite{controller}. Meanwhile, the last two reasons shall not prevent a probe from performing built-in measurements, as the results can be unreachable or timeout, and be stored locally on the probe~\cite{usb}. 
 That is to say, \textit{missing does not necessarily occur when probe is disconnected, but is unexpected while probe is connected.}
 
@@ -169,7 +168,7 @@ Number of concerned missing segments is given in the title. Negative time distan
 \end{figure}
 
 \marginpar{temporal correlation between missing and connection events}
-To obtain a subtler view, we seek to find out: when do measurements begin to be lost and when are they recovered? Are these moments close to connection events?
+To obtain a subtler view, we seek to find out: \textit{when do measurements begin to be lost and when are they recovered? Are these moments close to connection events?}
 
 First, we define the \textit{left edge} as the last measurement before a period of measurement absence, and the \textit{right edge}, accordingly, the first measurement after recovery. 
 We then calculate the time interval separating these edges and the closest connection events. We also identify the nature of these events, and mark `D/C' for disconnection, `C' for connection. 
@@ -194,22 +193,23 @@ In our analysis covering a large number of probes over one month, only 60\% of v
 
 However, the remaining $2/3$ of missings occurred while probes are connected. 
 Half of them are no more than 2 measurements in length, and are thus likely to be caused by scheduling issues. However, around $25\%$ of this category lasts long($\geq 1h$). 
-We reported the discovery to RIPE engineering team along with a specific case that they could started with.
+
+We reported the discovery to RIPE engineering team along with a specific case that they could look into.
 The last reply from RIPE team confirmed  that the probe we mentioned in report had ``time synchronization issues''. To help advance the investigation, we share with RIPE team all the long missing segments identified. These exchanges can be found on the RIPE Atlas forum at \url{https://www.ripe.net/participate/mail/forum/ripe-atlas}, with tile ``Actual measurement interval much larger than planned''.
 
 \subsection{Same AS path measured by different probes}
-Whether the measured RTT mainly reflects the network characteristics of AS paths traversed real traffic is a data quality concern specific in the context of measurement-based interdomain TE.
+Whether the measured RTT mainly reflects the network characteristics of AS paths traversed by real traffic is a data quality concern specific in the context of measurement-based interdomain TE.
 It is simply because route selection function in Fig.~\ref{fig:archi} relies on path performance measurements as input, more details in Chapter~\ref{sec:cpt_rtt}.
-However, RTT measurements might be `polluted' either by non-network factors, say host-local issues as CPU overload, or non-representative sub-AS level network issues can not be optimized with interdomain TE, say local congestion along the ASes traversed. 
-However, none of these previous works~\cite{Goldenberg2004, Akella2008} on measurement based inter-domian TE has realized the importance of this problem.
+However, RTT measurements might be `polluted' either by non-network factors, say host-local issues such as CPU overload, or non-representative sub-AS level network issues can not be optimized with interdomain TE, say local congestion within the destination prefix.
+However, none of these previous works on measurement based inter-domian TE~\cite{Goldenberg2004, Akella2008} has realized the importance of this problem.
 
-This data quality issue gives rise to a series of questions: if we measure over a period of time a same AS path with multiple different RTT measurements toward different hosts in the destination AS, what will these RTT time series look like? Will they have similar characters? If not, how can we pick out the ones fit best for our TE uses?
-We try to answer to these question by performing clustering over a such set of RTT time series, in the purpose of automatically revealing their inherent structures.
+This data quality issue gives rise to a series of questions: if we measure over a period of time a same AS path with multiple different RTT measurements toward different hosts in the destination prefix, what will these RTT time series look like? Will they have similar characters? If not, how can we pick out the ones fit best for our TE uses?
+We try to answer to these questions by performing clustering over a such set of RTT time series, in the purpose of automatically revealing their inherent structures.
 
 \subsubsection{Data collection}
 We emulated such RTT measurements between two ASes, the local client AS (one host) and one destination AS (multiple hosts) with RIPE Atlas built-in measurements $\#1006$ and $\#5006$.
 They are respectively IPv4 ping and traceroute measurements from all Atals probes to m.root-servers.net (202.12.27.33). 
-Ping measurement is scheduled at 240sec interval, while traceroute at 1800sec.
+Ping measurement is scheduled at 240 sec interval, while traceroute at 1800 sec.
 120 RIPE Atlas probes within AS3215 are selected to construct our database.\footnote{The 120 probes are the same ones in user-defined measurement \#2427397 with open access to all.}
 We assumed that all probes hit the same DNS root server clusters as the AS-level path toward the destination (m-root) is the same, since the only upstream AS for AS3215 is AS5511, the backbone of a French \ac{ISP}. Time window for the data collection ranges from 2015-09-28 10:00:00 UTC to 2015-09-29 12:00:00 UTC.
 
@@ -220,8 +220,8 @@ We cleaned the data collected, with following steps:
 \end{itemize}
 
 We then consider only 100 common probes in both ping and trace traces remained after cleaning.
-All valid probes considered, the average hop number to the destination, m-root server, is 9. 
-For the traceroute data set, we decided to concentrate on the first 3 hops (which should represent the access network). As a consequence, the traceroute data set are further cut into 3 parts, where each contains the RTT time-series till the corresponding hop.
+All valid probes considered, the average IP hop number to the destination, m-root server, is 9. 
+For the traceroute data set, we decided to concentrate on the first 3 hops (which should cover the access network). As a consequence, the traceroute data set are further cut into 3 parts, where each contains the RTT time-series till the corresponding hop.
 
 To sum up, we fabricated four RTT time series data sets, on which we performed time series clustering:
 \begin{itemize}
@@ -237,11 +237,10 @@ Generally speaking, a time series clustering approach can be decomposed into thr
 Due to its high dimension, time series is seldom used in its raw form, whence data representation.
 Common approaches include dimension reduction~\cite{Elhamifar2013}, pattern extraction~\cite{Ulanova2015}, etc.
 Distance measure quantifies the similarity/dissimilarity of two time series. Finally, clustering algorithm defines the procedure of grouping time series based the distances calculated on their data representation space.
-For each of these components, multiple possibilities exist. However, it is not clear which one and which combinations of them could be the best fit to RTT measurements. 
+For each of these components, multiple possibilities exist. However, it is not clear which ones in combination could be the best fit for RTT measurements. 
 
-\marginpar{data representation adopted}
 In this section, we extracted a set of features listed below from each individual time-series and used in actual clustering. 
-The advantage of such data representation is that it first largely reduces the data dimension. Thanks to that, data set is more suitable to classic partitioning clustering methods, like k-means and k-medoids (also known as PAM, partitioning around medoids)~\cite{Lin2003}.
+The advantage of such data representation is that it first largely reduces the data dimension. Thanks to that, data set is more suitable to classic partitioning clustering methods, like k-means and k-medoids (also known as \acf{PAM})~\cite{Lin2003}.
 Second, it is able to depict the data set from multiple aspects that are not evident with the raw form. 
 %However, the clustering results could be biased by the selection of features.
 Before clustering, each feature is z-normalized (zero mean and unit variance).
@@ -250,12 +249,12 @@ Before clustering, each feature is z-normalized (zero mean and unit variance).
 
 Following features are used in this work:
 \begin{description}
-\item[Power spectral density] is calculated using PyEgg~\cite{Bao2011} and cut into three bins, $(0, 1/12], (1/12, 1/6]$ and $(1/6, 1/2]$ of measurement frequency. Each of the bins individually functions as a feature.
+\item[Power spectral density] is calculated using PyEgg~\cite{Bao2011} and cut into three bins relative to sampling/measurement frequency, $(0, 1/12], (1/12, 1/6]$ and $(1/6, 1/2]$. Each of the bins individually functions as a feature.
 \item[Sampling Entropy] proposed by Richman and Moorman~\cite{Richman2000} quantifies the regularity or predictability of a time series. In calculation~\cite{Bao2011}, we used an embed dimension of 2 and a tolerance of 15 msec.
-\item[Number of changes] counts the number of times where the difference between two consecutive RTT measurements is greater than 15msec. %We did not use change detection methods that adapt to mean and deviation level of a window in the past, e.g. those based on z-score, for we assert that an absolute RTT change more than 15msec is significant, regardless of the mean and $std$ of an RTT trace. 
+\item[Number of changes] counts the number of times where the difference between two consecutive RTT measurements is greater than 15 msec. %We did not use change detection methods that adapt to mean and deviation level of a window in the past, e.g. those based on z-score, for we assert that an absolute RTT change more than 15msec is significant, regardless of the mean and $std$ of an RTT trace. 
 \item[Range] is the difference between the maximum and the minimum values of an RTT series.
 \item[Mode] is the value most frequently present in a time-series.
-\item[Mean], the first-order moment, describes the overall RTT level.
+\item[Mean] the first-order moment, describes the overall RTT level.
 \item[Standard deviation] is derived from the second-order moment, describes how close measurements are to the mean.
 \item[Skewness], the third-order moment, describes the lack of symmetry of RTT values observed around the center point of histogram, mode.
 \item[Kurtosis], the fourth-order moment, describes whether the histogram of observations are peaked or flat relative to a normal distribution.
@@ -292,7 +291,7 @@ With RTT time series represented in the above feature space, we simply use \acf{
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=.7\textwidth]{gfx/chap3/pingSil.pdf}
+\includegraphics[width=.9\textwidth]{gfx/chap3/pingSil.pdf}
 \caption{\ac{ASW} achieved on \texttt{PingData} using different clustering algorithms when varying number of clusters.}
 \label{fig:pingSil}
 \end{figure}
@@ -301,13 +300,13 @@ With RTT time series represented in the above feature space, we simply use \acf{
 Several clustering algorithms are available. 
 In order to choose the one that fits best to our data set and decide the most appropriate cluster number, we use \acf{ASW}~\cite{Rousseeuw1987} to evaluate the quality of resulted clusters. 
 It takes value in the range of $[-1,1]$. 
-\ac{ASW} of a certain achieved cluster is a measure of how tightly all the data in the cluster are grouped together. 
-While the \ac{ASW} over the entire dataset, is a measure of how appropriately the data has been clustered. For a single clustering method, we can find out what is the cluster number k that this algorithm is most confident of by picking the k offering the biggest \ac{ASW}. Across two different clustering algorithms, we could tell which one performs better by comparing the \ac{ASW} of resulted clusters, i.e. a better clustering result shall have a bigger \ac{ASW} value.
+\ac{ASW} of a certain achieved cluster is a measure of how tightly all the data points in the cluster are grouped together. 
+While the \ac{ASW} over the entire dataset, is a measure of how appropriately the entire data set has been clustered. For a single clustering method, we can find out what is the cluster number k that this algorithm is most confident of by picking the k offering the biggest \ac{ASW}. Across two different clustering algorithms, we could tell which one performs better by comparing the \ac{ASW} of resulted clusters, i.e. a better clustering result shall have a bigger \ac{ASW} value.
 
-Following clustering algorithms are tested: hierarchical clustering with Ward linkage, k-means, \ac{PAM}.
+Following clustering algorithms are tested: hierarchical clustering with Ward linkage, k-means and \ac{PAM}.
 Dataset-wide \ac{ASW} are visualized in Fig.~\ref{fig:pingSil}. We can see that for \texttt{PingData}, k-means algorithm with $k=2$ offers relatively confident clustering results. 
 This observation holds as well true for traceroute data sets.
-Hence, such settings are used in the rest of the work.
+Hence, such settings are used in the rest of this study.
 
 
 \subsubsection{Clustering result interpretation}
@@ -333,14 +332,14 @@ AWS &\multicolumn{3}{c|}{0.46} & \multicolumn{3}{c|}{-0.17} & \multicolumn{3}{c|
 
 \marginpar{How the two clusters are different from each other?}
 Table~\ref{tab:summary_cls} provides several metrics describing the achieved clusters: size of cluster, intra-cluster distance, intra-cluster \ac{ASW}, and overall dataset-wide \ac{ASW} at the bottom.
-Focusing on the column for \texttt{PingData}, we notice that two clusters of unbalanced size are obtained.
+Focusing on the column for \texttt{PingData} in this section, we notice that two clusters of unbalanced size are obtained.
 Cluster 2 is much larger in size, yet with smaller intra-cluster distance. 
 In accordance, the cluster algorithm is more confident of this cluster than the other, as the cluster \ac{ASW} is much higher.
 This indicates that the members within cluster 2 demonstrate strong common features and are thus more closely placed to each other in the feature space.
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=.6\textwidth]{gfx/chap3/ping_pca_ping.pdf}
+\includegraphics[width=.68\textwidth]{gfx/chap3/ping_pca_ping.pdf}
 \caption{Projections of clusters on \ac{PCA} features, \texttt{PingData}.}
 \label{fig:ping_pca}
 \end{figure}
@@ -348,7 +347,7 @@ This indicates that the members within cluster 2 demonstrate strong common featu
 \marginpar{view from \ac{PCA} surface}
 This ``guess'' can be straightforwardly observed from the projection of clusters on \acf{PCA} surface, shown in Fig.~\ref{fig:ping_pca}.
 The contribution of each feature is as well indicated on the graph.
-We notice that most of these points to different directions on the \ac{PCA} surface, suggesting that they are a comprehensive yet concise description of the date set.
+We notice that selected features point to different directions on the \ac{PCA} surface, suggesting that they contribute to a non-redundant description of the date set.
 As a consequence, no single feature takes dominant position in forming the clusters.
 Still, tendency is that cluster 2 includes data points with little  changes, small entropy and small standard deviation. 
 
@@ -369,7 +368,7 @@ Still, tendency is that cluster 2 includes data points with little  changes, sma
 \end{figure}
 
 \marginpar{view from RTT time series}
-Fig.~\ref{fig:rtt_ping} plots the RTT time series of these two clusters. Cluster 2, as expected, contains mainly traces with only a few variations and spikes. 
+Fig.~\ref{fig:rtt_ping} plots the RTT time series of these two clusters. Cluster 2, as expected, contains mainly time series with only a few variations and spikes. 
 On the other hand, cluster 1 is composed of traces with large variations.
 This explains why the members of cluster 2 are more closely located to each other. 
 It is because for a time-series to be smooth, there is only one form, while for it to be full of variations, there could be many possibilities.
@@ -385,12 +384,12 @@ It is because for a time-series to be smooth, there is only one form, while for 
 
 \marginpar{advantage of clustering with multiple features}
 What is also worthy of noticing is that cluster 2 actually tolerates traces with a few spikes and variation of small amplitude. 
-This is due to the advantage of using clustering instead of ranking with one single feature, which would also be viable to isolate ``noisy'' traces. 
+This is due to the advantage of using clustering instead of ranking with one single feature, which would also be viable to filter out ``noisy'' traces. 
 For instance, we could rank the RTT traces by their entropy and assume top x traces are ``noisy'' ones. 
 The shorting-coming of such approach is two-fold.
 First, single feature might ``wrongly'' rank certain RTT time series. 
 For example, entropy~\cite{Molina-Pico2011} and power spectral density are very sensitive to spikes. 
-In networking uses, we believe that one or a few spikes in an RTT measurement shall not deteriorate an entire trace. 
+In networking uses, we believe that one or a few spikes in an RTT measurement shall not deteriorate an entire measurement time series. 
 Second, one has to define threshold values to deliberately separate data set into two or more parts. 
 While with clustering, multiple features can be considered at same time. 
 Plus, the most appropriate number of clusters changes automatically with the input and reveals the inherent structure of the data set. 
@@ -398,15 +397,15 @@ By setting a larger cluster number, one could achieve more fine-grained clusteri
 
 \marginpar{interpretation in the context of interdomain TE}
 The two clusters achieved are as well of relevance in interdomain TE. 
-It shows that when measuring an AS-level path by probing multiple hosts in destination network, resulted RTT time series can take very different shapes. 
+It shows that when measuring an AS-level path by probing multiple hosts in the destination network, resulted RTT time series can take very different shapes. 
 One possible explication is that the IP-level path toward certain hosts suffers from local problems.
 If certain RTT variation is due to congestion on an inter-AS link, then it shall be shared by all the RTT time-series. If not shared, such RTT variation is probably related to local issues can not be avoided by changing an egress transit provider in sending out the traffic.
 Therefore, when comparing multiple RTT time series between two ASes, the ones with fewer variations are supposed to be less impacted by these local conditions and give a more faithful view on the AS-level path performance.
-One another advantage of using smoother RTT time series in choosing egress transit, is that resulted routes is supposed to be more stable. Fewer variations would actually trigger fewer route changes. 
+One another advantage of using smoother RTT time series in choosing egress transit is that resulted routes are supposed to be more stable. as fewer variations should potentially trigger fewer route changes. 
 
 \marginpar{take-away}
-To summarize, when clustering RTT time-series in feature space, no specific assumption is imposed by the extracted features, yet we arrive at two clusters that tell noisy traces apart from smooth ones.
-This reveals the inherent structure of the data set, that is for multiple RTT traces describing a common AS-level path, a majority of traces resembles each other and demonstrates least variations possible, while a handful of ``outliers'' may exist that contain diverse additional variations. 
+To summarize, when clustering RTT time series in feature space, no specific assumption is imposed by the extracted features, yet we arrive at two clusters that tell noisy traces apart from smooth ones.
+This reveals the inherent structure of the data set, that is for multiple RTT time series describing a common AS-level path, a majority of them resembles each other and demonstrates least variations possible, while a handful of ``outliers'' may exist that contain diverse additional variations. 
 Considering the source of our data, our assumption is that some of the RIPE Atlas probes are continuously suffering from local system or access network conditions. 
 %%%TODO: caption of table 1, feature space, explanation
 %%% What is "feature space". not defined sorry. 
@@ -436,10 +435,10 @@ To this end, we clustered the RTT time-series of the first 3 hops extracted from
 We observed that for \texttt{traceData2} (hop 2) and \texttt{traceData3} (hop 3), not only the cluster sizes arrived are in accordance to those from \texttt{pingData}, but also a majority of cluster members overlaps. 
 That is to say, using RTT series till the 2nd hop or the 3rd hop, we ended up with similar clustering results as with end-to-end RTT series. 
 This observation is further confirmed by Table~\ref{tab:summary_cls}, which calculates some statistic measures on \texttt{pingData} feature space for clusters resulted from each dataset. 
-Clusters from \texttt{traceData1} have the poorest overall AWS indicating that its clusters are not a good fit for end-to-end RTT time series. 
-However, clusters resulted from \texttt{traceData2} and \texttt{traceData3} seems to be quite OK on the feature space of \texttt{PingData}, as the overall AWS is not far away from that achieved with \texttt{PingData} itself.
+Clusters from \texttt{traceData1} have the poorest overall \ac{ASW} indicating that its clusters are not a good fit for end-to-end RTT time series. 
+However, clusters resulted from \texttt{traceData2} and \texttt{traceData3} seems to be quite OK on the feature space of \texttt{PingData}, as the overall \ac{ASW} is not far away from that achieved with \texttt{PingData} itself.
 %Considering that clustering on the feature space can indeed group RTT time-series by their level of variance, shown in Fig.~\ref{fig:rtt_ping} and Fig.~\ref{fig:ping_pca},
-As clustering results on end-to-end RTT and on RTT towards the 
+As clustering results on end-to-end RTT and on RTT till the 
 2nd and 3rd hop are highly similar, we are able to assume that most variations in the end-to-end RTT data set are expressed by the link between 1st and 2nd hop.
 
 \begin{figure}[!htb]
@@ -457,19 +456,18 @@ However, it suggests that with our clustering method, we are able to get rid of 
 
 \subsubsection*{Wrap-up}
 In this study, we date-mined RTT time series between two ASes. 
-Such RTT traces emulates the measurements required in measurement-based interdomain TE, where multiple hosts in the destination ASes are probed to reveal the AS-path quality via certain transit provider.
-We found out that RTT time series considered in this work demonstrate diverse variation shapes though one common AS path is measured.
+We found out that RTT time series in collected in this study demonstrate diverse variation shapes though one common AS path is measured.
 It confirms the concern that RTT measurements need to be ``cleaned'' in inter-domain TE.
-We clustered these RTT traces by extracting %a couple of 
-several features. 
+We clustered these RTT time series by extracting %a couple of 
+several features as their data representation. 
 Resulted clusters successfully separate noisy traces from smooth ones according to human intuition and expertise.
 Furthermore, we located the occurring location of most variations in end-to-end RTT measurements by applying presented clustering methods to the first hops of traceroute measurements.
 Our results confirmed the common sense that most variations come from the access network.
 
-\section{Multiple RTT time series with synchronized change}
+\section{Multiple RTT time series with synchronized changes}
 \label{sec:ripe_case_study}
 
-A case, illustrated in Fig.~\ref{fig:cls8_k12}, where multiple RTT measurements undergoing at the same time a similar shape RTT variation, intrigues us a lot. This RTT change is not observed on other RTT measurements, which indicates that a common part exclusive to these RTT measurements in Fig.~\ref{fig:trace1_traceRTT} could have caused this change.
+A case, illustrated in Fig.~\ref{fig:cls8_k12}, where multiple RTT measurements undergoing at the same time a similar shape RTT variation, intrigues us a lot. This RTT change is not observed on other RTT measurements, which indicates that a common part exclusive to these RTT measurements in Fig.~\ref{fig:cls8_k12} could have caused this change.
 Capable of inferring the location where RTT changes in the Internet happen from readily available delay and path measurements on the client TE platform offers precious visibility that might contribute to better route selection logic.
 Clustering in feature space (Section~\ref{sec:cls_ft}) is however not an appropriate approach for the identification of RTT time series with similar shapes, because the features extracted, summarizing the entire time series, do not have the capability conveying information on temporal structure.
 Therefore, we study the clustering approaches where the data representation of RTT time series remain time series.
@@ -487,12 +485,12 @@ We therefore found a set of new timestamps for ping measurements that minimizes 
 The resulted average time distortion from the new timestamps to initial ones is $55.01 sec$, being much smaller than the measurement interval, i.e.\ $240s ec$.
 We henceforth aligned the initial RTT measurement measurements to the closest new timestamp.
 For several rare moments when no measurement data was available, we padded them with closest RTT measurements.
-Hence, I achieved a dataset with aligned timestamps and equal length.
+Hence, we achieved a dataset with aligned timestamps and equal length.
 
 \subsection{Data representation}
 In order to capture the temporal structure of time series, we tired following data transformations that result still in time series.
 
-\paragraph*{Raw RTT}  The aligned and padded raw RTT measurements are used at them are for the sake of comparison. This representation is denoted as \textbf{RTT} later on.
+\paragraph*{Raw RTT}  The aligned and padded raw RTT measurements are used as them are for the sake of comparison. This representation is denoted as \textbf{RTT} later on.
 
 \paragraph*{Segments by changepoint detection} In the purpose of filtering unnecessary variations in the raw RTT measurements, we applied changepoint detection to them. The operation cuts each RTT time series into segments of differing characteristics. We then simply each RTT time series with the mean value of each segment without changing its total length. So achieved time series are denoted as \textbf{Seg}. The changepoint detection is performed with R package \textit{changepoint}, version 2.2.1~\cite{Killick2013a}. The min RTT is first subtracted from each RTT time series. Then we assume Poisson distribution during the change detection. We later on dedicate an entire chapter, Chapter~\ref{sec:cpt_rtt}, to the change detection for RTT measurements, where more technical details can be found.
 
@@ -502,7 +500,7 @@ In order to capture the temporal structure of time series, we tired following da
 \begin{align*}
 x_m = x-\tilde x,
 \end{align*}
-where $\tilde x$ is the mode of time series $x$. Then we scale the $x_m$ series by the following piece-wise function:
+where $\tilde x$ is the mode of time series $x$. Then we scale the $x_m$ time series by the following piece-wise function:
 \begin{align*}
 F_s(x) =
 \begin{cases} 
@@ -512,20 +510,20 @@ F_s(x) =
   \end{cases}
 \end{align*}
 where $\beta = 10 \times \log_2 60 - 50$, being simply a term to make the $F_s(x)$ continuous in value. 
-The intuition behind these operations are 1) since networks tend to have a dominant configuration and are most of the time free of congestion, it is variation around the most popular value that defines the shape of the RTT time series; 2) for little variations, say less 10 msec, we would like to consider them as insignificant noises and filter them; for moderate deviations, say in the range of $[10 msec, 60 msec)$, are changes that we would like to take into account during clustering thus conserved linearly; while for super large changes, sometimes outlier values, greater than 60 msec, we would like suppress their impact on clustering results. We refer to resulted time series as \textbf{MP}.
+The intuition behind these operations are 1) since networks tend to have a dominant configuration and are most of the time free of congestion, it is variation around the most popular value that defines the shape of the RTT time series; 2) for little variations, say less 10 msec, we would like to consider them as insignificant noises and filter them; for moderate deviations, say in the range of $[10 msec, 60 msec)$, are changes that we would like to take into account during clustering thus conserved linearly; while for super large changes, sometimes outlier values, greater than 60 msec, we would like to suppress their impact on clustering results. We refer to resulted time series as \textbf{MP}.
 
 \subsection{Distance measure}
 Wang et al.\ \cite{Wang2013} performed a comprehensive study on distance measures for time series data. They showed no distance measure is significantly better (in terms of the accuracy finding 1 closest neighbour) than \acf{DTW} on a majority of data studied \cite{UCRArchive}, while \ac{ED} is of similar performance as \acf{DTW} when training sample are big enough. Therefore, we consider these two well studied distance measures.
 
-\paragraph*{\ac{ED}} is a non-elastic distance measure, which can only be applied to two time series of same length. For $x$ and $y$ of length $N$, ED is defined as:
+\paragraph*{\acf{ED}} is a non-elastic distance measure, which can only be applied to two time series of same length. For $x$ and $y$ of length $N$, ED is defined as:
 \begin{align}
 ED(x,y) = \sqrt{(x_1 - y_1)^2 + (x_2 - y_2)^2 + \dots + (x_N - y_N)^2}.
 \end{align}
 All the above presented data representation contain time series of same length, thus applicable.
 
-\paragraph*{\ac{DTW}} is an elastic distance measure, which allows it to handle time series of different length. Yet, \cite{Ratanamahatana2005} showed that there is no significant difference in terms of classification accuracy for \ac{DTW} in handling series of different length and re-interpolated series of same length. 
+\paragraph*{\acf{DTW}} is an elastic distance measure, which allows it to handle time series of different length. Yet, \cite{Ratanamahatana2005} showed that there is no significant difference in terms of classification accuracy for \ac{DTW} in handling time series of different length and re-interpolated series of same length. 
 Therefore, padding shall bring few impact when employing \ac{DTW}.
-Different from ED, \ac{DTW} stretches or compress the two time series so that one resembles the other as much as possible. That is, one value in a series can be aligned/matched to one or multiple values of arbitrary positions in the other series, so that the cumulated distance between all aligned/matched points are the smallest. Constraints exist in finding such alignment, or in other words wrapping path, the details of which can be found in \cite{Sakoe1978, Keogh2005, Giorgino2009}.
+Different from ED, \ac{DTW} stretches or compress the two time series so that one resembles the other as much as possible. That is, one value in a time series can be aligned/matched to one or multiple values of arbitrary positions in the other time series, so that the accumulated distance between all aligned/matched points are the smallest. Constraints exist in finding such alignment, or in other words wrapping path, the details of which can be found in \cite{Sakoe1978, Keogh2005, Giorgino2009}.
 
 \begin{figure}[!htb]
 \centering
@@ -550,7 +548,7 @@ Fig.~\ref{fig:dtw_ex} gives an example of how \ac{DTW} aligns a query RTT series
 \label{fig:dtw_ex_win}
 \end{figure}
 
-However, matching variations far away in time as is the case in Fig.~\ref{fig:dtw_ex} dosen't really help in finding synchronized changes, which is of interest to us. Therefore we apply a window restricting the range of alignment/matching between two RTT time series. The window used is visualized in Fig.~\ref{fig:win}. With window size equaling 4, a data point in one series can no longer be match to a point 5 index further in the other series. 5 index in our RTT measurements, means 20 min, which is already large range. With the window, the new alignment is shown in Fig~\ref{fig:dtw_ex_win}.
+However, matching variations far away in time as is the case in Fig.~\ref{fig:dtw_ex} dosen't really help in finding synchronized changes, which is of interest to us. Therefore we apply a window restricting the range of alignment/matching between two RTT time series. The window used is visualized in Fig.~\ref{fig:win}. With window size equaling 4, a data point in one time series can no longer be match to a point 5 index further in the other series. 5 index in our RTT measurements, means 20 min, which is already a large range. With the window, the new alignment is shown in Fig~\ref{fig:dtw_ex_win}.
 
 \subsection{Clustering results}
 
@@ -558,7 +556,7 @@ However, matching variations far away in time as is the case in Fig.~\ref{fig:dt
 We used \ac{PAM} instead of k-means because 1) \ac{PAM} is more robust than k-means, for its clustering result is less impacted by outlier observations~\footnote{The only difference between \ac{PAM} abd k-means lies in that k-means uses the mean value of cluster members as the prototype of that cluster, around which the cluster member are iteratively adjusted, while \ac{PAM}, a.k.a. k-medoids uses the cluster member that minimizes the total distance between itself and all other cluster members as the cluster prototype.}.
 2) the mean 'value' of a set of time series does not have any practical meaning, while the medoid is a common choice~\cite{Aghabozorgi2015}. 
 
-The clustering result with \ac{ED} is relatively not meaningful, and will not be discussed later on. It forms one cluster containing a majority of of RTT time series without observably similarity among them, and several small clusters having strictly matched RTT spikes. We believe it is because the distance definition is too stiff .
+The clustering result with \ac{ED} is relatively not meaningful, and will not be discussed later on. It forms one cluster containing a majority of RTT time series without observably similarity among them, and several small clusters having strictly matched RTT spikes. We believe it is because the distance definition is too stiff .
 
 \begin{figure}[!htb]
 \centering
@@ -575,7 +573,7 @@ We thus mainly compare the clustering results using \ac{DTW} and \ac{PAM} over t
 \label{fig:rtt3d_mp_cls2}
 \end{figure}
 
-Investigation RTT time series of resulted clusters, we found that RTT time series in $RTT$ are essentially grouped by their RTT level, indicating the meaning value of raw RTT time series dominated the distance calculation. \textbf{MP} and \textbf{Seg} contain pretty similar clusters when the \ac{ASW} is relatively high for both data representation at $k=5$. One cluster containing exactly the same member RTT time series in both representations is shown in Fig.~\ref{fig:rtt3d_mp_cls2}. With both representation methods, a almost 0.8 \ac{ASW} is achieved for this cluster, meaning that the clustering algorithm is extremely certain about this result. Other clusters of \textbf{MP} and \textbf{Seg} are as well of relevance, indication they are very effective ways of extracting temporal structures in time series for clustering.
+Investigating RTT time series of resulted clusters, we found that RTT time series in \textbf{RTT} are essentially grouped by their RTT level, indicating the meaning value of raw RTT time series dominates the distance calculation. \textbf{MP} and \textbf{Seg} contain pretty similar clusters when the \ac{ASW} is relatively high for both data representation at $k=5$. One cluster containing exactly the same member RTT time series under both representations is shown in Fig.~\ref{fig:rtt3d_mp_cls2}. With both representation methods, a almost 0.8 \ac{ASW} is achieved for this cluster, meaning that the clustering algorithm is extremely certain about this result. Other clusters of \textbf{MP} and \textbf{Seg} are as well of relevance, indication they are very effective ways of extracting temporal structures in time series for clustering.
 
 \subsection{Network implications of shared RTT variation}
 
@@ -589,24 +587,24 @@ The other 2 have unannounced IP addresses interconnecting AS6939.
 
 \paragraph*{Routing changes} No AS path change is witnessed during this period.
 However, there are IP level path changes within AS6939 happened at the same moment as the shared RTT changes~\footnote{We are capable of distinguishing real IP path changes and those due to \ac{LB}, more technical detail in Section~\ref{sec:cpt_rtt}.}.
-RTT of the hop before entering AS6939 experienced the most significant increase when inspecting the traceroute measurements.
+RTT till hop entering AS6939 experienced the most significant increase when inspecting the traceroute measurements.
 
 \paragraph*{Possible scenario} Our guess was that IXP AS8674 changed the next-hop in reaching AS6939 out of some reason and the impacted traffic fell on a congested inter-AS link.
 The \acf{NOC} team of AS8674 kindly replied to our query and told us that they did ``not see any special disturbance''. 
-Another possibility is due to \acf{NDA}, they were not allowed to convey any information to non-member entities.
+Another possibility is that due to \acf{NDA}, they were not allowed to reveal any information to non-member entities.
 In both cases, it turned out to be very difficult to identify which part of the Internet causes the shared change, using merely end-to-end measurements.
-Yet, capable of clustering in first place RTT time series with similar shapes does help narrow the scope of possible causes.
+Yet, capable of clustering in first place RTT time series with similar shapes does help narrow down the scope of possible causes.
 
 \subsection{Drawbacks of time series clustering}
 
 Time series clustering with \textbf{MP}/\textbf{Seg} and \ac{PAM} offered very interesting results and helped us chasing down a specific case of RTT change shared by multiple RTT time series.
 However, it is still not ideal in the context of measurement-based TE for following reasons.
 
-First, it won't scale. In order to obtain a distance matrix among the $n$ the time series, $O(n^2)$ distance calculation is needed. The computation cost for clustering could thus be prohibitively high when there are thousands of RTT time series, one for each destination prefix. 
+First, it won't scale. In order to obtain a distance matrix among $n$ time series, $O(n^2)$ distance calculation is needed. The computation cost for clustering could thus be prohibitively high when there are thousands of RTT time series, one for each destination prefix. 
 
-Second, the interpretation of clustering results remain ad hoc, and thus hard to be automatized. \ac{ASW} of each cluster can serve as an indicator of cluster quality/relevance. Yet, what \ac{ASW} should be considered significant enough is hard to justify. In previous analyses, we always resorted to raw RTT time series to judge if the clusters are indeed meaningful or not, before carrying out more specific analysis. On top of that, the clustering results do not state when RTT changes shared by the cluster members actually happened, preventing as well systematic investigation of relating network events at these moments to infer the cause to the RTT changes.
+Second, the interpretation of clustering results remain ad hoc, and thus hard to be automatized. \ac{ASW} of each cluster can serve as an indicator of cluster quality/relevance. Yet, what level of \ac{ASW} should be considered significant enough is hard to justify. In previous analyses, we always resorted to raw RTT time series to judge if the clusters are indeed meaningful or not, before carrying out more specific analysis. On top of that, the clustering results do not state when RTT changes shared by the cluster members actually happened, preventing as well systematic investigation of relating network events at these moments to infer the causes of the RTT changes.
 
-Third, it is hard to transform clustering into an online process. Along the time, different part of the Internet might cause RTT changes, impacting different set of RTT measurements, hence different clusters over time. This requires the clustering methods to update the resulted clusters as new measurements flow in. This is not what clustering methods studied in this chapter are capable of.
+Third, it is hard to transform clustering into an online process. Along the time, different parts of the Internet might cause RTT changes, impacting different sets of RTT measurements, hence different clusters over time. This requires the clustering methods to update the resulted clusters as new measurements flow in. This is not what clustering methods studied in this chapter are capable of.
 
-To address the above issues, we found simplifying RTT time series via changepoint detection promising. It first outputs the moments when each RTT time series experiences significant changes. Based on this change-or-not binary status, we can then easily form groups of time series sharing the change. With evolving groups over time, we can potential track the causes for different RTT changes over time in the Internet.
-We develop this basic and intuitive idea in Chapter~\ref{sec:cpt_rtt} and ~\ref{sec:infer}.
+To address the above issues, we found simplifying RTT time series via changepoint detection promising. It first outputs the moments when each RTT time series experiences significant changes. Based on this change-or-not binary status, we can then easily form groups of time series sharing the change. With evolving groups over time, we can track the causes for different RTT changes over time in the Internet.
+We develop this idea in Chapter~\ref{sec:cpt_rtt} and ~\ref{sec:infer}.
