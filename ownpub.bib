@@ -1,0 +1,91 @@
+@article{Shao2015,
+abstract = {In the context of Border Gateway Protocol (BGP), inbound inter-domain traffic engineering (TE) remains a difficult problem without panacea. Each of previously investigated method solves a part of the problem. In this study, we try to complement the map by exploring the use of BGP communities. With BGP community based polices enabled in transit provider networks, we are able to manipulate incoming traffic for stub Autonomous System (AS) in a finer granularity than known techniques by customizing the AS-paths perceived by remote networks. We analyze the constraints using this technique, along with its effectiveness and granularity.},
+archivePrefix = {arXiv},
+arxivId = {1511.08336},
+author = {Shao, Wenqin and Devienne, Francois and Iannone, Luigi and Rougier, Jean-Louis},
+eprint = {1511.08336},
+file = {:Users/wenqin/Documents/reference base/Unknown/2015/Shao et al. - On the use of BGP communities for fine-grained inbound traffic engineering - 2015.pdf:pdf},
+mendeley-groups = {Published work},
+month = {nov},
+title = {{On the use of BGP communities for fine-grained inbound traffic engineering}},
+url = {http://arxiv.org/abs/1511.08336},
+year = {2015}
+}
+@inproceedings{Shao2015b,
+abstract = {Inter-domain Traffic Engineering for multi-homed networks faces a scalability challenge, as the size of BGP routing table continue to grow. In this context, the choice of the best path must be made potentially for each destination prefix, requiring all available paths to be characterised (e.g., through measurements) and compared with each other. Fortunately, it is well-known that a few number of prefixes carry the larger part of the traffic. As a natural consequence, to engineer large volume of traffic only few prefixes need to be managed. Yet, traffic characteristics of a given prefix can greatly vary over time, and little is known on the dynamism of traffic at this aggregation level, including predicting the set of the most significant prefixes in the near future. {\%}based on past observations. Sophisticated prediction methods won't scale in such context. In this paper, we study the relationship between prefix volume, stability, and predictability, based on recent traffic traces from nine different networks. Three simple and resource-efficient methods to select the prefixes associated with the most important foreseeable traffic volume are then proposed. Such proposed methods allow to select sets of prefixes with both excellent representativeness (volume coverage) and stability in time, for which the best routes are identified. The analysis carried out confirm the potential benefits of a route decision engine.},
+archivePrefix = {arXiv},
+arxivId = {1511.08344},
+author = {Shao, Wenqin and Iannone, Luigi and Rougier, Jean Louis and Devienne, Fran??ois and Viste, Mateusz},
+booktitle = {Proceedings of the NOMS 2016 - 2016 IEEE/IFIP Network Operations and Management Symposium},
+doi = {10.1109/NOMS.2016.7502827},
+eprint = {1511.08344},
+file = {:Users/wenqin/Documents/reference base/Proceedings of the NOMS 2016 - 2016 IEEEIFIP Network Operations and Management Symposium/2016/Shao et al. - Scalable BGP prefix selection for effective inter-domain traffic engineering - 2016.pdf:pdf},
+isbn = {9781509002238},
+mendeley-groups = {Published work},
+number = {NOMS},
+pages = {315--323},
+title = {{Scalable BGP prefix selection for effective inter-domain traffic engineering}},
+url = {http://arxiv.org/abs/1511.08344},
+year = {2016}
+}
+@inproceedings{Shao2016,
+abstract = {{\textcopyright} 2016 IEEE.For multi-homed networks, inter-domain traffic engineering (TE) consists in selecting the best path via available transit providers, so that the transmission quality is improved in front of network events, such as congestion and fail-over. In practice, this choice bases on end-to-end (e2e) measurements toward destination networks. These measurements, especially Round-Trip Time (RTT), are expected to offer an faithful view on inter-domain path properties. Hosts in destination networks with open ports are deliberately discovered for active measurement. RTT traces so obtained can be influenced by host-local factors that are not relevant to inter-domain routing and eventually mislead route decisions. We data-mined the RTT time-series between two ASes with unsupervised learning method - clustering, on a set of statistic features. Achieved results showed that our method was capable of improving data quality, by excluding less reliable traces. Moreover, we considered traceroute measurements. Early results suggested that most variations of e2e delay actually occured in access networks. We thus believe that the proposed scheme can improve the accuracy and stability of the route selection for multi-homed networks.},
+author = {Shao, Wenqin and Rougier, Jean Louis and Devienne, Fran??ois and Viste, Mateusz},
+booktitle = {Proceedings of the NOMS 2016 - 2016 IEEE/IFIP Network Operations and Management Symposium},
+doi = {10.1109/NOMS.2016.7502970},
+file = {:Users/wenqin/Documents/reference base/Proceedings of the NOMS 2016 - 2016 IEEEIFIP Network Operations and Management Symposium/2016/Shao et al. - Improve round-trip time measurement quality via clustering in inter-domain traffic engineering - 2016.pdf:pdf},
+isbn = {9781509002238},
+mendeley-groups = {Published work},
+number = {AnNet},
+pages = {1105--1108},
+title = {{Improve round-trip time measurement quality via clustering in inter-domain traffic engineering}},
+year = {2016}
+}
+@inproceedings{Shao2016a,
+archivePrefix = {arXiv},
+arxivId = {arXiv:1701.00938v1},
+author = {Shao, Wenqin and Rougier, Jean-louis and Devienne, Fran{\c{c}}ois and Viste, Mateusz},
+booktitle = {CoNEXT Student Workshop},
+eprint = {arXiv:1701.00938v1},
+file = {:Users/wenqin/Documents/reference base/CoNEXT Student Workshop/2016/Shao et al. - Missing measurements on RIPE Atlas - 2016.pdf:pdf},
+mendeley-groups = {Published work},
+title = {{Missing measurements on RIPE Atlas}},
+year = {2016}
+}
+@INPROCEEDINGS{Shao1709:One,
+AUTHOR="Wenqin Shao and Jean-Louis Rougier and Antoine Paris and François Devienne
+and Mateusz Viste",
+TITLE="{One-to-One} matching of {RTT} and Path Changes",
+BOOKTITLE="29th International Teletraffic Congress (ITC 29)",
+ADDRESS="Genoa, Italy",
+DAYS=3,
+MONTH=sep,
+YEAR=2017,
+ABSTRACT="Route selection based on performance measurements is an essential task in
+inter-domain Traffic Engineering. It benefits from the detection of
+significant changes in RTT measurements and the understanding on potential
+causes of change. Among the large body of literature on change detection
+methods and their application in various domains, few works focus on RTT
+measurements. It is thus unclear which approach works best on such data. 
+
+In this paper, we presented an evaluation framework for change detection on
+RTT times series, consisting of: 1) a carefully labelled 34,008-hour RTT
+dataset as ground truth; 2) a scoring method specifically tailored for RTT
+measurements. Furthermore, we proposed a data transformation that improves
+the detection performance of existing methods.
+
+Path changes are as well attended to. We fixed shortcomings of previous
+works by distinguishing path changes due to routing protocols (IGP and BGP)
+from those caused by load balancing. 
+
+Finally, we applied our change detection methods to a large set of
+measurements from RIPE Atlas. The characteristics of both RTT and path
+changes were analyzed; the interplay between the two were also revealed. We
+identified extremely frequent AS path changes yet with few consequences on
+RTT, which has not been reported before.
+
+The codes for data collection, change detection and evaluation, along with
+our labelled dataset were made public under opensource license. Apart from
+reproducibility considerations, we hope that it facilitates and encourages
+further developments on change detection methods for networking."
+}

@@ -42,8 +42,9 @@
     \listoftables
         
     \vspace{8ex}
-%   \newpage
-    
+   \newpage
+ 
+\iffalse   
     %*******************************************************
     % List of Listings
     %*******************************************************      
@@ -54,7 +55,9 @@
     \lstlistoflistings 
 
     \vspace{8ex}
-       
+\fi
+
+      
     %*******************************************************
     % Acronyms
     %*******************************************************
@@ -63,7 +66,7 @@
     \pdfbookmark[1]{Acronyms}{acronyms}
     \markboth{\spacedlowsmallcaps{Acronyms}}{\spacedlowsmallcaps{Acronyms}}
     \chapter*{Acronyms}
-    \begin{acronym}[UMLX]
+    \begin{acronym}[ARIMA]
     		\acro{ACM}{Association for Computing Machinery}
     		\acro{NAT}{Network Address Translation}
     		\acro{LISP}{Locator/Identifier Separation Protocol}

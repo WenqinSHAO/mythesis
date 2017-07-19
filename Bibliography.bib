@@ -2169,3 +2169,41 @@ title = {{A performance evaluation of BGP-based traffic engineering}},
 url = {http://onlinelibrary.wiley.com/doi/10.1002/nem.559/abstract},
 year = {2005}
 }
+
+@INPROCEEDINGS{Shao1709:One,
+AUTHOR="Wenqin Shao and Jean-Louis Rougier and Antoine Paris and François Devienne
+and Mateusz Viste",
+TITLE="{One-to-One} matching of {RTT} and Path Changes",
+BOOKTITLE="29th International Teletraffic Congress (ITC 29)",
+ADDRESS="Genoa, Italy",
+DAYS=3,
+MONTH=sep,
+YEAR=2017,
+ABSTRACT="Route selection based on performance measurements is an essential task in
+inter-domain Traffic Engineering. It benefits from the detection of
+significant changes in RTT measurements and the understanding on potential
+causes of change. Among the large body of literature on change detection
+methods and their application in various domains, few works focus on RTT
+measurements. It is thus unclear which approach works best on such data. 
+
+In this paper, we presented an evaluation framework for change detection on
+RTT times series, consisting of: 1) a carefully labelled 34,008-hour RTT
+dataset as ground truth; 2) a scoring method specifically tailored for RTT
+measurements. Furthermore, we proposed a data transformation that improves
+the detection performance of existing methods.
+
+Path changes are as well attended to. We fixed shortcomings of previous
+works by distinguishing path changes due to routing protocols (IGP and BGP)
+from those caused by load balancing. 
+
+Finally, we applied our change detection methods to a large set of
+measurements from RIPE Atlas. The characteristics of both RTT and path
+changes were analyzed; the interplay between the two were also revealed. We
+identified extremely frequent AS path changes yet with few consequences on
+RTT, which has not been reported before.
+
+The codes for data collection, change detection and evaluation, along with
+our labelled dataset were made public under opensource license. Apart from
+reproducibility considerations, we hope that it facilitates and encourages
+further developments on change detection methods for networking."
+}
