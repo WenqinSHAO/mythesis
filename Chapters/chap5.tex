@@ -46,7 +46,7 @@ Second, in order to prove the effectiveness of such heuristics, one needs eventu
 \end{figure}
 
 \marginpar{Treat the cause, not the symptom.}
-Still, existing measurements, though toward destination other than the ones lack of them, can be taken advantage of. The idea is instead of finding replacement measurements for `un-measurable' prefixes, we try identifying directly the causes for important RTT changes using available measurements. As articulated in Section~\ref{sec:cpt_rtt}, changes in RTT measurements is the trigger for TE and is what we actually care about. If the identified cause for an RTT change sits on the path toward the destination prefixes without measurements, as shown in Fig.~\ref{fig:chap5_cause_infer_te}, we can reasonably assume that the path toward the `un-measurable' prefixes shall undergo similar RTT changes as existing measurements do. Further TE operations can then be as well trigger for the `un-measurable' prefixes, such as switch to alternatives paths remain unaffected.
+Still, existing measurements, though toward destination other than the ones lack of them, can be taken advantage of. The idea is instead of finding replacement measurements for `un-measurable' prefixes, we try identifying directly the causes for important RTT changes using available measurements. As articulated in Section~\ref{sec:cpt_rtt}, changes in RTT measurements is the trigger for TE and is what we actually care about. If the identified cause for an RTT change sits on the path toward the destination prefixes without measurements, as shown in Fig.~\ref{fig:chap5_cause_infer_te}, we can reasonably assume that the path toward the `un-measurable' prefixes shall undergo similar RTT changes as existing measurements do. Further TE operations can then be as well triggered for the `un-measurable' prefixes, such as switch to alternatives paths remain unaffected.
 
 \begin{figure}[!htb]
 \centering
@@ -86,7 +86,7 @@ If we were to apply these same methods to our RTT measurements after changepoint
 Further, one might wonder whether it is possible to apply delay tomography methods directly to Internet RTT measurements over a relatively short time range. And then detect whether the delay distribution experiences obvious change over time, or exhibit multimodality for certain links.
 
 This approach is however not the most appropriate for various reasons. First, the assumption of
-same delay contribution from same link to different end-to-end measurements no longer holds for Internet RTT measurements for TE uses. It is because the timing of different measurements are not strictly synchronized. Rather, random factors are deliberately added to each individual measurement in building the real system to avoid creating periodic peaks of measurement traffic that might introduce interference among each other and hence harm measurement reliability. Moreover,  RIPE Atlas measurements (Section~\ref{sec:ripe_atlas}) wildly employed in this work do not guarantee strict synchronization among different measurements.
+same delay contribution from same link to different end-to-end measurements no longer holds for Internet RTT measurements for TE uses. It is because the timing of different measurements are not strictly synchronized. Rather, random factors are deliberately added to each individual measurement in building the real system to avoid creating periodic peaks of measurement traffic that might introduce interference among each other and hence harm measurement reliability. Moreover,  RIPE Atlas measurements (Section~\ref{sec:ripe_atlas}) widely employed in this work do not guarantee strict synchronization among different measurements.
 Those measurements are individually performed by probes loosely coordinated. The timing depends basically on the moment when each probe starts for the first time.
 Second, delay tomography introduces potentially a scalability issue for Internet measurements.
 It is first conceived for intradomain uses and are in most cases validated solely on simulated networks way much smaller than the actually part of the Internet that the traffic of a typical content/hosting/service provider could span.
@@ -120,7 +120,7 @@ Fig.~\ref{fig:chap5_sys_design} depicts the logical building blocks required for
 Topology construction builds a graph for hops and links traversed by RTT measurements.
 This topology graph is an intermediate step for the fabrication of inference metrics for each node and link present in the topology. As seen in Fig~\ref{fig:chap5_toy_inference}, whether a node/link is the cause for RTT change, depends not only on the measurements that traverse it, but as well those flow around. Identifying such measurement sets for each node/link requires knowledge on the topology. Moreover, the topology graph serves as well in visualizing the location of RTT changes. 
 Sequences of RTT change events instantiate the these inference metrics upon which cause inference is carried out.
-The output of the whole system tells the links and nodes that are responsible for RTT changes at a specific moments.
+The output of the whole system tells the links and nodes that are responsible for RTT changes over time.
 
 \subsection{Spatial and temporal granularity of inference}
 Spatial and temporal granularity deal with the inference precision in space and time.
@@ -171,7 +171,7 @@ If no such AS path available, meaning the problem is potentially not avoidable, 
 The essence of deciding time resolution in cause inference lies in the answer to following questions: given a set of RTT change event sequences (defined by inference metric), how to quantify the impact/popularity of RTT change events shared by multiple sequences and when do such events happen?
 
 \marginpar{challenge and possible approaches}
-The main challenge to above questions comes from the fact same RTT event may have shifted time stamps in different event sequences. It is because 1) RTT measurements are asynchronous among RIPE Atlas probes; 2) RTT change detection might have slight time shifts in detection change events.
+The main challenge to above questions comes from the fact that a same RTT change event may have shifted time stamps in different event sequences. It is because 1) RTT measurements are asynchronous among RIPE Atlas probes; 2) RTT change detection might result time shifts upto several measurement intervals in the detected moments of change.
 Several methods are possible to address this issue.
 
 
@@ -225,7 +225,8 @@ For example, AS0 in Fig.~\ref{fig:chap5_dms} has three \acp{DM} sets. Each cover
 \begin{heuristic}{Node}{majority adjacent links}\label{hu:node}
 If there exists one \ac{DM} set $D$ of node $n$ satisfying $count(D, t) > 0.5 \times degree(n)$,  node $n$ is then the cause for shared RTT change at time bin $t$. 
 \end{heuristic}
-In other words, it requires a majority of adjacent links of node $n$ (measured in a non-overlapping manner) experience RTT change within a certain 10min time bin. This heuristic/criterion is a compromise of following two extreme cases.
+
+$count(D,t)$ is the RTT change event count within measurement set $D$ at time bin $t$. In other words, the heuristic requires a majority of adjacent links of node $n$ (measured in a non-overlapping manner) experience RTT change within a certain 10min time bin. This heuristic/criterion is a compromise of the following two extreme cases.
 
 \marginpar{the origin of the heuristic}
 \paragraph{The lower bar} According to Assumption~\ref{as:1} attributing cause to the common part of the paths, it suffices to have only two measurements solely intersecting at $n$ (makes the two measuremens \ac{DM}) and covering only two adjacent edges to $n$, to judge $n$ liable for the synchronized the RTT change witnessed by the two measurements. This could happen by chance for a high degree node (AS) with some bad quality links.
