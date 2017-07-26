@@ -8,22 +8,21 @@ Meanwhile, it is as well beneficial for measurement-based TE when measurements t
 
 \subsection{Lack of direct measurements}
 \marginpar{How the RTT toward a destination prefix is measured?}
-As explained in Section~\ref{sec:intro}, in order to measure the path performance toward a destination prefix, we need to, in first place, identify some hosts in that prefix that can be measured, or respond to our measurements.
+As explained in Section~\ref{sec:intro}, in order to measure the path performance toward a destination prefix, we need to, in first place, identify some hosts in that prefix that respond to our measurements.
 One possible approach identifying them is to look for hosts listening on some common TCP ports, e.g. 80, 443 etc., in the traffic exchanged with that destination prefix or through port scanning.
-Then RTT toward the destination prefix is represented by the measurements toward identified hosts~\footnote{Several ways exists to actively measure the RTT through TCP. Some methods with few footprint and low measurement are employed in port scanning~\cite{nmap}, like SYN (also known as half open) or FIN stealth.}.
+Then RTT toward the destination prefix is represented by the measurements toward identified hosts~\footnote{Several ways exists to actively measure the RTT through TCP. Methods with few footprint and low measurement cost are employed in port scanning~\cite{nmap}, like SYN (also known as half open) or FIN stealth.}.
 
 \marginpar{Lack of direct measurement toward certain destination prefixes.}
-However, not all selected destination prefixes have such hosts with open ports, and
-consequently leaves measurement-based TE without measurements~\footnote{selected prefixes: destination prefixes with important volume thus selected for TE, more detail in Section~\ref{sec:pref_selec}.}.
+However, not all selected destination prefixes have such `measurable' hosts~\footnote{selected prefixes: destination prefixes with important volume thus selected for TE, more detail in Section~\ref{sec:pref_selec}.}.
 Take client SA appeared in Section~\ref{sec:pref_selec} as an example, on average 15\% of its outbound traffic involving $\sim 330$ destination prefixes are without measurements.
 More than 70\% of the `un-measured' traffic flows toward prefixes owned by mobile operators during peak hours.
 In the foreseeable future, the proportion of such traffic would be even bigger, given the overall tendency of increasing usage on mobile devices.
-At this point, we face with the problem of \textit{how to perform measurement-based TE without direct measurement toward the destination}. 
+At this point, we face the problem of \textit{performing measurement-based TE without direct measurement toward the destination}. 
 
 \subsection{Prefix grouping as a countermeasure}
 \marginpar{How about group `un-measurable' prefixes' with `measurable' ones?}
-One possible approximation is to group `un-measurable' prefixes with those have measurements based on topological/geographical locality, for example those belonging to same AS or city. With that, measurements toward certain destination prefix represent multiple prefixes in the locality. And TE operations are uniformly performed for groups of prefixes.
-The problem with the approach is two-fold. 
+One possible approximation is to group `un-measurable' prefixes with those have measurements based on topological/geographical locality, for example those belonging to a same AS or city. The RTT measurements toward some destination prefix in the group speak for the rest prefix without measurement. Same best route are chosen for prefixes within the the group.
+The limitation with the approach is two-fold. 
 
 \marginpar{geographical locality}
 First, locality is not necessary a good enough heuristics for shared fate in RTT performance. 
@@ -31,7 +30,7 @@ Assuming geographical locality, it at most provides a rough estimation on the ba
 
 \marginpar{topological locality}
 Assuming topological locality, say AS-level, is more relevant, but still not good enough.
-As it has been pointed out, AS is not an atomic point~\cite{Muhlbauer2006}. Sub-AS structures can lead to difference in path chosen by others ASes in reaching its different prefixes. A recent study offers a close look on the heterogeneity of sub-AS routing behavior~\cite{Lee2016}. Finally, such approximation is helpless when the entire AS is not `measurable'.
+As it has been pointed out, AS is not an atomic point~\cite{Muhlbauer2006}. Prefix-based route announcement in BGP might result different paths for prefixes belonging to a same AS. Moreover, such approximation is helpless when the entire AS is not `measurable'.
 
 \marginpar{Can the measurable speak for the rest?}
 Second, in order to prove the effectiveness of such heuristics, one needs eventually measurements and the results could hence be biased toward/over-fitted for the part of Internet with measurements. Assuming the same for the rest without measurement data would be unconvincing.
@@ -40,14 +39,19 @@ Second, in order to prove the effectiveness of such heuristics, one needs eventu
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=.6\textwidth]{gfx/chap5/cause_infer_te.pdf}
-\caption{Identifying the location that causes significant RTT changes witnessed in available measurements might help the TE decisions for `un-measurable' destinations.}
+\includegraphics[width=.7\textwidth]{gfx/chap5/cause_infer_te.pdf}
+\caption{Transmission toward P4 can undergo a potential change as link AS2-AS3 is inferred as cause for RTT measurement changes toward other prefixes.}
 \label{fig:chap5_cause_infer_te}
 \end{figure}
 
 \marginpar{Treat the cause, not the symptom.}
-Still, existing measurements, though toward destination other than the ones lack of them, can be taken advantage of. The idea is instead of finding replacement measurements for `un-measurable' prefixes, we try identifying directly the causes for important RTT changes using available measurements. As articulated in Section~\ref{sec:cpt_rtt}, changes in RTT measurements is the trigger for TE and is what we actually care about. If the identified cause for an RTT change sits on the path toward the destination prefixes without measurements, as shown in Fig.~\ref{fig:chap5_cause_infer_te}, we can reasonably assume that the path toward the `un-measurable' prefixes shall undergo similar RTT changes as existing measurements do. Further TE operations can then be as well triggered for the `un-measurable' prefixes, such as switch to alternatives paths remain unaffected.
-
+Without RTT measurements toward P4 in Fig.~\ref{fig:chap5_cause_infer_te}, we have no clue on when and which of its available paths might undergo changes and thus are helpless in making TE decisions.
+However, if we were able to deduce which part of the Internet cause RTT changes using available measurements, we might still stand a chance optimizing for P4.
+Suppose that the link between AS2 and AS3 is inferred (somehow) as the cause for the RTT change underwent by measurements toward P2 and P3. 
+Since, a path toward P4 (the dashed line) flows as well through AS2 and AS3, we can then reasonably assume that the transmission performance toward P4 on that path shall experience a similar change at the same moment as those on measurements toward P2 and P3.
+With that, we shall switch to alternative paths remain unaffected to reach P4.
+That is how RTT change cause inference shed light on performance variations toward destinations without direction measurements and hence enable TE.
+ 
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=.75\textwidth]{gfx/chap5/toy_inference.pdf}
@@ -56,12 +60,12 @@ Still, existing measurements, though toward destination other than the ones lack
 \end{figure}
 
 \marginpar{Intuition on how to infer causes.}
-The idea was initially inspired by the case study in Section~\ref{sec:ripe_case_study} on shared RTT changes by multiple RTT time series from different ASes. 
-We realized that some RTT changes are not exclusive to one specific Internet path, but rather have a big influence range.
-Optimize the interdomain routing against the cause of such RTT changes would then be a more fundamental and effective approach to TE than handling each individual prefixes and paths towards them, henceforth RTT change cause inference.
+This idea was initially inspired by the case study in Section~\ref{sec:ripe_case_study} on shared RTT changes by multiple RTT time series from different ASes. 
+We realized that some RTT changes are not exclusive to measurements on one specific Internet path, but rather impact several RTT time series, as shown in Fig.~\ref{fig:rtt3d_mp_cls2}.
+Optimize the interdomain routing against the cause of such RTT changes would then be a more fundamental and effective approach to TE than handling each individual prefixes and paths towards them.
 
 In order to infer the location of causes, one reasonable assumption is that such shared RTT changes are more likely caused by the common parts of these paths, instead of being the consequence of perfect synchronization of multiple issues scattered in various places.
-With that, it is then possible to narrow down the scope of possible causes with measurements having both common parts and divergent parts. A toy example of inference is given in Fig.~\ref{fig:chap5_toy_inference}. With the assumption we can first scope the cause to link 1 and 4, node 2 and 5. Since there is a measurement free of RTT change traversing link 1 and node 2, link 4 and node 5 are then more likely to the cause. In Section~\ref{sec:inference}, we will more formally describe the assumptions and inference logic for node and link investigation under all possible topology patterns and measurement distributions.
+With that, it is then possible to narrow down the scope of possible causes with measurements having both common parts and divergent parts. A toy example of inference is given in Fig.~\ref{fig:chap5_toy_inference}. With the assumption we can first scope the cause to link 1 and 4, node 2 and 5. Since there is a measurement free of RTT change traversing link 1 and node 2, link 4 and node 5 are then more likely to be the cause. In Section~\ref{sec:inference}, we will more formally describe the assumptions and inference logic for node and link investigation under all possible topology patterns and measurement distributions.
 
 \section{Relationship to network delay tomography}
 
@@ -242,7 +246,7 @@ Heuristic~\ref{hu:node} is not perfect. It might still give rise to both false p
 
 After cause inference for each node, we can exclude all the links with any of its two nodes inferred as cause from further investigation, according to Assumption~\ref{as:2}.
 
-Afterwards, if a link causes indeed an RTT change, we shall expect a majority of measurements traversing that link to experience simultaneously (within in a same time bin) RTT change, which is a necessary but not a sufficient condition for link liability. In other words, violating this condition, the link can be exempted from cause for RTT change.
+Afterwards, if a link causes indeed an RTT change, we shall expect a majority of measurements traversing that link to experience simultaneously (within in a same time bin) that RTT change, which is a necessary but not a sufficient condition for link liability. In other words, violating this condition, the link can be exempted from cause for RTT change.
 More formally, we define the ensemble of measurements that traverse link $l$ as the \acf{FM} set of link $l$, denoted as $FMS(l)$. 
 
 \begin{heuristic}{Link}{majority of \ac{FM} set}\label{hu:link}
