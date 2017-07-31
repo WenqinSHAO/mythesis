@@ -1,4 +1,64 @@
 \chapter{Conclusion}
-What has been achieved in this thesis; what calls for further efforts and the possible implications of these quests.
+
+\section{Thesis Summary}
+
+This thesis is developed around a central pursuit of \textit{making better use of various network measurements to improving the transmission performance for stub ASes from the outbound perspective.}
+We came up with methods that predictively select destination prefixes associated with large volume through studies on the temporal dynamism of volume measurements.
+These methods allow traffic engineering operations to be focused only on these important targets while still cover a majority of traffic, hence improving the scalability of traffic engineering system.
+Later on, we focus on latency measurements. 
+We showcased and diagnosed some data quality issues previously unattended.
+Guidelines to mitigate their impacts on data processing and route selection were discussed.
+To better interpret performance measurements, we introduced changepoint analysis to the processing of RTT measurements, so that significant changes in path performance can be systematically detected and trigger route re-selection.
+We built an evaluation framework to quantify the robustness and sensitivity of detection methods on typical RTT measurements.
+Further, with the time series simplification by changepoint analysis, we grouped together RTT measurements that experience a same RTT change and inferred the network location that potentially causes that change. This visibility enables route optimization for prefixes that we were not able to measure directly.
+
+\section{Contributions}
+
+\section{Scalable prefix selection}
+It is recommended to perform traffic engineering only for destinations with import traffic volume. One key challenge is to efficiently predicting the volume importance for a great amount of destination prefixes.
+
+We analyzed real traffic measurements from nine different networks located in five different countries to acquire a realistic view on the distribution of traffic volume associated with BGP prefixes, as well as its variation in time.   
+We observed that the prefixes with most important accumulated volume over a week have relatively stable hourly volume. 
+Based on this observation, we proposed three simple 
+metrics (also easy to compute) to proactively select prefixes with important foreseeable traffic volume.
+We demonstrated that the metrics we proposed lead to better volume coverage compared to the existing solutions, the Grey model.
+%Furthermore, we evaluated the transmission performance for selected destination prefixes using different transit providers. We simulated as well a dynamic route decision algorithm. 
+%The results showed that with even a fairly basic mechanism, the overall RTT performance could be improved by $20\%$ compared to the best available transit provider in some networks studied. 
+
+\section{Data quality concerns}
+We studies two data quality issues previously unattended. One comes from the RIPE Atlas measurement platform, the other is specific to path performance measurement with multiple probes.
+
+The problem with Atlas was that some data points were missing for measurements meant to be performed regularly.
+We investigated all the available RIPE Atlas probes back then over one month. Only 60\% of v3 probes have complete measurement length. 
+$2/3$ of missing segments occurred while probes remain connected. 
+Half of these segments are no more than 2 measurements in length, and are thus likely to be caused by scheduling issues. However, around $25\%$ of them lasts long($\geq 1h$). 
+To help advance the investigation, we share with the RIPE Atlas team all the long missing segments identified.
+
+When measuring the performance of an AS path, multiple hosts/Atlas probes in the same destination prefix can be employed. We questioned the difference among these measurements, why it exists and how it could impact route selection.
+We found out that RTT time series collected in this study demonstrate diverse variation shapes though one common AS path is measured.
+We clustered these RTT time series to reveal their group structure by extracting several features as their data representation. 
+Resulted clusters successfully separate noisy traces from smooth ones according to human intuition and expertise.
+It confirmed that RTT measurements need to be ``cleaned'' before traffic engineering usages.
+Furthermore, we located the occurring location of most variations in end-to-end RTT measurements by applying the presented clustering methods to the first hops of traceroute measurements.
+The results showed that most variations come from the access network in this specific case.
+
+\section{Change detection for RTT measurements}
+
+In this chapter, we proposed an evaluation framework for change detection on RTT time series.
+The framework is robust with human-labelled dataset and weights RTT changes according to their importance in network operation. We further designed a data transformation adapted to RTT measurements to improve the detection sensitivity of some detection methods.
+In detecting path changes, we distinguish those caused by routing changes from those due to load balancing.
+Finally, we correlate the detected RTT and path changes by establishing an one-to-one matching between them. 
+We investigated the sensitivity distinction across different change detection methods. 
+Hidden issues with path changes are as well revealed.
+
+This work is mere a facilitator for measurement-based TE. Further efforts are required in building a working system. To name a few: online detection of RTT changes, route selection logic triggered by change detection  etc.
+
+\section{Change location inference}
 
 \chapter{Future works}
+In order to further improve prefix selection methods, we have shown that capturing bursty prefixes is the key. 
+To this end, we could group prefixes by their activity profiles. 
+For each group, selection method is adapted to its traffic dynamism.
+When dealing with prefixes with regular volume patterns and small hourly variation, the simple metrics proposed in this work perform already sufficiently well. 
+Nevertheless, for bursty prefixes, we might need a more sophisticate model that extracts additional activity features, for instance long term periodicity.
+The burstiness index $\beta$ proposed in this chapter, shown to be very expressive, could be potentially used in prefix characterization and classification and thus is worthy of future work.

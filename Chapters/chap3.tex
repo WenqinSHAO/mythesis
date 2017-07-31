@@ -198,11 +198,11 @@ We note that these measurements were mostly lost while probes were well connecte
 \subsection*{Wrap-up}
 In our analysis covering a large number of probes over one month, only 60\% of v3 Atlas probes have complete measurements. Around $1/3$ missing segments appear to closely correlated to disconnected period. The probe OS stability issue might have contributed to such missings, as suggested by the heavy tail of the missing lengths.
 
-However, the remaining $2/3$ of missings occurred while probes are connected. 
+However, the remaining $2/3$ of missing segments occurred while probes are connected. 
 Half of them are no more than 2 measurements in length, and are thus likely to be caused by scheduling issues. However, around $25\%$ of this category lasts long($\geq 1h$). 
 
 We reported the discovery to RIPE engineering team along with a specific case that they could look into.
-The last reply from RIPE team confirmed  that the probe we mentioned in report had ``time synchronization issues''. To help advance the investigation, we share with RIPE team all the long missing segments identified. These exchanges can be found on the RIPE Atlas forum at \url{https://www.ripe.net/participate/mail/forum/ripe-atlas}, with tile ``Actual measurement interval much larger than planned''.
+The last reply from RIPE team confirmed that the probe we mentioned in report had ``time synchronization issues''. To help advance the investigation, we shared with RIPE team all the long missing segments identified. These exchanges can be found on the RIPE Atlas forum at \url{https://www.ripe.net/participate/mail/forum/ripe-atlas}, with tile ``Actual measurement interval much larger than planned''.
 
 \section{Same AS path measured by different probes}
 Whether the measured RTT mainly reflects the network characteristics of AS paths traversed by real traffic is a data quality concern specific in the context of measurement-based interdomain TE.
@@ -464,12 +464,12 @@ However, it suggests that with our clustering method, we are able to get rid of 
 
 \subsection*{Wrap-up}
 In this study, we date-mined RTT time series between two ASes. 
-We found out that RTT time series in collected in this study demonstrate diverse variation shapes though one common AS path is measured.
-It confirms the concern that RTT measurements need to be ``cleaned'' in inter-domain TE.
+We found out that RTT time series collected in this study demonstrate diverse variation shapes though one common AS path is measured.
+It confirmed that RTT measurements need to be ``cleaned''.
 We clustered these RTT time series by extracting %a couple of 
 several features as their data representation. 
 Resulted clusters successfully separate noisy traces from smooth ones according to human intuition and expertise.
-Furthermore, we located the occurring location of most variations in end-to-end RTT measurements by applying presented clustering methods to the first hops of traceroute measurements.
+Furthermore, we located the occurring location of most variations in end-to-end RTT measurements by applying the presented clustering methods to the first hops of traceroute measurements.
 Our results confirmed the common sense that most variations come from the access network.
 
 \section{Multiple RTT time series with synchronized changes}
