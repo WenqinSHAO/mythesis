@@ -1,16 +1,15 @@
 \chapter{Inferring the location of RTT changes}
 \label{sec:infer}
 \section*{Abstract}
-We set out to infer the location of previously detected RTT changes.
-Knowing which AS or inter-AS link causes an RTT change at a certain moment shed light on TE decision for destination prefixes to which measurements are not available.
+We set out to infer the network locations of previously detected RTT changes.
+Knowing which AS or inter-AS link causes an RTT change at a certain moment shed light on TE decisions for destination prefixes to which measurements are not available.
 We start by grouping RTT time series that share a same RTT change with the help of changepoint analysis.
 Based on the assumption that changes are more likely to happen on common parts of these measured paths, we then develop inference procedures for AS and inter-AS link.
-Finally, we present two visualization tools for the inspection of shared RTT changes across multiple RTT measurements and inferred cause on a topology map.
+Finally, we present two visualization tools for the inspection of shared RTT changes across multiple RTT measurements and inferred causes of change on a topology map.
 
 \section{Perform measurement-based TE without direct measurements}
 Locating the cause of RTT changes is an intriguing research topic in its own right.
 Meanwhile, it is as well beneficial for measurement-based TE when measurements toward certain destination prefixes are not available.
-
 
 \subsection{Lack of direct measurements}
 \marginpar{How the RTT toward a destination prefix is measured?}
@@ -137,6 +136,7 @@ Sequences of RTT change events instantiate the these inference metrics upon whic
 The output of the whole system tells the links and nodes that are responsible for RTT changes over time.
 
 \subsection{Spatial and temporal granularity of inference}
+\label{sec:chap5_precision}
 %Spatial and temporal granularity deal with the inference precision in space and time.
 %We state and justify the our choice in this section. Multiple aspects are taken into consideration, including data collection cost, its marginal utility in TE, the necessity and feasibility of achieving high time resolution.
 
@@ -204,7 +204,7 @@ We extend this assumption to inter-AS links and ASes to accommodate to the infer
 \begin{assumption}{2}{common parts}\label{as:1}
 If measurements over multiple paths experience a shared RTT change, the common parts of these measured path are more likely to be the cause.
 \end{assumption}
-It describes one possible way to satisfy Assumption~\label{as:2} when multiple RTT measurements with intersecting paths are considered.
+It describes one possible way to satisfy Assumption~\ref{as:2} when multiple RTT measurements with intersecting paths are considered.
 It is simply a more probably case than having multiple scattered parts of Internet simultaneously cause a significant change. We use this assumption to design special sets of measurements (inference metric) for each node and link in topology graphs to test their liability at each 10 min time bin for RTT change events.
 
 \subsection{Inference metric and logic}

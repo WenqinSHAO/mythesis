@@ -36,9 +36,9 @@ A typical network can communicate with $\sim$ 100k different destinations regula
 Continuously measuring the performance to all that many destinations are costly and not necessary. 
 What are the most important destinations to focus on? Do these destinations change over time? How to identify them?
 Besides volume measurements, how should performance measurements be processed? Do they need cleaning?
-If yes, what are the potential data quality issues? What are the origin of these issues? How can we showcase and mitigate their impacts in route selection?
+If yes, what are the potential data quality issues? What are the origin of these issues? How can we showcase and mitigate their impacts on route selection?
 Further, in order to dynamically react to performance changes, how to detect in first place significant changes in performance measurements? How to do so without hard-coded or ad hoc parameters, yet featuring a acceptable level of robustness?
-Finally, once a performance change is detected, how can we learn more about such event? Where does it happen? Does it potentially impact other Internet paths a network uses? 
+Finally, once a performance change is detected, how can we learn more about this event from a network perspective? Where does it happen? Does it potentially impact other Internet paths a network uses? 
 We aim to explore answers to above questions in this thesis, so that the building of measurement-based route selection mechanism advances in these aspects: measurement scalability, interpretation of performance data and visibility on causes of performance changes. 
 
 \section{Intradomain Routing}
@@ -127,7 +127,7 @@ Recently, \ac{SDN} contributes as well to interdomain TE. The common part of the
 \citet{Kotronis2012} advances that such AS clusters under same TE service provider can be formed in an gradual way and eventually drives the evolution of the interdomain routing.
 \citet{Gupta2014} focuses on the application of \ac{SDN} in a more specific network environment, \ac{IXP}, where members by nature forms a cluster of ASes that exchange their routing information along with their TE polices within one centrally managed facility. Application specific peering, e.g. only peer for the exchange of video traffic, is made possible under this framework.
 
-\subsection{Scope of this thesis}
+\section{Scope of this thesis}
 We stage the works of this thesis under BGP, while fully realizing \ac{LISP}, \ac{SDN} and etc. are promising directions to pursuit.
 It is because BGP is still going to be the \textit{de facto} routing protocol of the Internet in the foreseeable future, for the deployment of new routing mechanism must be incremental.
 Till then,  BGP is what a majority of ASes has to live with. 
