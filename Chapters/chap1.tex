@@ -1,35 +1,43 @@
 \chapter{Introduction}
 \label{sec:intro}
 
-Transmission performance has been an ever-lasting pursuit of networking engineers and researchers since the dawn of Internet. 
+Transmission performance has been an ever-lasting pursuit of network engineers and researchers since the dawn of Internet. 
 The pursuit is stemmed from the distributed routing behavior and the hop-by-hop resource allocation mechanism that ensure the prevalence of this collection of individually manged networks.
-Networks and hosts alike selfishly compete for resources on common parts of paths, giving rise to congestion and sub-optimal global traffic distribution.
-Various approaches are developed over decades to tackle this performance issue from different angles.
+With in the realm of Internet, networks and hosts alike selfishly compete for resources on common parts of paths, giving rise to congestion and sub-optimal global traffic distribution.
 
-\paragraph*{Capacity wise} Regularly performed network dimensioning ensures that the network capacity grows in line with traffic demands~\cite{pioro2004routing}. 
-New generations of access methods, such as optical fiber access networks~\cite{Kramer2002, kazovsky2007next}, expand the pipe of `last mile' and gradually disqualify access network as the major performance bottleneck in Internet.
+One major roadblock to better performance is insufficient network capacity. It is thus necessary to regularly perform network dimensioning and deployment, to ensure that the network capacity grows in line with traffic demands~\cite{pioro2004routing}. 
+Among all sections in Internet, access network has a notorious reputation as performance bottleneck for a long time. 
+Over last few years, new generations of access methods~\cite{Kramer2002, kazovsky2007next} have been greatly expanding the pipe of this `last mile'. 
 
-\paragraph*{End-to-end congestion control} Evolving TCP congestion avoidance mechanism aims at fully utilizing bottleneck bandwidth while introducing minimum additional transmission delay (short queue length) and ensuring fair share of resources~\cite{Jacobson1988, mathis1997macroscopic, Cardwell2016}.
-Recently emerging QUIC~\cite{roskind2012quick} and HTTP/2~\cite{belshe2015hypertext} further alleviate unfair resource share caused by multiple simultaneous connection through multiplexing.
+Yet, congestion might still take place due to sudden increase of traffic demand for instance. End-to-end congestion control mechanism plays an important role here to optimize the performance in an distributed fashion.  
+It aims at fully utilizing bottleneck bandwidth while introducing minimum additional transmission delay (short queue length) and ensuring fair share of resources~\cite{Jacobson1988, mathis1997macroscopic, Cardwell2016}.
+%Recently emerging QUIC~\cite{roskind2012quick} and HTTP/2~\cite{belshe2015hypertext} further alleviate unfair resource share caused by multiple simultaneous connection through multiplexing.
 
-\paragraph*{Internet path and traffic pattern shift}
-The rise of \acf{CDN} and large content providers such as Google and Facebook drastically reduces the physical distance between contents and eyeballs, hence decreases the overall transmission latency.
-The rapid growth of \acf{IXP} flattens the previous hierarchical Internet topology, and thus as well shortens the Internet path~\cite{Labovitz2011}.
-
-\paragraph*{Path diversity} Certain applications, e.g. skype and bitTorrent, built an application level connectivity overlay on top of the Internet topology that reveals richer end-to-end path diversity and leads to better resilience and performance.
-MPTCP~\cite{Han2006} and QUIC take advantage of the multiple available network connections, e.g. WiFi and mobile data, on an end host.
+However, the routing of Internet traffic might fail to take full advantage of available capacity, due to performance agnostic routing schemes, lack of global visibility, etc.
+A cure to this sub-optimal traffic distribution is to exploit the diverse Internet paths potentially available.
+Certain applications, e.g. skype and bitTorrent, built an application level connectivity overlay on top of the Internet topology that reveals richer end-to-end path diversity and leads to better resilience and performance.
+MPTCP~\cite{Han2006} and QUIC~\cite{roskind2012quick} take advantage of the multiple available network connections, e.g. WiFi and mobile data, on an end host.
 On a larger scale, each network when connecting to the rest of the Internet through multiple providers, is exposed to multiple available paths to reach destinations. Wisely choose these routes can thus as well yield considerable performance gain.
 
-Among these directions, how to take advantage of path diversity at network level made least steps ahead.
-Back to the beginning of the century, researchers already realized that multihoming and hence resulted network level path diversity had the potential for performance boost. It is an mission only network administrator can undertake.
-One obviously obstacle in this pursuit is that the routing protocol among different networks, i.e.\acf{BGP}, is agnostic to performance differences across available paths.
-Commercial or home-brewed tools hence emerge to conduct regular performance measurements that are further considered in route selection, e.g. comparing measurements to a delay or increase amplitude threshold.
-The academic world responded to the challenge with more advanced route selection algorithms relying on historical measurements.
-More recently, Google revealed \textit{Espresso}~\cite{espresso} that dynamically selects Internet routes based on the instrumentation tailored for their applications.
+%\paragraph*{Internet path and traffic pattern shift}
+%The rise of \acf{CDN} and large \ac{CP} such as Google and Facebook drastically reduces the physical distance between contents and eyeballs, hence decreases the overall transmission latency.
+%The rapid growth of \acf{IXP} flattens the previous hierarchical Internet topology, and thus as well shortens Internet paths~\cite{Labovitz2011}.
 
+The above mentioned approaches complement each other in achieving better transmission performance across Internet.
+Yet, how to take advantage of path diversity at network level witnessed much less progress as other directions do.
+Back to the beginning of this century, researchers already realized that multihoming and hence produced network level path diversity had the potential for performance boost.
+Commercial products claiming capable of intelligent routing once emerged.
+Then, they disappeared.
+These systems were at best load balancers over transit links, thus could not fully address the end-to-end performance issue on a per destination base.
+
+One major obstacle in this pursuit is that the routing protocol among different networks, i.e.\acf{BGP}, is unaware of performance differences across available paths.
+One still available commercial product~\cite{b6} conducts regular performance measurements that are further considered in dynamic route selection, e.g. comparing measurements to a delay or increase amplitude threshold.
+The academic world responded as well to the challenge, with more sophisticated route selection algorithms relying on historical measurements. 
+
+A recent big news in the domain is that Google revealed \textit{Espresso}~\cite{espresso}. It is a \ac{SDN} component that dynamically selects Internet routes based on the instrumentation tailored for Google applications.
 However, path diversity is no longer the privilege of large networks that can afford the technical and financial cost of such customized systems.
 As transit price drops, multihoming becomes rather a common practice of numerous medium and small size networks. 
-These networks as well have the immediate need for performance optimization over multiple available Internet paths, so that their business could survive.
+These networks as well have the immediate need for performance optimization so that their business could survive.
 
 Despite the concrete need that is becoming more obvious day by day, many questions remain unanswered, or partially addressed.
 A typical network can communicate with $\sim$ 100k different destinations regularly. 
@@ -37,10 +45,11 @@ Continuously measuring the performance to all that many destinations are costly 
 What are the most important destinations to focus on? Do these destinations change over time? How to identify them?
 Besides volume measurements, how should performance measurements be processed? Do they need cleaning?
 If yes, what are the potential data quality issues? What are the origin of these issues? How can we showcase and mitigate their impacts on route selection?
-Further, in order to dynamically react to performance changes, how to detect in first place significant changes in performance measurements? How to do so without hard-coded or ad hoc parameters, yet featuring a acceptable level of robustness?
-Finally, once a performance change is detected, how can we learn more about this event from a network perspective? Where does it happen? Does it potentially impact other Internet paths a network uses? 
-We aim to explore answers to above questions in this thesis, so that the building of measurement-based route selection mechanism advances in these aspects: measurement scalability, interpretation of performance data and visibility on causes of performance changes. 
+Further, in order to dynamically react to performance changes, how to detect in first place significant changes in performance measurements? How to do so without hard-coded or ad hoc parameters, yet featuring an acceptable level of robustness?
+Finally, once a performance change is detected, how can we learn more about this event from a network perspective? Where does it happen? Does it potentially impact other Internet paths currently in use? 
+We aim to explore answers to above questions in this dissertation, so that the building of measurement-based route selection system advances in these aspects: measurement scalability, interpretation of performance data and visibility on causes of performance changes. 
 
+\chapter{Background and approach}
 \section{Intradomain Routing}
 \begin{figure}[!htb]
 \centering

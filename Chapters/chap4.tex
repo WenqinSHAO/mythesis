@@ -35,13 +35,13 @@ Change detection methods, fitted candidate for such task, aim exactly at detecti
 
 Before studying how change detection methods work on RTT time series, we first look at some straightforward way of employing RTT measurements in TE. We explain why these possible practices are not good enough and hence justify our study on change detection methods.
 
-\marginpar{Some straw-man practices. Other possibilities may as well work.}
+%\marginpar{Some straw-man practices. Other possibilities may as well work.}
 \paragraph{Preference over smaller average RTT} Continuously repeated RTT measurements over time can tell which transit provider among available ones offers the smallest delay in average in reaching a specific destination. Employing this transit provider can thus ensure a good overall performance. However, this approach falls short in handling transient RTT augmentation during for example congestion.
 
 \paragraph{Threshold of RTT value} In order to mitigate the consequence of stiff route choice, one can introduce some dynamism by simply comparing the instant RTT measurements with a hard-coded threshold. Once the RTT surpasses the threshold value, even through the transit with smallest average RTT, route re-selection can be trigger to look for a better performance path at that specific moment.
 The drawback of this method is that the threshold values depend on each individual destination, and are thus not trivial to configure.
 
-\paragraph{Threshold of RTT change amplitude} Focusing on the difference of consecutive measurements in time rather than the instant RTT value can transform the ad hoc RTT value threshold to a change amplitude threshold reused by all destinations. \marginpar{Here RTT change refers to the value difference between two RTT measurements. Elsewhere, RTT change means the change in RTT time series detected by change detection methods.}
+\paragraph{Threshold of RTT change amplitude} Focusing on the difference of consecutive measurements in time rather than the instant RTT value can transform the ad hoc RTT value threshold to a change amplitude threshold reused by all destinations. %\marginpar{Here RTT change refers to the value difference between two RTT measurements. Elsewhere, RTT change means the change in RTT time series detected by change detection methods.}
 This change amplitude threshold could be absolute values such as 30 msec or a percentage, e.g. $30\%$,  making the change amplitude in msec proportionally adapted to the level of RTT.
 The shortcoming of this approach comes from the fact that RTT measurements (via ICMP or TCP) could be pretty noisy, full of shorting living yet large amplitude variations, leading to unnecessarily frequent route re-selection.
 

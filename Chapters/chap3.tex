@@ -20,25 +20,25 @@ Such RTT measurement groups, along with path measurements, can help reveal where
 \clearpage
 
 \section{Reproducibility}
-\marginpar{Issue with previous dataset.}
+%%\marginpar{Issue with previous dataset.}
 We collected traffic volume and delay data from real client networks in Section~\ref{sec:pref_selec} and developed all the studies concerning prefix selection on that dataset.
 Having access to real client data increases the credibility of the discoveries made, and enhances the relevance of proposed schemes basing on these findings.
 The other side of coin is that such private dataset hinder the reproducibility, a paramount feature in metrology researches.
 
-\marginpar{What does reproducibility imply?}
+%%\marginpar{What does reproducibility imply?}
 The \acf{ACM} offers definition for various terms referring to different degrees of research repoducibility~\cite{acm}, ranging from repeating the same result by the same team to reproducing the same result with independent implementation of proposed methods or measurement system.
 The way the measurement data is generated, stored and accessed is one key element for all these degrees of reproducibility.
 
-\marginpar{data generation}
+%%\marginpar{data generation}
 Previous client data come from measurements performed by proprietary TE commercial platforms~\cite{b6}.
 By nature, it is against the fundamental benefit of the company to reveal the technical details on how measurements are done. 
 %Even permission of disclosure granted, we as researcher more often than not do not have enough space to include such technical details in publication.
 
-\marginpar{data storage}
+%%\marginpar{data storage}
 Since the collected data contain sensible information, e.g. the destination prefixes clients talked to, they are required to remain on client owned platforms otherwise permission required. Due to capacity limitation and decreasing utility of old data, these measurements will not stay forever available on client servers. If measurements are allowed to be retrieved, researchers are then responsible for the storage and security of these data. 
 %Server clusters in research institution may offer temporary (available till graduation) storage infrastructure, yet researchers are responsible for the security of these data. Once data compromised, researchers may face serious legal consequences.
 
-\marginpar{access to data}
+%%\marginpar{access to data}
 Anonymization is required it open access to private were to be granted. The process is not trivial as an appropriate balance between privacy and interpretability is hard to hit. 
 %If not enough, some features of the client data can still be deduced and subject to unwanted exposure. If too much, the interpretation based on the anonymized data could become obscure and lack of credibility. 
 Moreover, for better representativeness and statistical confidence, Internet measurement researches stress on large dataset over long period. 
@@ -304,7 +304,7 @@ With RTT time series represented in the above feature space, we simply use \acf{
 \label{fig:pingSil}
 \end{figure}
 
-\marginpar{Which cluster method is the most appropriate?}
+%%\marginpar{Which cluster method is the most appropriate?}
 Several clustering algorithms are available. 
 In order to choose the one that fits best to our data set and decide the most appropriate cluster number, we use \acf{ASW}~\cite{Rousseeuw1987} to evaluate the quality of resulted clusters. 
 It takes value in the range of $[-1,1]$. 
@@ -352,7 +352,7 @@ This indicates that the members within cluster 2 demonstrate strong common featu
 \label{fig:ping_pca}
 \end{figure}
 
-\marginpar{view from \ac{PCA} surface}
+%%\marginpar{view from \ac{PCA} surface}
 This ``guess'' can be straightforwardly observed from the projection of clusters on \acf{PCA} surface, shown in Fig.~\ref{fig:ping_pca}.
 The contribution of each feature is as well indicated on the graph.
 We notice that selected features point to different directions on the \ac{PCA} surface, suggesting that they contribute to a non-redundant description of the date set.
@@ -375,7 +375,7 @@ Still, tendency is that cluster 2 includes data points with little  changes, sma
 \label{fig:rtt_ping}
 \end{figure}
 
-\marginpar{view from RTT time series}
+%%\marginpar{view from RTT time series}
 Fig.~\ref{fig:rtt_ping} plots the RTT time series of these two clusters. Cluster 2, as expected, contains mainly time series with only a few variations and spikes. 
 On the other hand, cluster 1 is composed of traces with large variations.
 This explains why the members of cluster 2 are more closely located to each other. 
@@ -482,12 +482,12 @@ Clustering in feature space (Section~\ref{sec:cls_ft}) is however not an appropr
 Therefore, we study the clustering approaches where the data representation of RTT time series remain time series.
 
 \subsection{Data collection}
-\marginpar{collection}
+%%\marginpar{collection}
 In order to increase the chance of identifying RTT time series with shared change or shape, We collected ping and traceroute measurements from 170 RIPE Atlas probes hosted in European datacenters to DNS b-root from Jan.\ 18 to Jan.\ 24, 2016\footnote{DNS b-root had single single instance at that moment.}\footnote{IDs of these probes can be found at \url{https://www.dropbox.com/s/6ai0aooxnubufma/pbid.txt?dl=0}.}.
 We cleaned the dataset by removing measurements with plenty of missing segments and timeout measurements.
 128 probes remained. They are from 17 countries, 117 ASes and 120 prefixes. All these probes are equipped with the lasted v3 hardware.
 
-\marginpar{pre-processing}
+%%\marginpar{pre-processing}
 The measurements from different Atlas probes are not strictly aligned.
 This brings inconvenience in analysis that compare RTT changes across probes. 
 We therefore found a set of new timestamps for ping measurements that minimizes the average distance from initial measurement timestamps to it.
@@ -561,7 +561,7 @@ However, matching variations far away in time as is the case in Fig.~\ref{fig:dt
 
 \subsection{Clustering results}
 
-\marginpar{justify the use of \ac{PAM} as clustering algorithm}
+%%\marginpar{justify the use of \ac{PAM} as clustering algorithm}
 We used \ac{PAM} instead of k-means because 1) \ac{PAM} is more robust than k-means, for its clustering result is less impacted by outlier observations~\footnote{The only difference between \ac{PAM} abd k-means lies in that k-means uses the mean value of cluster members as the prototype of that cluster, around which the cluster member are iteratively adjusted, while \ac{PAM}, a.k.a. k-medoids uses the cluster member that minimizes the total distance between itself and all other cluster members as the cluster prototype.}.
 2) the mean 'value' of a set of time series does not have any practical meaning, while the medoid is a common choice~\cite{Aghabozorgi2015}. 
 
@@ -588,7 +588,7 @@ Investigating RTT time series of resulted clusters, we found that RTT time serie
 
 The 5 RTT time series in Fig.~\ref{fig:rtt3d_mp_cls2} experienced a big RTT increase of at least $40msec$ for nearly a day on Jan. 20th, 2016.
 
-\marginpar{What happened?}
+%%\marginpar{What happened?}
 \paragraph*{Common AS hop} The only intermediate AS shared by all the 5 probes is AS6939.
 Meanwhile, other 94 probes in our dataset that pass through AS6939 didn't experience this RTT change.
 3 of the 5 probes pass through IXP AS8674, right before entering AS6939.
