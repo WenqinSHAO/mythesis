@@ -5,35 +5,35 @@
     % if you want the titlepage to be centered, uncomment and fine-tune the line below (KOMA classes environment)
     \begin{addmargin}[-1cm]{-3cm}
     \begin{center}
-        \large  
-
+		\large
         \hfill
 
         \vfill
 
         \begingroup
-            \color{Maroon}\spacedallcaps{\myTitle} \\ \medskip 
+            \LARGE \color{Maroon}\spacedallcaps{\myTitle} \\ \bigskip 
             \mySubtitle \\ \bigskip
         \endgroup
+        
+		\vfill  		
   		
-
-        \spacedlowsmallcaps{\myName}     
-
+		\includegraphics[width=3.5cm]{gfx/telecom.eps} \\ \bigskip
+        
         \vfill
-
-        \includegraphics[width=6cm]{gfx/telecom.eps} \\ \medskip
-
-          
-        %\myDegree \\
-        %\myDepartment \\                            
-        \myFaculty \\
-        \myUni \\ 
-        \myLocation \\ \bigskip
-
-        \myTime\ -- \myVersion
-
+        
+        {\Large \spacedlowsmallcaps{\myName}}\\ \medskip           
+        
+        \myDepartment \\                            
+        %\myFaculty \\
+        \myUni \\ \bigskip
+        %\myLocation \\ \bigskip
+        
+        \vfill
+        \textit{Submitted in partial fulfillment of the requirement for\\
+        the Degree of Doctor of Philosophy} 
         \vfill                      
-
-    \end{center}  
+        
+    \end{center}
+  \myTime\ -- \myVersion 
   \end{addmargin}       
 \end{titlepage}   

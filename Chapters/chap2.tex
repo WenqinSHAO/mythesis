@@ -807,6 +807,14 @@ We demonstrated that the metrics we proposed lead to better volume coverage comp
 Furthermore, we evaluated the transmission performance for selected destination prefixes using different transit providers. We simulated as well a dynamic route decision algorithm. 
 The results showed that with even a fairly basic mechanism, the overall RTT performance could be improved by $20\%$ compared to the best available transit provider in some networks studied. 
 
+\iffalse
+We showcased as well that the amount of traffic represented by selected prefixes is reversely correlated to the burstiness of traffic observed on the client networks. How to anticipate the activity of those bursty destination prefixes is then essential to further improve the volume coverage of proposed prefix selection methods.
+
+Understanding the nature of these bursty traffic would greatly help. However, such observation could be related to the business model of each network and thus very difficult to generalize. A possible approach would be introducing a communication channel between the applications generating these bursty traffic and the TE system residing on network layer. In this way, the TE system could be informed in real-time or even in advance of the arrival of large amount of traffic and then intentionally optimize the routing for it.
+
+If the traffic is unintended by the network or untraceable, e.g. in the case of \ac{HP} or public cloud where traffic comes from various entities, the above presented mechanism becomes inapplicable. It is then desired to first detect the presence of these bursty traffic and record its information over long term so that researchers can explore its activity patterns to figure out some sign of predictivity.
+\fi
+
 In order to further improve prefix selection methods, we have shown that capturing bursty prefixes is the key. 
 To this end, we could group prefixes by their activity profiles. 
 For each group, selection method is adapted to its traffic dynamism.
