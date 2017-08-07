@@ -5,7 +5,7 @@
 This thesis is developed around a central pursuit of \textit{making better use of various network measurements to improving the transmission performance for stub ASes from the outbound perspective.}
 
 We came up with methods that predictively select destination prefixes associated with large traffic volume through studies on the temporal dynamism of per prefix volume time series.
-These methods allow traffic engineering operations to be focused on only a few important targets while still cover a majority of traffic, hence improving the scalability of traffic engineering system.
+These methods allow traffic engineering operations to be focused on only a few important targets while still cover a majority of traffic, hence improving the overall scalability of the system.
 
 Later on, we focused on latency measurements. 
 We showcased and diagnosed some data quality issues previously unattended.
@@ -86,53 +86,82 @@ Third, \textit{actually routing traffic on a path might change the the performan
 
 
 \section{Change detection for streaming data}
-In Chapter~\ref{sec:cpt_rtt}, we examined and discussed the detection sensitivity of several changepoint analysis methods on RTT measurements. However, all of them are offline methods, which means they take in an entire time series and output at once all the moments of change identified in that time series.
+In Chapter~\ref{sec:cpt_rtt}, we examined and discussed the detection sensitivity of several changepoint analysis methods on RTT measurements. However, all of them are offline methods. They consume an entire time series and output at once all the moments of change identified in that time series.
 Apparently, such methods can only be applied to past measurement records. 
-While in real practice, performance measurements are rather endless streams, which requires change detection be done in an online fashion. It is worthy of noting that online detection is as well the basis for other directions that will be presented later on.
+While in real TE practice, performance measurements are rather endless streams, which requires change detection be done rather in an online fashion. It is worthy of noting that online detection is as well the basis for other directions that will be discussed later on.
 
 Online change detection updates incrementally moments of change as new data flow in.
-If we apply repeatedly offline methods every time new measurement data is produced, an `online'-like effect can be achieved. However, as the length of data accumulates, the computational cost will become prohibitively high over time. Moreover, more and more resource is actually spent on detecting again and again changes previously detected.
-To overcome these issues, we devised an adaptive way of using offline methods to lower down the computation to a practical level: \url{https://github.com/WenqinSHAO/path_change_alert.git}. 
-In this proposition, we applied a sliding window to measurement streams. Change detection is only performed to the data within the window, thus the computational cost doesn't grow over time but rather limited by the window size. To further narrow down the scope, we retain only measurements afterwards once a changepoint is detected. It then suffices to detect the single most significant change moment at the arrival of new data.
+If we apply repeatedly offline methods every time new measurement data is produced, an `online'-like behavior can be achieved. However, as the length of data accumulates, the computational cost will become prohibitively high over time. Eventually, most resource is actually spent on detecting again and again changes previously detected.
+To overcome these issues, we devised an adaptive way of using offline methods to lower down the computation overhead to a practical level: \url{https://github.com/WenqinSHAO/path_change_alert.git}. 
+In this proposition, we applied a sliding window to measurement streams. Change detection is only performed to the data within the window, thus the computational cost doesn't increase with time but rather limited by the window size. To further narrow down the scope, we retain only measurements afterwards once a changepoint is detected. It then suffices to detect at most one single most significant change moment at each arrival of new datapoint.
 
-The disadvantage of the above approach is two-fold. First, the window size needs to be properly tuned. The evaluation framework introduced in this thesis can help. Second, the computation of changepoints is not incremental, which leaves room for further performance improvements. Being incremental in calculation means that the detection method can learnt from the result of previous run and update it with only the new incoming datapoint to obtain the detection result of current run. Various methods~\cite{Caron2012,Turner2009a,Sharkey2014,Ho2014,Adams2007,Conditions2015} have been proposed. We can again employ the proposed evaluation framework to quantify the detection precision and relevance on RTT measurements with these methods.
+The disadvantage of the above approach is three-fold. First, the window size needs to be properly tuned. We believe that the evaluation framework introduced in this thesis can help in this process. Second, the method tends to be oversensitive. Since it ignores all the datapoints before previous change, the next potential changepoint could be only locally significant. Finally, the computation of changepoints is not incremental, which leaves room for further performance improvements. Being incremental in calculation means that the detection method can learn from the result of previous run and update it with only the new incoming datapoint to obtain the detection result of current run. 
+It is important to note that the calculation on previous datapoints is not thrown away, which allows incremental update have the potential to overcome the second issue.
+Various methods~\cite{Caron2012,Turner2009a,Sharkey2014,Ho2014,Adams2007,Conditions2015} have been proposed. We can again employ the proposed evaluation framework to quantify the detection sensitivity and relevance an on RTT measurements with these methods.
 
 Further, the scoring method used in the evaluation frameworks needs as well adaptation.
-One fundamental feature of online methods is the delay of detection. It is the time between the actual occurrence of an change and the moment when the method successfully identify it as a change. Shorter delay suggests that a method is more reactive to changes and thus can leave more time for route optimization.
+One fundamental feature of online methods is the delay of detection. It is the time between the actual occurrence of a change and the moment when a method successfully identifies it as a change. Shorter delay suggests that a method is more reactive to changes and thus can leave more time for route optimization. The delay of detection can be seen as a manifestation of sensitivity on time axes. How to strike an appropriate balance between precision and recall on this dimension (i.e. prefer short delay when possible) would be a key issue.
 
 \section{Congestion and path change}
-Concerning the temporal correlation between RTT and path change moments, we received a request from one of our paper reviews to classify each RTT change into path change or congestion as its cause. We were willing to but left unable to fulfill the request,  mainly because path measurements on the reverse direction were not available. Since not all the path changes could be identified, RTT changes unmatched to path changes in the forwarding direction were actually a mixture of congestion and reversed path induced ones. 
+Concerning the temporal correlation between RTT and path change moments, we received a request from one of our paper reviews to classify each RTT change into path change or congestion as its cause. We were willing to but left unable to fulfill the request,  mainly because path measurements on the reverse direction were not available. Since not all the path changes were identified, RTT changes unmatched to path changes in the forwarding direction were actually a mixture consequence of congestion and path changes in the reserve direction.
 
 Nonetheless, a vague gauge was possible with Table~\ref{tab:corr_overview}.
-If we boldly assume that path changes on reverse paths cause comparable amount of RTT changes as forwarding paths do, there are still a majority of RTT changes left unmatched to any path changes, thus potentially caused by congestion.
+If we boldly assume that path changes on reverse paths cause comparable amount of RTT changes as forwarding paths do, there are still a majority of RTT changes left unmatched to any path changes, thus potentially caused by congestion. 
+This observation highlights the potential importance of congestion in Internet transmission.
 
-Another approach to address this problem would be identifying RTT changes caused by congestion directly, independent of path changes. 
-With online change detection, it implies \texit{detecting in quasi realtime the occurrence of network congestion experienced by end-to-end measurements.}
-Through visual inspection, e.g. Figure~\ref{fig:case_sensitivity}, we had the feeling that it might be possible to tell path and congestion caused RTT changes apart by merely looking at the shape of RTT time series. The rule of thumb was that if an RTT change was related to congestion, the RTT variation during the congested period was obviously more important. However, due to the coarse time resolution of available measurements (minutes) and evolving congestion avoidance mechanism, that simplistic description on RTT variance change is surly not determinant. Still, we find it a promising and meaningful direction to pursuit. Since such technology can help deduce the presence of transient congestion in the middle of Internet that current methods are not capable of~\cite{Luckie2014}.
+Current best practice of Internet congestion detection~\cite{Luckie2014} only identifies persistent congestion that are mainly caused by lack of capacity and demonstrates regular daily pattern. Proper capacity dimensioning is the ultimate cure to it. While in TE, besides persistent congestion, route selection has to as well react to transient congestion.
+It requires in first place \textit{detecting timely the occurrence of network congestion experienced by end-to-end measurements}.
+
+Through visual inspection, e.g. Figure~\ref{fig:case_sensitivity}, we noticed that it might be possible to tell path and congestion caused RTT changes apart by merely looking at the shape of RTT time series. The rule of thumb was that if an RTT change was related to congestion, the RTT variation during the congested period was obviously more important. In order to establish this relationship more rigorously, more efforts to understand the RTT time series morphology under various transmission conditions on multiple time resolutions are need.
+The emergence of new control mechanism such as BBR~\cite{Cardwell2016, quic_cc} call for as well such effort.
+On the other hand, we need online change detection to capture in real time the change of shape, characteristics of RTT measurements.
+
 
 \section{RTT change cause inference}
-\paragraph*{Validation} What remains as well challenging is to validate those inferred causes of performance change. A possible approach would be developing a platform that pushes these inferred causes timely to those interested, potentially network administrators. Most importantly, the platform shall create a channel of feedback that allows us to learn the presence of false positive and false negative from those network administrators, with which further improvements on inference precision can be brought forth.
+In Chapter~\ref{sec:infer}, we tried to infer the location causing RTT changes seen in end-to-end measurements, through correlation of RTT changes at about the same moments.
+Online change detection will help to bring such functionality to a real time mode.
+RTT change cause inference a difficult quest in which we see great utility for interdomain TE and beyond. Starting from the main inference logic and the demo tools, many remains to be done to make it more reliable and useful to the community.
 
-\paragraph*{Handle topology changes} During RTT change location inference, a hidden assumption is that the underlying topology remain unchanged, which is not always true. We adopted a simple approximation by constructing topology graph and performing RTT change cause inference day by day, knowing that the AS level path changes are rare. 
+\paragraph*{Validation} For lack of ground truth, it is very challenging to validate the changes, and the causes of change inferred with proposed methods. The only approach to ground truth on Internet-wide performance events would be trough crowd sourcing from network administrators.
+Incentivizing the exchange of such information is then the key.
+One possibility is to persuade network administrators to do so for their own benefit.
+Our pursuit of inferring RTT change cause provides exactly the visibility that they lack and yet are beneficial for various TE tasks.
+
+Based on real-time RTT change detection (once achieved), we plan to develop an API and a Web-based visualization application that:
+\begin{itemize}
+\item publish in quasi-real time the inferred locations of RTT change;
+\item allow receiving and processing external measurement streams if certain networks have a specific area they wish to focus on;
+\item take feedback, event annotation, error report from network administrator users via both programming interfaces and human-friendly approaches. 
+\end{itemize}
+Each network has only a limited visibility to its surrounding area. Gathering the information from various scattered networks connects these separated shards of visions. More importantly, feed our inference logic with the obtained ground truth can further light up the parts of Internet whose ground truths remain unavailable due to various practical reasons.
+
+To better digest the feedback, we plan to add learning elements to our reasoning procedure. A first step would be revisiting the validity of assumptions and heuristics made previously and evaluate their impact on the precision of inference results. Self-improving inference logical can be achieved through carefully abstracted knowledge representation of available information and automated reasoning.
+
+Since the major measurement sources is RIPE Atlas, we seek for as well a closer cooperation with the team. We envision to integrate our visibility into theirs to better serve the networking community.
+
+\paragraph*{Handle topology changes} During RTT change location inference, a hidden assumption was that the underlying topology remain unchanged, which is not always true. We adopted a simple approximation by constructing topology graph and performing RTT change cause inference day by day, knowing that the AS level path changes are rare on most Internet paths. 
 However, when AS level path changes do happen within a day and cause RTT changes, current inference logic can not properly distinguish the cause being the topology shift or congestion on a same link.
 Moreover, the presence of AS level load balancing links causes topology changes on an even smaller time scale. 
-How to correctly attribute RTT changes in these cases potentially needs data structure modification to encode topology changes in an efficient way.
-Moreover, inference procedures need as well adaptation to dynamically tie performance measurements to different underlying paths then topology changes happen.
+
+How to correctly attribute RTT changes in these cases is thus essential to the correctness of inference results.
+It requires first a data structure modification to encode the Internt topology changes in an efficient way. For example, record rather the delta of topology snapshots.
+Then we need to tie performance measurements flexibly and precisely to different paths. The temporal correlation study between RTT and path change carried out in Chapter~\ref{sec:corr} provides clues.
+Finally, the inference logic should be aware of topology changes to properly attribute the caused of observed RTT changes.
 
 \paragraph*{Finer inference granularity} Through the case study in Chapter~\ref{sec:infer}, we realized that sub-AS level incident RTT changes can indeed happen and that current inference granularity is not sufficient to pinpoint them.
-To achieve finer inference granularity, a more precise topology graph, e.g. \ac{PoP} level, will help. \url{http://popmap.io/} is a recent effort to follow in this direction.
+To achieve finer inference granularity, a more precise topology graph, e.g. \ac{PoP} level, is needed. \url{http://popmap.io/} is a recent effort to follow in this direction.
 
 \paragraph*{Measurement scoping} Several improvements regarding measurements scoping are as well possible. All the available Atlas probes were considered in the previous case study. It is not hard to notice that some of them were redundant.
-The inference efficiency could be improved if we can fabricate a minimum set of measurements in achieving a specified topology coverage of inference.
-Another application of such technique would be the calculation of the additional measurements required for node and links currently can not be (surely) inferred.
-On the other hand, the presence of redundant measurements actually increases the statistical confidence of inference results. When redundant measurements do not harm to exist, it would be informative to express as well the confidence nuance across inference results.
+The inference efficiency could be improved if we can devise a minimum set of measurements in achieving a specified topology coverage of inference.
 
+Another application of such technique would be the calculation of the additional measurements required for node and links currently can not be (surely) inferred. Combined with previously mentioned API and Web application, this would allow individual networks to better engineer their own measurements to achieve a better monitoring visibility. 
 
+On the other hand, the presence of redundant measurements actually increases the statistical confidence of inference results. When redundant measurements do not harm to exist, it would be informative to express as well the statistical confidence nuance across inference results.
 
 \section{Route selection algorithm}
-We have argued that changepoint analysis offers a robust data representation for RTT measurements by extracting only the moments of significant change. These moments are when route re-selection is potentially needed. It would be better if we actually propose a route selection algorithm basing on change detection, evaluate its the performance gain and compare its gain to previous algorithms.
+We have argued that changepoint analysis offers a robust data representation for RTT measurements by extracting only the moments of significant change. These moments are when route re-selection is potentially needed. It would be better if we actually propose a route selection algorithm basing on change detection, evaluate its performance gain and compare its gain to previous algorithms.
 It would be even better if we could further incorporate RTT change location inference in route re-selection and demonstrate how much more traffic can hence be optimized.
-The evaluation of route selection mechanism requires end-to-end measurements via multiple providers.
-Atlas falls short in providing such data.
-Meanwhile, data collection from client networks remain challenging for reasons discussed in Chapter~\ref{sec:ripe_atlas}.
+The evaluation of route selection mechanism requires end-to-end measurements via multiple providers, and realistic traffic demand.
+RIPE Atlas falls short in providing such data.
+Therefore, we envision closer cooperation with the industry sector to overcome the difficulties concerning data collection from real networks discussed in Chapter~\ref{sec:ripe_atlas}.
  

@@ -44,27 +44,27 @@ A typical network can communicate with $\sim$ 100k different destinations regula
 Continuously measuring the performance to all that many destinations are costly and not necessary. 
 What are the most important destinations to focus on? Do these destinations change over time? How to identify them?
 Besides volume measurements, how should performance measurements be processed? Do they need cleaning?
-If yes, what are the potential data quality issues? What are the origin of these issues? How can we showcase and mitigate their impacts on route selection?
+If yes, what are the potential data quality issues? What are the origins of these issues? How can we showcase and mitigate their impacts on route selection?
 Further, in order to dynamically react to performance changes, how to detect in first place significant changes in performance measurements? How to do so without hard-coded or ad hoc parameters, yet featuring an acceptable level of robustness?
 Finally, once a performance change is detected, how can we learn more about this event from a network perspective? Where does it happen? Does it potentially impact other Internet paths currently in use? 
 We aim to explore answers to above questions in this dissertation, so that the building of measurement-based route selection system advances in these aspects: measurement scalability, interpretation of performance data and visibility on causes of performance changes. 
 
-\chapter{Background and approach}
+\chapter{Background, scope and roadmap}
 \section{Intradomain Routing}
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=1.3\textwidth]{gfx/chap1/bgp_decision.pdf}
-\caption{Work flow of \ac{BGP} route selection and propagation within an \ac{AS} and the interaction with interdomain \ac{TE}.}
+\caption{Work flow of \acf{BGP} route selection and propagation within an \acf{AS} and the interaction with interdomain \acf{TE}.}
 \label{fig:bgp_decision}
 \end{figure}
 
-Interconnection of tens of thousands of independently manged networks known as \ac{AS} forms the Internet.
-Routing that happens between those ASes is referred to as 
+Interconnection of tens of thousands of independently manged networks known as \acf{AS} forms Internet.
+Routing that happens among those ASes is referred to as 
 \textit{interdomain routing}.
-In order to exchange interdomain routes, each AS uses \ac{BGP}~\cite{bgp4}, a path vector routing protocol, to communicate with other ASes.
+In order to exchange interdomain routes, each AS uses \acf{BGP}~\cite{bgp4}, a path vector routing protocol, to communicate with other ASes.
 Each AS announces its own routes (routes towards its own prefixes) along with other routes learnt to its BGP neighbors as illustrated in Fig.~\ref{fig:bgp_decision}.
 For each prefix, one single best route is selected by the BGP route decision route based on the BGP attributes attached to each route.
-Each route can be filtered based on its attributes or altered before BGP route decision and announcement to its neighbors according to \ac{TE} policies~\cite{Quoitin2003, Gao2001a}.
+Each route can be filtered based on its attributes or altered before BGP route decision and announcement to its neighbors according to \acf{TE} policies~\cite{Quoitin2003, Gao2001a}.
 
 \begin{figure}[!htb]
 \centering
@@ -73,22 +73,22 @@ Each route can be filtered based on its attributes or altered before BGP route d
 \label{fig:bgp_propa}
 \end{figure}
 
-Fig.~\ref{fig:bgp_propa} illustrates the propagation of interdomain routes to prefix \texttt{137.194.0.0/16} of AS1712 via BGP exchanges. Each AS inserts its own AS number when announcing the learnt route to other ASes, thus forming an AS path at the receiver side. When AS3333 learns the routes to \texttt{137.194.0.0/16} as depicted and AS1712 learns those to \texttt{193.0.0.0/21} in a similar way, the two ASes can exchange traffic across the Internet using addresses within these two prefixes.
+Fig.~\ref{fig:bgp_propa} illustrates the propagation of interdomain routes to prefix \texttt{137.194.0.0/16} of AS1712 via BGP exchanges. Each AS inserts its own AS number when announcing the learnt route to other ASes, thus forming an AS path at the receiver side. When AS3333 learns the routes to \texttt{137.194.0.0/16} as depicted and AS1712 learns those to \texttt{193.0.0.0/21} in a similar way, the two ASes can exchange traffic across Internet using addresses within these two prefixes.
 
 There are two types of ASes in above BGP exchanges: \textit{transit provider} and \textit{stub AS}.
-Transit provider refers to ASes that offer to route traffic not originated from nor sent to themselves, as a commercial service.
+Transit provider refers to ASes that offer to route traffic not originated from nor sent to itself, as a commercial service.
 For that purpose, a transit provider announces to its clients all the interdomain routes its learns and to its other BGP neighbors the routes to its clients.
 In Fig.~\ref{fig:bgp_propa}, AS3356 and AS2200 are transit providers of AS1712. They help announce the route to prefix \texttt{137.194.0.0/16}
-to the rest of the Internet.
+to the rest of Internet.
 On the contrary, a stub AS only cares about sending out its own traffic and becoming reachable to others.
 Accordingly, it only announces to its transit providers its own routes. AS1712 is a stub AS in Fig.~\ref{fig:bgp_propa}, as it does not relay interdomain routes for other ASes, e.g. AS1712 will not announce to AS3356 the route to \texttt{193.0.0.0/21} learnt from AS2200. Consequently no traffic toward ASes other than itself shall arrive at it.
 
 Besides the transit relationship described above, peering is another type of route and traffic exchange that can happen between two ASes under BGP. Two ASes in peering relationship exchange with each other their own routes, so that they can directly communicate without employing a transit provider.
 In Fig.~\ref{fig:bgp_propa}, AS1712 and AS3333 directly peer at an \ac{IXP}.
-\ac{IXP} is a collocation facility that eases establishment of peering relationship, thus transparent to BGP route exchanges.
+\ac{IXP} is a collocation facility that eases establishment of peering relationship, thus is transparent to BGP route exchanges.
 
 \section{Interdomain TE}
-Thanks to transit and/or peering relationship, AS3333 and AS1712 in Fig.~\ref{fig:bgp_propa} may receive multiple routes to a certain destination prefix. Meanwhile, they can as well potentially receive traffic from multiple neighbors.
+Thanks to transit and peering relationship, AS3333 and AS1712 in Fig.~\ref{fig:bgp_propa} may receive multiple routes to a certain destination prefix. Meanwhile, they can as well potentially receive traffic from multiple neighbors.
 Such diversity in route brings up two questions: 1) which routes are the best; 2) how to route corresponding traffic on the desired paths.
 The efforts spared in answering these two questions are referred to as \textit{interdomain \ac{TE}}~\cite{Quoitin2004a,Quoitin2003,Feamster2003}.
 
@@ -98,26 +98,26 @@ We summarize the current practices, their limitations and challenges for incomin
 
 \subsection{Outbound interdomain TE}
 How to select the best route for each destination prefix and send out the traffic correspondingly is known as outbound TE. 
-An AS has the total control over the egress routes employed in reaching each destination prefix. Common practice is to tune \textit{local preference} BGP attributes~\cite{Wang2008} before BGP route decision as illustrated in Fig.~\ref{fig:bgp_decision}. 
+An AS has the total control over the egress routes to be employed in reaching each destination prefix. Common practice is to tune \textit{local preference} BGP attributes~\cite{Wang2008} before BGP route decision as illustrated in Fig.~\ref{fig:bgp_decision}. 
 Therefor the challenge is rather on the composition of best routes in terms of cost and performance.
 
 The cost of interdomain transmission depends on the the amount of traffic exchanged on links purchased from transit providers~\cite{drpeering-95th}.
 Meanwhile, whether these transit links are congested impacts as well the transmission performance.
-Hence, outbound TE resolves in routing appropriate amount of traffic on each available transit links to lower the transit cost while not surpassing the capacity of each link (especially the cheapest one).
+Hence, outbound TE resolves in routing an appropriate amount of traffic on each available transit links to lower the transit cost while not surpassing the capacity of each link (especially the cheapest one).
 
 \citet{Goldenberg2004} formulated this quest as a minimum-cost multi-commodity flow problem when avoiding transit link congestion under transit cost constraints.
-\citet{Uhlig2004b} fulfills the same goal while minimizing the number of route changes required with help of traffic volume prediction.
+\citet{Uhlig2004b} fulfills the same goal while minimizing the number of route changes required with the help of traffic volume prediction.
 \citet{Zhu2014} avoids congestion on transit links by including border router queue length in route decision.
 
-Indeed, it is unwise to greedily saturate the cheapest transit link while residual capacity is available on other transit links.
+Indeed, it is unwise to greedily saturate the cheapest transit link while residual capacity is available through other transit providers.
 However, there are many other factors that may as well put transmission performance in danger.
-The minimum delay of Internet transmission toward is dominated by the physical length traversed by a route. 
-On top of that, transient events like congestion can as well happened in the middle of the Internet~\cite{Akella2003, Luckie2014}, independent of traffic load on transient links.
-In order to first learn the presence of these issues and then optimize the routing against these events, end-to-end performance measurement is indispensable in cumulatively reflecting the contribution from each element of the forwarding chain, including the transit links.
+The minimum delay of Internet transmission is dominated by the physical length traversed by a route. 
+On top of that, transient events like congestion can as well happen in the middle of Internet~\cite{Akella2003, Luckie2014}, independent of traffic load on transient links.
+In order to first learn the presence of these issues and then optimize the routing against these events, end-to-end performance measurement is indispensable in cumulatively reflecting the contribution from each element on the forwarding chain, including the transit links.
 
 
 \subsection{Inbound interdomain TE}
-Inbound TE takes care of the incoming traffic distribution on available links with other ASes.
+Inbound TE takes care of the incoming traffic distribution on available links connecting to other ASes.
 Through Fig.~\ref{fig:bgp_decision} and \ref{fig:bgp_propa}, we learn that the paths that incoming traffic takes is decided by distant senders, e.g. AS3333 decides which one to use to reach \texttt{137.194.0.0/16} of AS1712.
 What AS1712 can do to influence the the route decision of AS3333 is by 
 filtering route or tuning certain BGP attributes when announcing its own route to its BGP neighbors.
@@ -125,49 +125,49 @@ Some common practices are: selective announcement, more specific announcement, A
 
 These approaches are not perfect. Selective announcement introduces reachability risks, while more specific announcement gives rise to \ac{RIB} inflation. AS path prepending is as well shown to be not effective in avoiding using a specific transit provider~\cite{Quoitin2004a}. BGP community~\cite{Donnet2008, Shao2015} and later on redistributed communities~\cite{Quoitin2002} allow finer grained operations with better certainty. However, it requires the support from transit providers. 
 
-The above researches suggest that it is very difficult if not totally impossible for an AS to have a fine granularity control on the path employed by incoming traffic. In this context, defining the best paths in terms of cost of performance is meaningless without effective method enforcing them. 
+The above researches suggest that it is very difficult if not totally impossible for an AS to have a fine control over the paths employed by incoming traffic. In this context, defining the best paths in terms of cost of performance is meaningless without effective method enforcing them. 
 
-Therefore, the focus of other researches are as well on traffic steering method.
-Incoming path can be dictated by changing the traffic source address through encapsulation~\cite{Liu2008} or \ac{NAT}~\cite{Sun2015}. However, traffic with source address outside the prefixes announced to its BGP neighbors can be dropped for security considerations~\cite{filtering}.
-\ac{LISP} pushes such approach to a revolutionary level by introducing a separate addressing space in the core of Internet for TE purposes~\cite{lisp}. Studies show fine-grained and dynamic inbound optimization is henceforth feasible with the deployment of \ac{LISP}~\cite{Iannone2007, saucez2011mechanisms, quoitin2007evaluating}.
+Therefore, the focus of other researches are rather on traffic steering methods.
+Incoming path can be dictated by changing the traffic source address through encapsulation~\cite{Liu2008} or \ac{NAT}~\cite{Sun2015}. However, traffic with source addresses outside the prefixes announced to its BGP neighbors can be dropped for security considerations~\cite{filtering}.
+\ac{LISP} pushes such approach to a revolutionary level by introducing a separate addressing space in the core of Internet that enables plenty TE operations impossible with mere BGP~\cite{lisp}. Studies show fine-grained and dynamic inbound optimization is henceforth feasible with the deployment of \ac{LISP}~\cite{Iannone2007, saucez2011mechanisms, quoitin2007evaluating}.
 
 \subsection{Software Defined Networking and interdomain TE}
-Recently, \ac{SDN} contributes as well to interdomain TE. The common part of these ideas is to delegate the TE task of an AS to a third party, where route decision and traffic steering are performed in a centralized manner in accordance to \ac{SDN} design philosophy. It is advocated that the interdomain TE can hence be done in a more cooperative way as conflicts of interest from multiple ASes can be solved centrally to obtain a larger optmality.
+Recently, \acf{SDN} contributes as well to interdomain TE. One outstanding idea is to delegate the TE tasks of an AS to a third party, where route decision and traffic steering are performed in a centralized manner in accordance to \ac{SDN} design philosophy. It is advocated that the interdomain TE can hence be done in a more cooperative way as conflicts of interest from multiple ASes can be solved centrally to obtain a larger optmality.
 \citet{Kotronis2012} advances that such AS clusters under same TE service provider can be formed in an gradual way and eventually drives the evolution of the interdomain routing.
 \citet{Gupta2014} focuses on the application of \ac{SDN} in a more specific network environment, \ac{IXP}, where members by nature forms a cluster of ASes that exchange their routing information along with their TE polices within one centrally managed facility. Application specific peering, e.g. only peer for the exchange of video traffic, is made possible under this framework.
 
 \section{Scope of this thesis}
 We stage the works of this thesis under BGP, while fully realizing \ac{LISP}, \ac{SDN} and etc. are promising directions to pursuit.
-It is because BGP is still going to be the \textit{de facto} routing protocol of the Internet in the foreseeable future, for the deployment of new routing mechanism must be incremental.
+It is because BGP is still going to be the \textit{de facto} routing protocol of Internet in the foreseeable future, for the deployment of new routing mechanism must be incremental.
 Till then,  BGP is what a majority of ASes has to live with. 
 There are thus immediate needs for improvements.
 
-We focus on outbound TE in this thesis, as inbound TE has been shown previously to be inherently difficult with BGP for due to lack of effective traffic steering methods.
+We focus on outbound TE in this thesis, as inbound TE has been shown previously to be inherently difficult with BGP due to lack of effective traffic steering methods.
 
 We target stub ASes (potentially multi-homed).
 It is because \ac{CP}, \ac{HP} and \ac{ISP}, being major network types among stub ASes, are those who needs most outbound TE.
 Moreover, dynamic route re-selection in those networks will not cast Internet-wide BGP route convergence issues, since they do not announce to other ASes any of other routes nor the updates.
 
 Finally, we assume improving transmission performance is nowadays the major motivation for outbound TE in stub ASes.
-Continuously decreasing transit price~\cite{transitprice, drpeering} and high \ac{IXP} growth rate worldwide~\cite{pchixp} indicate that routing traffic throughout the Internet now faces less monetary constraints but rather encounters a performance challenge that could be potentially lifted with geographical and topological connection diversity~\cite{Chiu2015}.
+Continuously decreasing transit price~\cite{transitprice, drpeering} and high \ac{IXP} growth rate worldwide~\cite{pchixp} indicate that routing traffic throughout Internet now faces less monetary constraints but rather encounters a performance challenge that could be potentially lifted with geographical and topological connection diversity~\cite{Chiu2015}.
 
 
 \section{Measurement-based TE and motivations}
 
 BGP itself is one big obstacle in the pursuit for better transmission performance.
 As shown in Fig.~\ref{fig:bgp_decision}, its route decision mechanism is unaware of the performance characteristics of candidate paths~\cite{Yannuzzi2005}.
-However, not all interdomain routes offer the same transmission performance. \citet{Akella2003} points out that bandwidth bottleneck can be within certain \acp{ISP} or on the links between \acp{ISP}, suggesting that the choice of transit provide is not without impact on transmission performance.
+Yet, not all interdomain routes offer the same transmission performance. \citet{Akella2003} pointed out that bandwidth bottleneck can be within certain \acp{ISP} or on the links between \acp{ISP}, suggesting that the choice of transit provide is not without impact on transmission performance.
 Further, \citet{Akella2003a} reported a $30\%$ potential performance gain involving dynamic route re-selection that an AS could achieve with multi-homing.
 %\cite{Akella2004} advocates that this gain is not far away from that of overlay networking.
 
 In order to actually realize this performance gain, a system that dynamically selects for each destination the best performing route according to real-time measurements is required, i.e. \textit{measurement-based TE}.
-\citet{Akella2008} presents a demo implementation of such a system that makes outbound TE decision based on end-to-end delay measurements. Only 100 destinations are emulated in this work, far less than the actually number a stub AS might face on a daily base. Best route is chosen based on the \ac{EWMA} of past \ac{RTT} measurements. The work shows that the best overall transmission performance is achieved when route decision is made upon last single measurement. However, considering the noisy nature of \ac{RTT} measurements, such a simplistic approach can lead to overwhelmingly frequent path changes that is not necessary. Moreover, treating the Internet as a blackbox for delay measurements does not provide useful and necessary visibility regarding the actual network events that cause significant performance degradation and hence justify the TE decisions made. 
+\citet{Akella2008} presented a demo implementation of such a system that makes outbound TE decision based on end-to-end delay measurements. Only 100 destinations are emulated in this work, far less than the actually number a stub AS might face on a daily base. Best route is chosen based on the \ac{EWMA} of past \acf{RTT} measurements. The work shows that the best overall transmission performance is achieved when route decision is made upon last single measurement. However, considering the noisy nature of \ac{RTT} measurements, such a simplistic approach can lead to overwhelmingly frequent path changes that is not necessary. Moreover, treating Internet as a blackbox for delay measurements does not provide useful and necessary visibility regarding the actual network events that cause significant performance degradation and hence falls short in justifying the TE decisions made. 
 
 In order to address these concerns and narrow the gap between the concept of measurement-based TE and a working system~\cite{b6}, we 
 study in this thesis traffic volume, delay and path measurements to improve the scalability, measurement interpretation and performance visibility of such a system.
 
 
-\section{Road map}
+\section{Roadmap}
 \subsection{Building blocks of measurement-based TE}
 
 \begin{figure}[!htb]
@@ -178,14 +178,14 @@ study in this thesis traffic volume, delay and path measurements to improve the 
 \end{figure}
 
 A measurement-based interdomain TE platform has two essential building blocks illustrated in black in Fig.~\ref{fig:archi}: (i) path performance measurement and (ii) route decision.
-Since each destination prefix may have multiple available routes, the platform has to measure in a repeated manner the end-to-end performance, more specifically \ac{RTT}, over all these routes. 
+Since each destination prefix may have multiple available routes, the platform has to measure in a repeated manner the end-to-end performance, more specifically \acf{RTT}, over all these routes. 
 For each destination prefix, a couple of hosts with known open ports, e.g. 80, 443, are discovered and used as probing destination in delay measurements.
 Once fed with performance metrics, route decision engine dictates for each destination which is the best route at a each moment and imposes it on BGP border routers.
 
 \subsection{Prefix selection: focus on most important destinations}
 However, a scalability issue presents in the above design as a stub AS can exchange with up to around 100k destination prefixes.
 Continuous performance monitoring to all these destinations over all available paths is going to be prohibitively costly.
-\citet{Feamster2003} already realizes this issue and proposes to focus on popular destinations.
+\citet{Feamster2003} already realize this issue and propose to focus on popular destinations.
 However, no solution is given.
 In Chapter~\ref{sec:pref_selec} we tackle the selection of prefixes associated with important traffic volume by studying their temporal dynamism at different time resolutions. Two additional building blocks (in red) are hence added to Fig.~\ref{fig:archi}.
 
@@ -194,21 +194,21 @@ Studies in Chapter~\ref{sec:pref_selec} solely base on the measurement data coll
 In Chapter~\ref{sec:ripe_atlas}, we first justify our choice of using RIPE Atlas~\cite{atlas} as our source of path and delay measurements for later researches.
 We then discuss a data quality issue originated from the measurement platform.
 
-With the openly accessible measurements from RIPE Atlas, we investigated another data quality issue, which is specific to interdomain TE this time. We employ unsupervised learning methods to reveal the inherent structure of a group of delay measurements.
+With the openly accessible measurements from RIPE Atlas, we investigated another data quality issue, which is specific to interdomain TE this time. We employ unsupervised learning methods to reveal the inherent structure of a group of delay measurements on a same AS path.
 
 During the above study, we notice an interesting case where several RTT time series exclusively share a similar shape at about the same moment.
-We thus find it promising to infer the actually location of shared RTT changes by grouping RTT time series of similar shape. To that end, we study the application of time series clustering methods to RTT measurements and discuss their limitations.
+We thus find it promising to infer the actually location of shared RTT changes by grouping RTT time series of similar shapes. To that end, we study the application of time series clustering methods to RTT measurements and discuss their limitations.
 
 \subsection{Change detection for RTT measurements}
-The case of RTT time series with similar shape leads to further studies in Chapter~\ref{sec:cpt_rtt} and \ref{sec:infer}. Chapter~\ref{sec:cpt_rtt} studies the application of changepoint detection methods on RTT measurements. These methods detecting significant changes in time series is regarded as an expressive way to simplify the representation of RTT measurements. Meantime, we realize that the detected moments of change can serve as an informative and robust trigger for route re-selection.
+The case of RTT time series with similar shapes leads to further studies in Chapter~\ref{sec:cpt_rtt} and \ref{sec:infer}. Chapter~\ref{sec:cpt_rtt} studies the application of changepoint detection methods on RTT measurements. These methods detecting significant changes in time series is regarded as an expressive way to simplify the representation of RTT measurements. Meantime, we realize that the detected moments of change can serve as an informative and robust trigger for route re-selection.
 
 To quantify the change detection performance on RTT measurements, we build an evaluation framework and benchmark several candidate methods.
 The temporal correlation between RTT changes and routing events are as well studied and illustrated.
 
 \subsection{Inferring the location of RTT changes}
 With simplified data representation enabled by changepoint detection, we study the method inferring the location of detected RTT changes in Chapter~\ref{sec:infer}.
-Knowing the location of RTT changes are of significance in measurement-based interdomain TE, especially for a non-negligible part of destinations that we are not able to measure. It provides visibility to avoid certain problematic paths when end-to-end measurements are absent.
+Knowing the location of RTT changes are of significance in measurement-based interdomain TE, especially for a non-negligible part of destinations that we are not able to measure directly. It provides visibility to avoid certain problematic paths when end-to-end measurements are absent.
 
-To that end, we first group RTT time series undergoing same RTT changes with the help of change detection.
+For that purpose, we first group RTT time series undergoing same RTT changes with the help of changepoint analysis.
 Then inference logic are developed to attribute RTT change to ASes and links basing on two simple and intuitive assumptions.
 Visualization tools are developed to illustrate the inference process and the inferred location of change on an AS-level topology learnt from path measurements.

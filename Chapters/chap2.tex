@@ -7,7 +7,7 @@ A natural consequence is thus to perform TE only for those prefixes that matter.
 However, traffic volume associated to a prefix varies over time. And we have little knowledge on the temporal dynamism of traffic across \acf{BGP} prefixes. 
 Moreover, it is not trivial predictively identifying prefixes of significance among the crowd.
 The calculation is done normally on commodity hardware dedicated for \ac{TE} usages for cost considerations.
-In this context, sophisticated methods predicting volume for each single prefix won't scale.
+In this context, sophisticated methods predicting volume for each single prefix will not scale.
 
 We revealed in this chapter the relationships among prefix volume importance, stability and predictability basing on working traffic traces from 9 networks of diverse profiles. 
 With these findings, we proposed three resource-efficient metrics to predictively select prefixes of important volume. The proposed metrics yielded both satisfying volume coverage and pretty low prefix churn. Furthermore, we showcased that the performance in terms of RTT could differ a lot among different transit providers, which calls for fine-grained dynamic route selection mechanism to drain this gain. The route selection algorithm simulated in the work outperformed the best available transit by $20\%$ on certain networks. 
