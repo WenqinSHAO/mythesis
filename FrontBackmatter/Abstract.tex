@@ -10,28 +10,42 @@
 
 \chapter*{Abstract}
 
-As transit price continues to drop, mulithoming has now become a common practice among many medium and small size networks. Yet, how to improve the transmission performance through wise employment of multiple Internet paths remains challenging. One major roadblock is the performance agnostic Internet routing protocol, \acf{BGP}, that is not going to be obsolete shortly.
+As transit price continues to drop, mulithoming has now become a common practice among many medium and small size networks. Yet, improving transmission performance over multiple Internet paths remains challenging.
+%Yet, how to improve the transmission performance through wise employment of multiple Internet paths remains challenging. 
+One major difficult comes from the fact that current Internet routing protocol \acf{BGP} is not performance agnostic in route decision. 
+On top of that, \ac{BGP} is not going to be obsolete shortly.
 
-Both previous studies and commercial solutions suggest regularly measuring the performance on all available paths in reaching destination networks.
-Then the best performing path is selected based on these measurements, i.e. measurement-based \acf{TE}.
-However, plenty issues still exist and left open in building a satisfying TE system of this kind.
-We tackle some of the most pronounced problems in this dissertation to bring improvements in these aspects: measurement scalability, interpretation of performance data and visibility on causes of performance changes. 
+To bypass the limitations of \ac{BGP}, some previous studies and industrial solutions regularly measure transmission performance on all available paths.
+Then, the best performing path is selected for each destination according to the measurements, i.e. measurement-based \acf{TE}.
+In transferring this idea into designs/systems that can cope with real network requirements, plenty issues are still left open.
 
-We first study the methods that predictively select destination prefixes associated with large traffic volume.
-These methods allow traffic engineering operations to be focused on only a few important targets while still covering a majority of traffic, hence improving the scalability of the whole system.
+First, measurement-based TE has to deal with the huge number of potential destinations.
+This heavy load is further multiplied by the number of available paths/providers.
+Instead of dealing with entire address space, focusing on destinations are are associated with most traffic volume is more resource efficient.
+We studied working traffic traces from real networks to showcase that most traffic is indeed concentrated on a small fraction of destinations.
+Further, we devised simple methods to predict those `heavy-hitter' destinations.
 
-Later on, we focus on latency measurements. 
-We showcase and diagnose some data quality issues previously unattended.
-Guidelines to mitigate their impacts on data processing and route selection are discussed.
+Second, insightful measurement interpretation is required for route decision.
+In this work, we mainly dealt with round-trip latency.
+We first identified and diagnosed previously unattended data quality issues .
+Guidelines to mitigate their impacts are discussed.
+Further, to acquire a structural understanding of multiple delay time series, we investigated clustering methods to group together ones with similar characters, e.g. over all variation level, a particular shape at a given moment.
 
-To better interpret performance measurements, we introduce changepoint analysis to the processing of \acf{RTT} measurements, so that significant changes in path performance can be systematically detected and trigger route re-selection. 
-To enable further work in this direction, we devise an evaluation framework quantifying the robustness and sensitivity of detection methods on typical RTT time series.
+The difficulties encountered in the above research led us to the detection of moments of significant changes for each individual latency time series.
+Moments of performance change can be regarded as a compact way of representing latency time series, therefore facilitates grouping/clustering operation.
+Ultimately, these moments are when route re-selection is potentially needed for the measured destinations, because otherwise traffic toward them might suffer from avoidable performance degradation.
+To that end, we applied \textit{changepoint analysis} methods to latency time series.
+We devised an evaluation framework to quantify the robustness and sensitivity of diverse detection methods on typical RTT time series.
+With the open-sourced evaluation method, we aimed at as well encouraging further efforts on methodological improvements.
 
-Further, we propose to infer the location of performance changes seen in end-to-end measurements. This visibility enables route optimization for prefixes that can not be measured directly.
-We develop inference procedures for \acf{AS} and inter-AS links based on two intuitive assumptions.
-To better illustrate the inference process and the identified causes for RTT change, we devise two interactive visualization tools to plot results on a topology graph learned through path measurements.
+Last but not the least, we tried to infer the network locations that are responsible for significant latency changes. This visibility allows route decision for certain destinations that can not be measured directly.
+When paths toward these destinations traverses change causes, we can reasonably assume similar performance changes on these paths as those detected on paths with measurements.
+We developed a series inference procedures to attribute the cause of latency changes to \acf{AS} or inter-AS links.
+Change detection methods previously studied were employed to group paths that underwent a same performance change.
+To better illustrate the inference process and the identified causes for RTT change, we built two interactive visualization tools to plot results on a topology graph.
+
+In this dissertation, we tackled some of the most pronounced challenges in measurement-based TE for interdomain routing. Contributions are brought to measurement scalability, interpretation of performance data and visibility on causes of performance changes. 
 \vfill
-
 
 \iffalse
 \begin{otherlanguage}{french}
