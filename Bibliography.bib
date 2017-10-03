@@ -64,6 +64,98 @@ url = {https://tools.ietf.org/html/draft-ietf-quic-recovery-04},
 year = {2017}
 }
 
+@electronic{addpath,
+title = {{Advertisement of Multiple Paths in BGP}},
+url = {https://tools.ietf.org/html/rfc7911}
+}
+
+@electronic{multipathbgp,
+title = {{Load Sharing with BGP in Single and Multihomed Environments: Sample Configurations}},
+url = {https://www.cisco.com/c/en/us/support/docs/ip/border-gateway-protocol-bgp/13762-40.html}
+}
+
+@inproceedings{Xu2006,
+address = {New York, New York, USA},
+author = {Xu, Wen and Rexford, Jennifer},
+booktitle = {Proceedings of the 2006 conference on Applications, technologies, architectures, and protocols for computer communications - SIGCOMM '06},
+doi = {10.1145/1159913.1159934},
+isbn = {1595933085},
+issn = {0146-4833},
+keywords = {BGP,flexibility,inter-domain routing,multipath routing,scalability},
+number = {4},
+pages = {171},
+publisher = {ACM Press},
+title = {{MIRO: multi-path interdomain routing}},
+url = {http://portal.acm.org/citation.cfm?doid=1159913.1159934},
+volume = {36},
+year = {2006}
+}
+
+
+@article{Yang2007,
+author = {Yang, Xiaowei and Clark, David and Berger, Arthur W.},
+doi = {10.1109/TNET.2007.893888},
+issn = {1063-6692},
+journal = {IEEE/ACM Transactions on Networking},
+month = {aug},
+number = {4},
+pages = {775--788},
+title = {{NIRA: A New Inter-Domain Routing Architecture}},
+url = {http://ieeexplore.ieee.org/document/4265613/},
+volume = {15},
+year = {2007}
+}
+
+@article{Ganichev2010,
+author = {Ganichev, Igor and Dai, Bin and Godfrey, P. Brighten and Shenker, Scott},
+doi = {10.1145/1880153.1880156},
+issn = {01464833},
+journal = {ACM SIGCOMM Computer Communication Review},
+keywords = {internet,reliability,routing protocols},
+month = {oct},
+number = {5},
+pages = {13},
+publisher = {ACM},
+title = {{YAMR: yet another multipath routing protocol}},
+url = {http://portal.acm.org/citation.cfm?doid=1880153.1880156},
+volume = {40},
+year = {2010}
+}
+
+@article{Godfrey09,
+ author = {Godfrey, P. Brighten and Ganichev, Igor and Shenker, Scott and Stoica, Ion},
+ title = {Pathlet Routing},
+ journal = {SIGCOMM Comput. Commun. Rev.},
+ issue_date = {October 2009},
+ volume = {39},
+ number = {4},
+ month = aug,
+ year = {2009},
+ issn = {0146-4833},
+ pages = {111--122},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/1594977.1592583},
+ doi = {10.1145/1594977.1592583},
+ acmid = {1592583},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {forwarding table, multipath, pathlet, routing, scaling, source routing},
+}
+
+@inproceedings{Misseri2013,
+author = {Misseri, Xavier and Gojmerac, Ivan and Rougier, Jean-Louis},
+booktitle = {2013 IEEE International Conference on Communications (ICC)},
+doi = {10.1109/ICC.2013.6655099},
+isbn = {978-1-4673-3122-7},
+month = {jun},
+pages = {3536--3541},
+publisher = {IEEE},
+title = {{IDRD: Enabling inter-domain route diversity}},
+url = {http://ieeexplore.ieee.org/document/6655099/},
+year = {2013}
+}
+
+
 @article{Luckie2010,
 author = {Luckie, Matthew},
 doi = {10.1145/1879141.1879171},
@@ -96,6 +188,42 @@ isbn="978-3-540-45859-3",
 doi="10.1007/3-540-45859-X_12",
 url="https://doi.org/10.1007/3-540-45859-X_12"
 }
+
+@article{Xu2011,
+abstract = {Link-state routing with hop-by-hop forwarding is widely used in the Internet today. The current versions of these protocols, like OSPF, split traffic evenly over shortest paths based on link weights. However, optimizing the link weights for OSPF to the offered traffic is an NP-hard problem, and even the best setting of the weights can deviate significantly from an optimal distribution of the traffic. In this paper, we propose a new link-state routing protocol, PEFT, that splits traffic over multiple paths with an exponential penalty on longer paths. Unlike its predecessor, DEFT, our new protocol provably achieves optimal traffic engineering while retaining the simplicity of hop-by-hop forwarding. A gain of 15 {\%} in capacity utilization over OSPF is demonstrated using the Abilene topology and traffic traces. The new protocol also leads to significant reduction in the time needed to compute the best link weights. Both the protocol and the computational methods are developed in a new conceptual framework, called network entropy maximization, which is used to identify the traffic distributions that are not only optimal but also realizable by link-state routing.},
+author = {Xu, Dahai and Chiang, Mung and Rexford, Jennifer},
+doi = {10.1109/TNET.2011.2134866},
+file = {:Users/wenqin/Documents/reference base/IEEEACM Transactions on Networking/2008/Xu, Chiang, Rexford - Link-State Routing with Hop-by-Hop Forwarding Can Achieve Optimal Traffic Engineering - 2008.pdf:pdf},
+isbn = {9781424420261},
+issn = {10636692},
+journal = {IEEE/ACM Transactions on Networking},
+keywords = {Interior gateway protocol,Open Shortest Path First (OSPF),network entropy maximization,optimization,routing,traffic engineering},
+mendeley-groups = {TE},
+number = {6},
+pages = {1717--1730},
+publisher = {Ieee},
+title = {{Link-state routing with hop-by-hop forwarding can achieve optimal traffic engineering}},
+volume = {19},
+year = {2011}
+}
+
+@article{Jain2013,
+abstract = {We present the design, implementation, and evaluation of B4, a private WAN connecting Google's data centers across the planet. B4 has a number of unique characteristics: i) massive bandwidth requirements deployed to a modest number of sites, ii) elastic traffic demand that seeks to maximize average bandwidth, and iii) full control over the edge servers and network, which enables rate limiting and demand measurement at the edge. These characteristics led to a Software Defined Networking architecture using OpenFlow to control relatively simple switches built from merchant silicon. B4's centralized traffic engineering service drives links to near 100{\%} utilization, while splitting application flows among multiple paths to balance capacity against application priority/demands. We describe experience with three years of B4 production deployment, lessons learned, and areas for future work.},
+author = {Jain, Sushant and Zhu, Min and Zolla, Jon and H{\"{o}}lzle, Urs and Stuart, Stephen and Vahdat, Amin and Kumar, Alok and Mandal, Subhasree and Ong, Joon and Poutievski, Leon and Singh, Arjun and Venkata, Subbaiah and Wanderer, Jim and Zhou, Junlan},
+doi = {10.1145/2486001.2486019},
+file = {:Users/wenqin/Documents/reference base/Proceedings of the ACM SIGCOMM 2013 conference on SIGCOMM - SIGCOMM '13/2013/Jain et al. - B4 Experience with a Globally-Deployed Software DefinedWA - 2013.pdf:pdf},
+isbn = {9781450320566},
+issn = {0146-4833},
+journal = {Proceedings of the ACM SIGCOMM 2013 conference on SIGCOMM - SIGCOMM '13},
+keywords = {centralized networks,centralized traffic engineering,distributed networks,network communication,openflow,routing,routing protocols,software-defined networking,wide-area networks},
+mendeley-groups = {SDN},
+pages = {3},
+title = {{B4: Experience with a Globally-Deployed Software DefinedWA}},
+url = {http://dl.acm.org/citation.cfm?id=2486019{\%}5Cnhttp://dl.acm.org/citation.cfm?doid=2486001.2486019{\%}5Cnhttp://dl.acm.org/citation.cfm?doid=2486001.2486019},
+year = {2013}
+}
+
+
 
 @article{Quoitin2003,
 author = {Quoitin, B and Pelsser, C},
