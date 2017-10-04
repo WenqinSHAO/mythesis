@@ -2,68 +2,45 @@
 \label{sec:intro}
 
 Better transmission performance has been an ever-lasting pursuit of network engineers and researchers since the dawn of Internet. 
-The pursuit is stemmed from the distributed routing behavior that ensures the prevalence of this collection of individually manged networks.
+%The pursuit is stemmed from the distributed routing behavior that ensures the prevalence of this collection of individually manged networks.
 With in the realm of Internet, networks and hosts alike selfishly compete for resources on common parts of paths.
-Such behavior pattern gives rise to congestion and sub-optimal traffic distribution from a global view.
+Such behavior gives rise to congestion and sub-optimal traffic distribution from a global view.
 
-One roadblock in the pursuit is insufficient network capacity. It is thus necessary to regularly dimension the network according to the growth of traffic demands~\cite{pioro2004routing}. 
-Among all the sections in Internet, access network has a notorious reputation as bottleneck.
-Over last years, new generations of access methods~\cite{Kramer2002, kazovsky2007next} have greatly enlarged the pipe of this `last mile'. 
+Congestion takes place on an Internet path shared by multiple flows when the total demand exceeds the link capacity.
+Avoiding vicious competition that eventually blocks all flows, end-to-end congestion control mechanism plays an important role. It improves transmission performance in a distributed manner.
+It aims at 1) fully utilizing bottleneck bandwidth while 2) introducing minimum additional transmission delay (short queue length) and 3) ensuring fair share of resources~\cite{Jacobson1988, mathis1997macroscopic, Cardwell2016}.
 
-Congestion may still take place due to sudden traffic fluctuation. End-to-end congestion control mechanism plays an important role here to optimize the performance in an distributed fashion.  
-It aims at fully utilizing bottleneck bandwidth while introducing minimum additional transmission delay (short queue length) and ensuring fair share of resources~\cite{Jacobson1988, mathis1997macroscopic, Cardwell2016}.
-%Recently emerging QUIC~\cite{roskind2012quick} and HTTP/2~\cite{belshe2015hypertext} further alleviate unfair resource share caused by multiple simultaneous connection through multiplexing.
+The transmission performance can be further improved with big enough link capacity to satisfy the demand of all flows. To that end, it is necessary to regularly dimension the network according to the growth of traffic demands~\cite{pioro2004routing}. 
+%Among all the sections of Internet, access network has a notorious reputation as bottleneck.
+%Over last years, new generations of access methods~\cite{Kramer2002, kazovsky2007next} have greatly enlarged the pipe of this `last mile'. 
+Yet, infrastructure-building alone is not enough. First, network deployment happens on a much longer time span than traffic fluctuations. Before extra capacity is deployed, some links may become saturated while others remain almost idle, due to changes in traffic demand. Second, over-dimensioning is costly, given that future technologies will drastically reduce the cost per bandwidth unit.
 
-Internet traffic may still fail to take full advantage of the available network resources.
-Host-wise, MPTCP~\cite{Han2006} and QUIC~\cite{roskind2012quick} allows the usage of multiple available network connections, e.g. WiFi and mobile data.
-Certain applications, e.g. skype and bitTorrent, built an overlay network atop the Internet topology.
-Network-wise, network operator may in first place estimate/shape the traffic matrix 
-across its network, then split each traffic flow onto multiple paths~\cite{Xu2011, Jain2013}.
-Across different networks, there exist multiple propositions, to name a few Multipath BGP~\cite{multipathbgp}, BGP Add-path~\cite{addpath}, MIRO~\cite{Xu2006}, NIRA~\cite{Yang2007}, YAMR~\cite{Ganichev2010}, Pathlet routing~\cite{Godfrey09}, IDRD~\cite{Misseri2013}, and etc., to encourage the use and/or propagation of multiple Internet paths.
+Therefore, reactive and flexible routing schemes are needed, complementary to network dimensioning.
+They maximize the actual usable capacity.
+Within a network (intradomain), the administrator may in first place estimate/shape the traffic matrix 
+that comes across its network. Then, each flow can be split onto multiple paths to best fit in the available capacity~\cite{Xu2011, Jain2013}.
+Across different networks (interdomain), the room for performance improvement comes mainly from multiple Internet paths between source and destination networks.
+It is because the end-to-end bottleneck capacity is potentially enlarged with richer Internet paths.
+Such path diversity can already be obtained through multihoming under current \acf{BGP}. With multihoming, a network purchases the access to the rest of the Internet via multiple providers. Many other propositions as well encourage the propagation of multiple Internet paths, to name a few BGP Add-path~\cite{addpath}, MIRO~\cite{Xu2006}, NIRA~\cite{Yang2007}, YAMR~\cite{Ganichev2010}, Pathlet routing~\cite{Godfrey09}, IDRD~\cite{Misseri2013}, and etc.
+However, in interdomain routing, each network generally does not have the visibility outside its own territory, e.g. capacity of a remote link and competing traffic demand from other networks on that link.
+This is particularly true with \ac{BGP}, the de facto interdomain routing protocol that is not going to obsolete shortly.
+Therefore, it is not possible for current networks to figure out which available paths offer the best performance toward a certain destination.
+In other words, the challenge is how to make better use of available Internet capacity with a performance agnostic protocol \ac{BGP}.
+We undertake this challenge in this dissertation.
 
+One straightforward way to make the route decision performance-aware is through measurement. In engineering their interdomain peering edge, both Facebook and Google employ instrumentation embedded in their applications to learn end-to-end performance over multiple available paths~\cite{Yap2017, Schlinker2017}.
+As transit price drops, multihoming becomes rather a common practice of numerous medium and small size networks. 
+These networks as well have the immediate need for performance improvements, so that their business could survive.
 
-%\paragraph*{Internet path and traffic pattern shift}
-%The rise of \acf{CDN} and large \ac{CP} such as Google and Facebook drastically reduces the physical distance between contents and eyeballs, hence decreases the overall transmission latency.
-%The rapid growth of \acf{IXP} flattens the previous hierarchical Internet topology, and thus as well shortens Internet paths~\cite{Labovitz2011}.
-
-Internet path diversity leaves a huge space for interdomain traffic engineering. Before any of the above mentioned proposals or beyond replaces \acf{BGP}, a network can already learn multiple Internet paths, via multihoming, to each of its communication destinations.
-With the drop of Internet transit price~\cite{transitprice}, multihoming has now become a common practice for medium and even small networks.
-
-However, different from intradomain (within a network) traffic engineering, multiple path routing, accompanied with arbitrary flow split, is not enough to ensure an optimal traffic distribution across interdomain (across different independently managed networks) links.
-It is because network operators do not have a global visibility on Internet scale as they do over their own networks.
-They do not know the capacity of links outside their territories, nor the competing traffic demand that is originated from other networks.
-In this context, most interdomain routing proposals along with \acf{BGP} are unaware of the end-to-end performance differences across multiple available Internet paths. The usage of multiple path under these schemes alone at best unilaterally load balances traffic over multiple immediate exits of a network.
-
-
-How to make routing across the Internet performance aware?
-Measurement as a solution, case of facebook, and google and b6
-
-%Yet, how to take advantage of path diversity at network level witnessed much less progress as other directions do.
-%Back to the beginning of this century, researchers already realized that multihoming and hence %produced network level path diversity had the potential for performance boost.
-%Commercial products claiming capable of intelligent routing once emerged.
-%Then, they disappeared.
-%These systems were at best load balancers over transit links, thus could not fully address the end-to-end performance issue on a per destination base.
-
-%One major obstacle in this pursuit is that the routing protocol among different networks, i.e.\acf{BGP}, is unaware of performance differences across available paths.
-%One still available commercial product~\cite{b6} conducts regular performance measurements that are further considered in dynamic route selection, e.g. comparing measurements to a delay or increase amplitude threshold.
-%The academic world responded as well to the challenge, with more sophisticated route selection algorithms relying on historical measurements. 
-
-%A recent big news in the domain is that Google revealed \textit{Espresso}~\cite{espresso}. It is a \ac{SDN} component that dynamically selects Internet routes based on the instrumentation tailored for Google applications.
-%However, path diversity is no longer the privilege of large networks that can afford the technical and financial cost of such customized systems.
-%As transit price drops, multihoming becomes rather a common practice of numerous medium and small size networks. 
-%These networks as well have the immediate need for performance optimization so that their business could survive.
-
-
-
-Despite the concrete need that is becoming more obvious day by day, many questions remain unanswered, or partially addressed.
+Despite the concrete need for measurement-based interdomain traffic engineering, many questions remain unanswered, or partially addressed.
 A typical network can communicate with $\sim$ 100k different destinations regularly. 
 Continuously measuring the performance to all that many destinations are costly and not necessary. 
 What are the most important destinations to focus on? Do these destinations change over time? How to identify them?
 Besides volume measurements, how should performance measurements be processed? Do they need cleaning?
 If yes, what are the potential data quality issues? What are the origins of these issues? How can we showcase and mitigate their impacts on route selection?
-Further, in order to dynamically react to performance changes, how to detect in first place significant changes in performance measurements? How to do so without hard-coded or ad hoc parameters, yet featuring an acceptable level of robustness?
+Further, in order to dynamically react to performance changes, how to detect in first place significant changes in performance measurements? How to do so without hard-coded or ad hoc parameters? How to achieve at meantime an acceptable level of robustness?
 Finally, once a performance change is detected, how can we learn more about this event from a network perspective? Where does it happen? Does it potentially impact other Internet paths currently in use? 
-We aim to explore answers to above questions in this dissertation, so that the building of measurement-based route selection system advances in these aspects: measurement scalability, interpretation of performance data and visibility on causes of performance changes. 
+We aim to explore answers to the above questions in this dissertation, so that the building of measurement-based route selection system advances in these aspects: measurement scalability, interpretation of performance data and visibility on causes of performance changes. 
 
 \chapter{Background, scope and roadmap}
 \section{Intradomain Routing}
