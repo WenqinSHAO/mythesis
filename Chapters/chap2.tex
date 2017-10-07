@@ -247,7 +247,7 @@ cp(P)_i = \begin{dcases*}
 \end{equation*}
 % $cp(P)$ is a time series with which we can further describe the frequency or likelihood of prefix being present in the \textit{core} over the week: 
 The \textit{core} presence intensity $I_{cp}(P)$ is then defined as the frequency of \textit{core} presence over the week:
-$I_{cp}(P) = \frac{1}{168} \sum_{i=1}^{168} cp(P)_i$.
+$I_{cp}(P, 168) = \frac{1}{168} \sum_{i=1}^{168} cp(P)_i$.
 Intuitively, $I_{cp}$ can be regarded as an indicator of fitness that a prefix shall be continuously monitored in measurement-based TE.
 Again, we are interested in knowing how the value of $I_{cp}$ relates to the overall traffic volume importance.
 Similarly, we visualized this relationship in Figure~\ref{fig:cpi}, using the same visual language employed in Figure~\ref{fig:cv}.
@@ -447,23 +447,23 @@ In short, we found this simple metric capable of describing the traffic burstine
 Based on the previous observations, several approaches naturally emerges for the prediction of traffic volume ``importance'' of a prefix.
 \paragraph*{Mean Volume}
 With this metric, we predict that at hour $h+1$, the volume importance of prefix $P$ is indicated by it's mean hourly volume over the last $L$ hours, $MV(P,L)_{h+1} = 1/L \times \sum_{i = h-L+1}^{h} v(P)_i$.
-It is based on the observations from Figure~\ref{fig:cv}, that top prefixes ranked over the week tend to have smaller hourly volume variation around their mean volume.
+It is based on the observations from Figure~\ref{fig:cv}, that top prefixes over the week tend to have smaller hourly volume variation around their mean volume.
 
 \paragraph*{Core Presence Intensity}
-The prediction could use $I_{cp}(P,L)_{h+1} = 1/L \times \sum_{i = h-L+1}^{h} cp(P)_i$, i.e. the \textit{core} presence intensity of the prefix over the last $L$ hours. It derives from the observation made from Figure~\ref{fig:cpi}, that top ranked prefixes by their week volume are more likely to have intense \textit{core} presence.
+The prediction could use $I_{cp}(P,L)_{h+1} = 1/L \times \sum_{i = h-L+1}^{h} cp(P)_i$, i.e. the \textit{core} presence intensity of the prefix over the last $L$ hours. It derives from the observation from Figure~\ref{fig:cpi}, that top prefixes by their week volume are more likely to have intense \textit{core} presence.
 
 \paragraph*{Core Volume}
-Finally, the prediction could be based on $CV(P,L)_{h+1} = 1/L \times \sum_{i = h-L+1}^{h} cp(P)_i \times v(P)_i$,  a combination of both $MV$ and $I_{cp}$.
-$CV$ has the potential to be more resource thrifty compared to $MV$, as it is calculated only for those prefixes ever appeared in the \textit{core} over the last $L$ hours --- while $MV$ is computed for all active prefixes. From our observations, the \textit{core} size actually represents $5\%$ to $50\%$ of all active prefixes.
+Finally, the prediction could be based on $CV(P,L)_{h+1} = 1/L \times \sum_{i = h-L+1}^{h} cp(P)_i \times v(P)_i$,  a combination of $MV$ and $I_{cp}$.
+$CV$ has the potential to be more resource thrifty compared to $MV$, as it is calculated only for those prefixes ever appeared in the \textit{core} over the last $L$ hours --- while $MV$ is computed for all active prefixes. According to Table~\ref{tab:core_size}, the \textit{core} size each hour is only about $5\%$ to $50\%$ of all active prefixes.
 
 \subsection{Grey model as reference method}
 %\marginpar{computation complexity}
-In previous work by Zhange et al.\ \cite{Zhang2012} on FIB caching, a grey differential model $GM(1,1)$ \cite{Julong1989} is employed to predict which BGP prefixes will represent the  biggest packet counts. 
-It is by far more computationally efficient ($O(L)$), compared to \ac{TSF} methos such as \ac{ANN} ($O(L*M)$) and \ac{ARIMA} ($O(L^2)$), where L is the length of time series, M is the number of hidden nodes in the neural network.
-For the sake of comparison, we implemented the $GM(1,1)$ model in our work. 
+In previous work by Zhange et al.\ \cite{Zhang2012} on FIB caching, a grey differential model $GM(1,1)$ \cite{Julong1989} is employed to predict which BGP prefixes will represent the biggest packet counts. 
+It is by far more computationally efficient ($O(L)$), compared to \ac{TSF} methos such as \ac{ANN} ($O(L*M)$) and \ac{ARIMA} ($O(L^2)$), where L is the length of the time series, M is the number of hidden nodes in the neural network.
+For the sake of comparison, we implemented the $GM(1,1)$ model to predict big volume BGP prefixes. 
 
 A brief introduction to this model and how we apply it in our context is given below. Mathematical details of this model can be find in the work by Deng \cite{Julong1989}.
-$GM(1,1)$ predicts the cumulative hour volume $v^1$ instead of hour volume directly:
+Instead of hour volume, $GM(1,1)$ predicts the cumulative hour volume $v^1$ :
 \begin{equation*}
 v^1(P,L)_{i} = \displaystyle \sum_{j=i-L+1}^{i} v(P)_j,
 \end{equation*}
@@ -500,7 +500,7 @@ v(P)_i
 \end{bmatrix}.
 \end{equation*}
 
-We can see that for each single prefix, two parameters are to be estimated, $a$ and $b$, at each hour based on a new volume series that slides over time. Computationally, estimation with $GM(1,1)$ is much heavier than the three metrics proposed above, the calculation of which is identically to all prefixes without parameters to be customize.
+We can see that for each single prefix, two parameters are to be estimated, $a$ and $b$, at each hour based on a new volume series that slides over time. Computationally, estimation with $GM(1,1)$ is much heavier than the three metrics proposed above.
 
 \subsection{Prefix selection evaluation}
 \begin{figure}
@@ -562,12 +562,12 @@ We can see that for each single prefix, two parameters are to be estimated, $a$ 
 
 %\marginpar{volume coverage}
 In evaluating and comparing the performance of these methods, we fixed the selection set size to the maximum \textit{core} size over the week. 
-Figure~\ref{fig:cvg} illustrates the hour volume coverage by the four methods in the form of box-plot, representing the minimum, maximum, 25th and 75th percentile, medium and mean values. 
-Among proposed metrics, we find that the $CV$ is very close to $MV$ in terms of volume coverage, proving that it is a good approximation of the later, while being more resource economical.
+Figure~\ref{fig:cvg} illustrates the hour volume coverage by the four methods in the form of box-plot, representing the minimum, maximum, 25th and 75th percentile, medium and mean values (thicker bar in the middle of the box). 
+Among proposed metrics, we find that the $CV$ is very close to $MV$ in terms of volume coverage, proving that it is a good approximation of the later.
 
-Basing solely on the last 1 hour records, all methods yield already a mean volume coverage $>80\%$ on SA, SB, SE and SH, which implies a strong continuity on prefix volumes between two consecutive hours. 
-On SC and SG, however, using records of last 168 hours, i.e. a week, offers much better minimum volume coverage than shorter records. This is due to the fact that at certain hour, SC and SG undergo a great amount of bursty traffic (as observed previously, e.g. in Table~\ref{tab:bi} and Figure~\ref{fig:cv_cp}). By increasing the historical length, the selection metrics are able to have better visibility into the past and capture some of these bursty prefixes ---  finally improving the minimum coverage.
-This gain in minimum volume coverage by using long historical records can actually be observed on all networks, between 1 hour and 12 hours, also between 12 hour and 24 hour. 
+Basing solely on the last 1 hour records, all methods yield already a mean volume coverage $>80\%$ on SA, SB, SE and SH, which implies a strong continuity in prefix volumes between two consecutive hours. 
+On SC and SG, however, using records of last 168 hours, i.e. a week, offers much better minimum volume coverage than shorter records. This is due to the fact that at certain hour, SC and SG undergo a great amount of bursty traffic (as observed previously, e.g. in Table~\ref{tab:bi} and Figure~\ref{fig:cv_cp}). By increasing the historical length, the selection metrics are able to have better visibility into the past and capture some of these bursty prefixes --- finally improving the minimum coverage.
+The gain in minimum volume coverage by using long historical records can actually be observed on all networks, between 1 hour and 12 hours, also between 12 hour and 24 hour. 
 However from 24 hour to 168, this gain doesn't necessary happen on all sites, which is due to the fact that the total volume brought by some highly bursty prefix is diluted by the long time span using $MV$ and $CV$ metrics. In order to capture them, a larger selection set size is need, which inevitably includes more prefixes of few significance.
 
 
@@ -629,16 +629,17 @@ In order to understand the underlying reason, we used $GM(1,1)$ model described 
 
 %\marginpar{overreact to sudden value change.}
 For site SB and SD, we miss the hour volume data for the week starting from May 25th. 
-$GM(1,1)$ model using records of last $168$ suffer a lot from  data missing and converge extremely slow to values in reasonable range. 
+$GM(1,1)$ model using records of last $168$ suffer a lot from  data missing and converge extremely slow to actual traffic volume. 
 However, such sudden change in value is not unexpected, since bursty prefixes can bring huge amount of traffic within in a short duration and then remain silent over days. Such prefixes are commonly seen on SC, SF, SG judging from their burstiness index in Table~\ref{tab:bi}.
 This explains why grey model leads to fairly low volume coverage in Figure~\ref{fig:cvg_sc}. 
 
 %\marginpar{delayed response to value change}
-Furthermore, in Figure~\ref{fig:grey_sb}, Figure~\ref{fig:grey_sc} and as well in others, we can see that grey model reacts to volume variations in a delayed manner. Longer the historical records length is, more obvious and longer grey model delays the variations of actual trace.  
+Furthermore, in Figure~\ref{fig:grey_sb}, Figure~\ref{fig:grey_sc} and as well in others, we can see that grey model reacts to volume variations in an obviously delayed manner. 
+Longer the historical records length is, longer grey model delays the variations of actual trace.  
 This behavior could be fatal in the presence of bursty prefixes.
-We can observe considerably large pikes in both directions several hours after the volume burst in Figure~\ref{fig:grey_sc}, which might greatly disturb the prefix selection during those periods and consequently give rise to low volume coverage.
+We can observe considerably large pikes in both directions several hours after the volume burst in Figure~\ref{fig:grey_sc}, which might greatly disturb the prefix selection during those periods and consequently cause low volume coverage.
 
-Compared to grey model, metrics proposed in our work do not directly predict hour volumes of each prefix but rather are indirect measures of prefix volume importance. And analysis in Section~\ref{sec:dyna} showed that the overall coverage using these metrics are guaranteed by the traffic character itself.
+Compared to grey model, metrics proposed in our work do not directly predict hour volumes of each prefix but rather are indirect measures of its importance in terms of volume. And analysis in Section~\ref{sec:dyna} showed that the overall coverage using these metrics are guaranteed by the traffic character itself.
 
 \begin{figure}
 \centering
@@ -700,15 +701,15 @@ Compared to grey model, metrics proposed in our work do not directly predict hou
 
 %\marginpar{prefix churn}
 Figure~\ref{fig:churn} gives the results concerning the churn of the selection prefix set (in box-plot representation).
-The churn is defined as the difference (i.e. number of new and deleted prefixes) between the new predicted set and the previous one. A high prefix churn is especially unwanted by the measurement sub-system, which aims at continuously monitoring and providing historical records of important destinations.  Sarrar et al.\ \cite{Sarrar2012} also argued that small prefix churn is very important in network architecture with decoupled forwarding and control planes, such as SDN (Software Defined Networking), as it leads to lower communication overhead.
+The churn is defined as the difference (i.e. number of new and deleted prefixes) between the new predicted set and the previous one. A high prefix churn is especially unwanted by the measurement sub-system, which aims at continuously monitoring and providing historical records of important destinations.  Sarrar et al.\ \cite{Sarrar2012} also argued that small prefix churn is very important in network architecture with decoupled forwarding and control planes, such as SDN (Software Defined Networking), for the preference over small communication overhead.
 
 %\marginpar{discussion on historical length}
-As expected, a clear drop of the churn value can be seen when the historical length increases --- as opposed to what happens with the grey model. 
+As expected, a clear drop of the churn value can be seen when the historical length increases --- as opposed to what happens with the grey model.
 In that sense, using long historical records can be a wise choice in practice.
-Furthermore, for networks with relatively few bursty traffic, e.g. SA, the mean volume coverage with last 168 hour records is extremely close to that with last 24 hour records, shown  by Figure~\ref{fig:cvg_sa}.
+Furthermore, for networks with relatively few bursty traffic, e.g. SA, the mean volume coverage with last 168 hour records is extremely close to that with last 24 hour records, shown in Figure~\ref{fig:cvg_sa}.
 Finally, for networks with highly bursty traffic, SC, using long records has the potential to obviously improve worst-case volume coverage. 
 
-In the purpose of lowering churn, Sarrar et al.\ \cite{Sarrar2012} proposed selecting top prefixes over time bins of different lengths (ranging from 1 second to 10 minute in their FIB-caching environment). In our context, we found that the difference in mean volume coverage using record lengths larger than 1 hour is marginal, thus little gain can be expected from this method.  
+For the purpose of lowering churn, Sarrar et al.\ \cite{Sarrar2012} proposed selecting top prefixes over time bins of different lengths (ranging from 1 second to 10 minute in their FIB-caching environment). In our context, we found that the difference in mean volume coverage using record lengths larger than 1 hour is marginal, thus little gain can be expected from this method.  
 
 %\begin{table*}[!htb]
 %\centering
@@ -754,7 +755,11 @@ In the purpose of lowering churn, Sarrar et al.\ \cite{Sarrar2012} proposed sele
 \label{fig:bi_cvg}
 \end{figure}
 
-Finally, in Figure~\ref{fig:bi_cvg} the mean/minimum coverage achieved with $CV$ metric is showed as a function of the $BI$ index. We can see that the mean (resp. minimum) coverage is inversely proportional to the mean (resp. maximum) $BI$ index. As expected, this graphic highlight the difficulty to cover an important fraction of traffic volume for networks with more bursty traffic. However, the quasi-linear curve obtained shows that $BI$ is a very meaningful metric to identify sites with bursty trafic. For large $BI$ values, it can be worthy of choosing a larger prefix set size (which was previously fixed to the weekly maximum core size), if possible. 
+The mean/minimum coverage achieved with $CV$ metric is showed as a function of the $BI$ index in Figure~\ref{fig:bi_cvg}. 
+We can see that the mean (resp. minimum) coverage is inversely proportional to the mean (resp. maximum) $BI$ index. 
+This relation highlights the difficulty to cover a big fraction of traffic volume for networks with more bursty traffic. 
+However, the quasi-linear curve obtained shows that $BI$ is a very meaningful metric to identify sites with bursty trafic. 
+For network with large $BI$ values, it is worthy of choosing a larger prefix set size (which was previously fixed to the weekly maximum core size), if possible. 
 
 \section{Transit provider performance evaluation}
 \label{sec:rtt}
@@ -816,16 +821,16 @@ Finally, in Figure~\ref{fig:bi_cvg} the mean/minimum coverage achieved with $CV$
 \label{fig:np_cont}
 \end{figure}
 
-In this section, we explore the potential performance gain that client networks studied in this chapter can achieve with measurement-based TE.
+In this section, we explore the potential performance gain that client networks can potentially achieve with measurement-based TE.
 
 %\marginpar{how RTT is measured}
 In order to evaluate the performance gain, we continuously measured the \acf{RTT} towards selected prefixes (using $MV$ metric with $L=168$) via all available transit providers using TCP SYN scan~\cite{nmap} over the week starting from June 1st, 2015, i.e. the second week of our observation.
 The probe traffic is steered by means of explicit routing.
-For a pair of selected destination prefix and available transit provider, a probe is scheduled at 240 second interval in average with $30\%$ randomization in timing. 
+For a pair of selected destination prefix and available transit provider, a probe is scheduled at 240 second interval in average with $30\%$ randomization w.r.t. the interval in timing. 
 
 %\marginpar{how to evaluate transit performance over selected prefixes}
-We quantify the performance level using certain transit provider with a metric proposed by Akella et al.\ \cite{Akella2003a}. 
-This metric first normalizes the RTT via the chosen transit over the best measurement (the smallest RTT) at the same probe round. This is done for each individual selected prefix.
+We quantify the performance level of a transit provider with a metric proposed by Akella et al.\ \cite{Akella2003a}. 
+This metric first normalizes the RTT via the chosen transit over the smallest RTT  measurement across all available transit providers at the same probe round. This is done for each individual selected prefix.
 It then averages this normalized RTT over the entire selected prefix set.
 More formally the evaluation is done as the following:
 \begin{align*}
@@ -834,27 +839,37 @@ NP^{Tx}_{t_i} = \frac{1}{|SP|} \sum_{P \in SP} M^{Tx}_{t_i}(P)/\min_{T_j \in T}M
 \end{align*}
 where $NP^{Tx}_{t_i}$ is the normalized RTT performance for transit provider $Tx$ at probe round $t_i$, and 
 $M^{Tx}_{t_i}(P)$ denotes the RTT measured toward selected prefix $P$ via $Tx$.
-If a transit provider offers the smallest RTT to all selected prefixes, it should have a normalized RTT performance equaling to 1. On the other hand, a large $NP$ value indicates that the overall transmission performance  using that transit provider is far from ideal.
+If a transit provider offers the smallest RTT to all selected prefixes, it should have a normalized RTT performance equaling to 1. 
+On the other hand, a large $NP$ value indicates that the overall transmission performance using that transit provider is far from ideal.
 
 %\marginpar{dynamic route selection as a virtual transit provider}
-If the egress transit provider for real traffic is chosen dynamically for each individual selected destination prefix, the route selection mechanism can be regarded as a virtual transit provider. At each probe round, the virtual transit provider corresponds to a set of physical transit provider for each destination prefix. The set of physical provides actually employed can change over probe rounds.
-We implemented a virtual transit provider, denoted as $l1/r$, first appeared in~\cite{Akella2008} for the sake of comparison. 
-$l1/r$ selects the transit provider that provides the smallest RTT in last probe round for each selected prefix ($l1$ in $l1/r$). When RTT measurements data is not available (e.g. prefix newly selected, measurement timeout), it chooses randomly ($r$ in $l1/r$). This choice is based on the hypothesis that RTT of a path demonstrates temporal locality and thus is closely related to its most recent measurement.
+If the egress transit provider for real traffic is chosen dynamically for each individual destination prefix, the route selection mechanism can be regarded as a virtual transit provider. 
+At each probe round, the virtual transit provider corresponds to a set of physical transit provider for each destination prefix. 
+The set of physical provides taht are actually employed can change over time, i.e. dynamic.
 
-Figure~\ref{fig:np} gives the results of transit performance evaluation in a box-plot, where the intervals represent $5^{th}$ and $95^{th}$ percentiles (values below and beyond, marked by a \texttt{+} symbol, can be regarded as outliers).
-Along the X-axis, available transit providers are aligned increasingly according to their mean normalized RTT performance (marked by a square). 
+We implemented a virtual transit provider, denoted as $l1/r$, first appeared in~\cite{Akella2008} for the sake of comparison. 
+$l1/r$ selects the transit provider that provides the smallest RTT in last probe round for each destination prefix ($l1$ in $l1/r$). 
+When RTT measurement data is not available (e.g. prefix newly selected, measurement timeout), it chooses randomly ($r$ in $l1/r$). 
+This choice is based on the hypothesis that RTT of a path demonstrates temporal locality and thus is closely related to its most recent measurement.
+
+Figure~\ref{fig:np} gives the results of transit performance evaluation in a box-plot.
+The box stands for $25^{th}$ and $75^{th}$ percentiles. 
+The red line tells the medium value, while the red square indicates the mean.
+Finally, the whiskers represent $5^{th}$ and $95^{th}$ percentiles (values below and beyond, marked by a \texttt{+} symbol, can be regarded as outliers).
+Along the X-axis, available transit providers are aligned from left to right increasingly according to their mean normalized RTT performance (marked by a red square). 
 
 We observe that the performance differences among different transit providers is particularly evident on SC.
 This confirms that multi-homing can still provide significant performance improvement nowadays. 
-However this gain in performance is not inherently given in the context of BGP.
+However this gain in performance is not inherently given in the context of BGP, as it it is performance agnostic in route decision.
 Even for transit provider that offers the best best mean $NP$, there exist moments where its performance deviates far above 1, which means that traffic toward some selected prefixes are suffering from RTTs much larger than other available transit providers.
-This implies that a network can not arrive at optimal performance by using transit providers in a static and indistinguishable manner for each individual prefix.
+This implies that a network can not arrive at optimal performance by using a single transit providers in a static and indistinguishable manner for all the destination prefixes.
 
 For all networks except SG, the virtual transit provider outperforms all physical transit providers.
 On SB, the performance metric $NP$ of $l1/r$ is $20\%$ lower than that of the best available transit provider.
-Still, the $NP$ value of this virtual provider varies within a wide range, which calls for further investigation into the characters of RTT variation in time.
+Still, the $NP$ value of this virtual provider varies within a wide range, which calls for further investigation into the characters of RTT variation in time, see Section~\ref{sec:ripe_atlas} and \ref{sec:cpt_rtt}.
 
-Finally, we missed RTT measurement for quite a few selected destination prefixes on some client networks, especially SH, SC, SD and SE. Reasons for such massive lack of measurement are explained in Section~\ref{sec:infer} along with a possible solution performing TE for those prefixes without measurements.
+Finally, we missed RTT measurement for quite a few selected destination prefixes on some client networks, especially SH, SC, SD and SE. Reasons for such massive lack of measurement are explained in Section~\ref{sec:infer}.
+A possible solution is given to allow TE for those prefixes without measurements.
 
 \section*{Conclusion}
 \label{sec:fut}
@@ -864,12 +879,13 @@ One of the challenges in addressing this problem was to select in a scalable man
 
 %GgX: IMO We talk about a property of traffic, hence "volume" has to be singular.
 We analyzed real traffic measurements from nine different networks located in five different countries to understand the distribution of traffic volume associated with BGP prefixes, as well as its variation in time.   
-We observed that the most important prefixes (representing largest volume over a week) are generally stable in time, with small hourly variations around their mean. 
-Based on our observations, we proposed three simple 
+We observed that the most important prefixes (representing largest volume over a week) are generally stable in time, with small hourly variations around their mean of hour volume. 
+Based on this observation, we proposed three simple 
 %and resource-economical   % GgX: How can a metric demand ressources? Its computation does but not the metric tiself 
 metrics (also easy to compute) to proactively select prefixes with important foreseeable traffic volume.
 We demonstrated that the metrics we proposed lead to better volume coverage compared to the existing solutions.
-Furthermore, we evaluated the transmission performance for selected destination prefixes using different transit providers. We simulated as well a dynamic route decision algorithm. 
+Furthermore, we evaluated the transmission performance for selected destination prefixes using multiple transit providers. 
+We simulated as well a dynamic route decision algorithm. 
 The results showed that with even a fairly basic mechanism, the overall RTT performance could be improved by $20\%$ compared to the best available transit provider in some networks studied. 
 
 \iffalse
