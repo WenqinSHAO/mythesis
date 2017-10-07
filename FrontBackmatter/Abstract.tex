@@ -16,8 +16,8 @@ One major difficult comes from the current Internet routing protocol \acf{BGP}.
 It is not performance-aware in propagating and choosing routes. 
 On top of that, \ac{BGP} is not going to obsolete shortly.
 
-To bypass the limitations of \ac{BGP}, some previous studies and industrial solutions suggest regularly measure transmission performance on all available paths.
-Then, best route is chosen for each destination considering not alone policies but as well measurements. That is the main idea of measurement-based \acf{TE}.
+To bypass the limitations of \ac{BGP}, some previous studies and industrial solutions suggest regular measurement of transmission performance over all available paths.
+Then, the best routes are chosen for each destination considering not alone policies but as well measurements. That is the main idea of measurement-based \acf{TE}.
 In transferring this idea into designs/systems that can cope with real network requirements, plenty of  issues are still left open.
 
 First, measurement-based TE has to deal with the huge number of potential destinations.
@@ -25,15 +25,15 @@ This heavy measurement load is further multiplied by the number of available pat
 Instead of covering the entire address space, it is more resource efficient to focus on several important destinations.
 To verify the feasibility of that intuition, we studied working traffic traces from real networks.
 The results showcased that most traffic is indeed concentrated on a small fraction of destinations.
-Further, we devised simple methods to predict those `heavy-hitter' destinations.
+Based on these findings, we devised simple methods to predict those `heavy-hitter' destinations.
 
 Second, measurement-based TE requires insightful measurement interpretation.
 In this work, we mainly cared about round-trip latency on Internet paths.
-We first identified and diagnosed several data quality issues that are previously unattended.
-Guidelines to mitigate their impacts are discussed.
+We first identified and diagnosed several data quality issues that were previously unattended.
+Guidelines to mitigate their impacts were discussed.
 Further, we tried to cluster latency time series with similar characters, e.g. overall variation level, a particular shape at a given moment.
 
-We encounter difficulties in meaningfully clustering latency measurements. 
+We encountered difficulties in meaningfully clustering latency measurements. 
 These difficulties led us to the detection of moments of significant changes for individual latency time series.
 Moments of performance change can be regarded as a compact data representation of latency time series. They therefore have the potential to facilitate the grouping/clustering operation.
 Ultimately, these moments are when route re-selection is potentially needed for the measured destinations.
@@ -43,8 +43,8 @@ We devised an evaluation framework to quantify the robustness and sensitivity of
 With the open-sourced evaluation method, we aimed at as well encouraging further efforts on methodological improvements.
 
 Last but not the least, we tried to infer the network locations that are responsible for significant latency changes. This visibility allows performance-aware route selection for certain destinations that can not be measured directly.
-When paths toward these destinations traverse change causes, we can reasonably assume similar performance changes on these paths as well.
-We developed a series of inference procedures to attribute the cause of latency changes to \acf{AS} or inter-AS links.
+When paths toward these destinations traverse change causes, we reasonably assume similar performance changes on these paths as well.
+We since developed a series of inference procedures to attribute the cause of latency changes to \acf{AS} or inter-AS links.
 Change detection methods previously studied were employed to first detect performance changes and then to group paths that underwent a same performance change.
 To better illustrate the inference process and the identified causes for latency change, we built two interactive visualization tools to plot the results on a topology graph.
 
