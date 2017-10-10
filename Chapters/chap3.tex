@@ -294,21 +294,24 @@ With complete relatively complete data over time, a lot of poorly justifiable da
 
 
 \section{Same AS path measured by different probes}
-Whether the measured RTT mainly reflects the network characteristics of AS paths traversed by real traffic is a data quality concern specific in the context of measurement-based interdomain TE.
+A specific data quality concern in measurement-based interdomain TE is \textit{whether the measurement RTT reflects mainly the characteristics of AS paths that could be used by real traffic}.
 
-Route selection function in Figure~\ref{fig:archi} relies on path performance measurements as input, more details in Chapter~\ref{sec:cpt_rtt}.
-However, RTT measurements might be `polluted' either by non-network factors, say host-local issues such as CPU overload, or non-representative sub-AS level network issues can not be optimized with interdomain TE, say local congestion within the destination prefix.
+Route selection function in Figure~\ref{fig:archi} relies on path performance measurements as input (more details in Chapter~\ref{sec:cpt_rtt}).
+However, RTT measurements might be `polluted' either by non-network factors, say host-local issues such as CPU overload, or non-representative sub-AS level network issues, say local congestion within the destination prefix.
+Avoiding these issues is not the main objective of interdomain TE, since it is mostly unfeasible with interdomain routing alone.
 However, none of these previous works on measurement based inter-domian TE~\cite{Goldenberg2004, Akella2008} has realized the importance of this problem.
 
-This data quality issue gives rise to a series of questions: if we measure over a period of time a same AS path with multiple different RTT measurements toward different hosts in the destination prefix, what will these RTT time series look like? Will they have similar characters? If not, how can we pick out the ones fit best for our TE uses?
-We try to answer to these questions by performing clustering over a such set of RTT time series, in the purpose of automatically revealing their inherent structures.
+This data quality issue gives rise to a series of questions: \textit{if we measure a same AS path with different hosts in the destination prefix, what will these RTT time series look like? Will they have similar characters? If not, how can we pick out the ones that fit best for interdomain TE purposes?}
+We try to answer to these questions by performing clustering over a such set of RTT time series.
+Without prior knowledge or assumption, the study aims at automatically revealing the inherent structures of these RTT time series.
 
 \subsection{Data collection}
-We emulated such RTT measurements between two ASes, the local client AS (one host) and one destination AS (multiple hosts) with RIPE Atlas built-in measurements $\#1006$ and $\#5006$.
+We emulated a typical RTT measurements between two ASes, i.e. one local client AS (one host) and one destination AS (multiple hosts), with RIPE Atlas built-in measurements $\#1006$ and $\#5006$.
 They are respectively IPv4 ping and traceroute measurements from all Atals probes to m.root-servers.net (202.12.27.33). 
-Ping measurement is scheduled at 240 sec interval, while traceroute at 1800 sec.
-120 RIPE Atlas probes within AS3215 are selected to construct our database.\footnote{The 120 probes are the same ones in user-defined measurement \#2427397 with open access to all.}
-We assumed that all probes hit the same DNS root server clusters as the AS-level path toward the destination (m-root) is the same, since the only upstream AS for AS3215 is AS5511, the backbone of a French \ac{ISP}. Time window for the data collection ranges from 2015-09-28 10:00:00 UTC to 2015-09-29 12:00:00 UTC.
+Ping measurement is scheduled at 240 seconds interval, while traceroute at 1800 seconds.
+120 RIPE Atlas probes within AS3215 are selected to construct our database.\footnote{The 120 probes are the same ones in user-defined measurement \#2427397. The metadata of the that measurement are accessible to everyone.}
+All the probes hit the same DNS root server clusters via a same AS path.
+Time window for the data collection ranges from 2015-09-28 10:00:00 UTC to 2015-09-29 12:00:00 UTC.
 
 We cleaned the data collected, with following steps:
 \begin{itemize}
