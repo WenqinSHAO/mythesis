@@ -147,7 +147,7 @@ The built-in ping measurement is scheduled on every probe at 4min interval.
 \caption{CDF of total missing length per probe.}
 \label{fig:miss_len}
 \end{figure}
-We deem that there are missing measurements when the time interval between two neighboring measurements are abnormally longer than the planned value (> $150%$). 
+We deem that there are missing measurements when the time interval between two neighboring measurements are abnormally longer than the planned value (> $150\%$). 
 Interestingly, such long gaps turn out to be very close to integer times of planned interval.
 It is because as a cron-like mechanism is used to run measurements at regular interval and it retakes the previous phase after interruption~\cite{source, schedule}.
 This character allows quantifying the length of missing segment (a period of continuous lack of datapoints) by the number of measurements skipped.
@@ -184,7 +184,7 @@ The distribution of this overlap ratio is concentrated at the two ends, 0 and 1.
 This means that a missing segment is generally either mostly shifted/dislocated form connected periods, either largely overlapped with connected periods.
 For the convenience of illustration, we classify missing segments into two groups.
 One with overlap ratio $\leq0.5$, denoted as \textit{shifted}, the other with the rest, denoted as \textit{overlapped}.
-The \texit{overlapped} groups contains missing segments that are `unexpected'.
+The \textit{overlapped} groups contains missing segments that are `unexpected'.
 
 The two groups demonstrate very different length distribution profiles, Figure~\ref{fig:len_ratio}.
 Totally, 15391 missing segments are observed. 
@@ -201,7 +201,7 @@ It requires manual operation to recover probes under such condition~\cite{usb, 1
 \subsubsection{Temporal correlation between missing measurements and connection events}
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=0.8\textwidth]{gfx/chap3/miss_seg_ill.pdf}
+\includegraphics[width=\textwidth]{gfx/chap3/miss_seg_ill.pdf}
 \caption{Illustration of \textit{left edge} and \textit{right edge} of a missing segment. A possible temporal relationship of the two edges with connection events is as well depicted.}
 \label{fig:miss_seg_ill}
 \end{figure}
@@ -251,9 +251,33 @@ For dots are the right side of the same subgraph, measurements only begin to los
 % the case with two edges on the same side of a connection event
 % the case with short disconnectionin the middle of a missing segment
 % lost c, dc recovery
-Concerning missing segment other than the (D/C, C) type,  the majority of them spreads along the time axis. 
-The distances from left and right edge to connection events are highly correlated, suggesting that both left and right edges are on the same side of a same connection event.
-We note that these measurements were mostly lost while probes were well connected, i.e. overlapped.
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.95\textwidth]{gfx/chap3/pos_diag_miss_seg.pdf}
+\caption{Illustration of event placements in time for missing segments having positively correlated distance from its two edges to the closest connection events}
+\label{fig:pos_diag_miss_seg}
+\end{figure}
+
+Concerning missing segment other than the (D/C, C) type,  the majority of them actually overlaps with connected periods.
+Plus, them tend to concentrate along one diagonal direction, where the inner contours can be found.
+For these missing segments, the distances from left and right edge to connection events are highly correlated, suggesting that both left and right edges are on the same side of a same connection event.
+We illustrated such event placement in Figure.~\ref{fig:pos_diag_miss_seg}.
+The missing segment is either to the right side (after) of a connection event, or to the left side (before) a disconnection event.
+For a few missing segments that fall in the middle of a connected period, they appear on the diagonal line in the down right area (quadrant IV) of the corresponding subgraph.
+These missing segments are mostly short in length.
+If they were closer to any of the two extremities of the connection period, they will then become the case illustrated in ~\ref{fig:pos_diag_miss_seg}.
+For the group of missing segments in the right upper part (quadrant II) of the subgraph, they basically wrap within in them a connection period.
+Depending on the length of this connection period, they can be either classified as overlapped or shifted.
+Since the distance from edge to connection event is most likely 4min according to the density contour, only when the connection period in middle is very short, the missing segment is labeled as shifted.
+
+All the temporal placements of missing segment and connection events that are discussed here above are just the most likely/typical cases. They don't speak for the many specific cases that disagrees with the mainstream.
+
+Long lasting (>1h) missing segment yet overlapped with connected period take place in both subgraphs. 
+Most of them have at least one edge far from connection events.
+This suggests that the underlying mechanism of these missing segment is not necessary related to probe connection events.
+Moreover, these missing segments in general have pretty uneven absolute distance from their two edges to connection events. 
+This is is a coupled effect of 1) its long length and 2) again lack of correlation to connection events.
+Apart from the above observations, we were not able to arrive at a more conclusive description/explanation for those cases.
 
 \subsection*{Wrap-up}
 In our analysis covering a large number of probes over one month, only 60\% of v3 Atlas probes have complete measurements. Around $1/3$ missing segments appear to closely correlated to disconnected period. The probe OS stability issue might have contributed to such missings, as suggested by the heavy tail of the missing lengths.
@@ -262,7 +286,12 @@ However, the remaining $2/3$ of missing segments occurred while probes are conne
 Half of them are no more than 2 measurements in length, and are thus likely to be caused by scheduling issues. However, around $25\%$ of this category lasts long($\geq 1h$). 
 
 We reported the discovery to RIPE engineering team along with a specific case that they could look into.
-The last reply from RIPE team confirmed that the probe we mentioned in report had ``time synchronization issues''. To help advance the investigation, we shared with RIPE team all the long missing segments identified. These exchanges can be found on the RIPE Atlas forum at \url{https://www.ripe.net/participate/mail/forum/ripe-atlas}, with tile ``Actual measurement interval much larger than planned''.
+The last reply from RIPE team confirmed that the probe we mentioned in the report had ``time synchronization issues''. To help advance the investigation, we shared with RIPE team all the long missing segments identified along with corresponding probe IDs. These exchanges can be found on the RIPE Atlas forum at \url{https://www.ripe.net/participate/mail/forum/ripe-atlas}, with tile ``Actual measurement interval much larger than planned''.
+
+Though the final result is not conclusive nor revealing in terms of the underlying mechanism, this study did help realize a data completeness issue and treated it seriously.
+This issue can be mostly avoided or largely alleviated, if the probes are properly chosen as source of measurement data.
+With complete relatively complete data over time, a lot of poorly justifiable data cleaning steps can hence be avoided.
+
 
 \section{Same AS path measured by different probes}
 Whether the measured RTT mainly reflects the network characteristics of AS paths traversed by real traffic is a data quality concern specific in the context of measurement-based interdomain TE.
