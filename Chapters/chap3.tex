@@ -21,7 +21,7 @@ The finding confirms the need for data cleaning, a process often neglected in pr
 
 Finally, we experimented several time series clustering methods to group RTT measurements with similar shapes, i.e. undergoing same RTT changes.
 Such RTT measurement groups, along with path measurements, can help reveal where the RTT changes come from.
-We show later in Section~\rec{sec:infer} that this visibility is particularly useful to interdomain TE.
+We show later in Section~\ref{sec:infer} that this visibility is particularly useful to interdomain TE.
 \clearpage
 
 \section{Reproducibility}
@@ -208,13 +208,13 @@ It requires manual operation to recover probes under such condition~\cite{usb, 1
 
 To obtain a close-up view of this `abnormal' behavior, we seek to find out: \textit{when do measurements begin to be lost and when are they recovered? Are these moments close to connection events?}
 
-A missing segment itself doesn't not have any timestamps to mark its beginning and end.
+A missing segment itself does not have any timestamps to mark its beginning and end.
 We thus use the timestamps of available measurements around it to describe the time range of a missing segment.
-We define the \textit{left edge} of a missing segment as the last measurement before it, and the \textit{right edge}, accordingly, the first measurement after it.
+We define the \textit{left edge} of a missing segment as the last measurement before it, and the \textit{right edge} the first measurement after it.
 We then measure how far the two edges are from the closest connection events.
-We as well identify the nature of the connection events.
-We mark mark `D/C' for disconnection and `C' for connection. 
-And illustration of these terms can be found in Figure~\ref{fig:miss_seg_ill}.
+We as well identify the nature of these connection events.
+We denote `D/C' for disconnection and `C' for connection. 
+These terms are illustrated in Figure~\ref{fig:miss_seg_ill}.
 
 \begin{figure}[!htb]
 \centering
@@ -228,26 +228,30 @@ Number of concerned missing segments is given in the title. Negative time distan
 They are unavailable for this analysis as only one edge can be observed.
 For the rest with both edges, 5793 missing segments' left edge is closer to a disconnection event and the right edge is closer to a connection event.
 As we can imagine, with the help of Figure~\ref{fig:miss_seg_ill}, these are probably missing segments that are shifted from connected periods.
-Therefore, we separate they from the rest by given them a specific notation (D/C, C).
+Therefore, we separate them from the rest by giving them a specific notation (D/C, C).
 
 In Figure~\ref{fig:all}, we visualize the distribution of distance in time from the two edges to their separate closest connection event. 
-(D/C, C) missing segments and the rest are plotted in two sub-graphs.
+(D/C, C) missing segments and the rest are plotted separately in two sub-graphs.
 Each missing segment is a dot on the graph, colored according to its overlap ratio.
-If a distance takes a negative value, it means the edge of a missing segment precedes the connection event.
-And vise verse.
-Since many dots overlap each other on the surface, we indicate their 2-dimensional density using contour lines (estimated with MASS:kde2d package in R). 
+If a distance takes a negative value, it means the edge of a missing segment precedes the connection event, and vise verse.
+Since many dots overlap with each other on the surface, we indicate their 2-dimensional density using contour lines (estimated with MASS:kde2d package in R). 
 The most inner contours sit in the densest areas.
 
 For missing segments of (D/C, C) type, the densest area is around the $(-4min, 4min)$. 
-This means left edge of a (D/C, C) missing segment most likely precedes disconnection by a Ping interval (4min), and its recovery (the right edge) tends to take place 4 minute after the connection.
-Such strong correlation with probe disconnected period indicates that probe dysfunction is probably the cause.
+This means the left edge of a (D/C, C) missing segment most likely precedes a disconnection event by a Ping interval (4min), and its recovery (the right edge) tends to take place 4 minute after the connection event.
+Such strong correlation with probe disconnected period indicates that probe dysfunction is probably the cause for these missing segments. 
+As a matter of fact, most dots in the (D/C, C) subgraph of Figure~\ref{fig:all} are indeed `shifted' ones according to their overlap ratio classification.
 
-However, the beginning of such missing segments (D/C, C) can as well be dislocated from disconnection event.
-At the left end of the graph, measurements are lost long before the disconnection, which we find `abnormal', even though the recovery is near connection.
+However, the beginning (left edge) of (D/C, C) missing segment can as well be far ahead of a disconnection event.
+At the left end of the subgraph, measurements begin to lost long before the closest disconnection.
+These missings are probably an early sign of some internal issues that finally prevents the probe connecting to the controller. 
+For dots are the right side of the same subgraph, measurements only begin to lost a while after the probe is disconnected. One possible explanation is that measurements are first stored locally after disconnection from controller~\cite{usb}. Then new measurements only begin to lost after the local storage is full.
 
-To the right end, measurements only begin to be lost a long time after the probe is disconnected. One possible explanation is that measurements are first stored locally after disconnection from controller~\cite{usb}. Then new measurements are lost after local storage is full.
-
-Contrary to the compact distribution in (D/C, C) sub-graph, the majority of the rest missing segments spreads along the time axis. 
+% expand this part
+% the case with two edges on the same side of a connection event
+% the case with short disconnectionin the middle of a missing segment
+% lost c, dc recovery
+Concerning missing segment other than the (D/C, C) type,  the majority of them spreads along the time axis. 
 The distances from left and right edge to connection events are highly correlated, suggesting that both left and right edges are on the same side of a same connection event.
 We note that these measurements were mostly lost while probes were well connected, i.e. overlapped.
 
