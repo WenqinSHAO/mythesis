@@ -609,32 +609,40 @@ The implications is that a common part exclusive to these RTT measurements in Fi
 Inferring the location responsible for RTT changes in Internet is a an intriguing topic in its own right.
 Moreover, it contributes to better route selection logic, if achievable with only end-to-end delay and path measurements.
 
-Clustering in feature space (Section~\ref{sec:cls_ft}) is however not an appropriate approach for the identification of RTT time series with similar shapes, because the features extracted, summarizing the entire time series, do not have the capability conveying information concerning temporal structure.
-Therefore, we study the clustering approaches where the data representation of RTT time series remain time series.
+Clustering in feature space (Section~\ref{sec:cls_ft}) is however not the best option for the identification of RTT time series with similar shapes.
+It is because the features extracted, summarizing the entire time series, do not have the expressiveness over temporal structure.
+Therefore, we study clustering approaches where the data representation of RTT time series remain time series.
 
 \subsection{Data collection}
 %%\marginpar{collection}
 In order to increase the chance of identifying RTT time series with shared change or shape, We collected ping and traceroute measurements from 170 RIPE Atlas probes hosted in European datacenters to DNS b-root from Jan.\ 18 to Jan.\ 24, 2016\footnote{DNS b-root had single single instance at that moment.}\footnote{IDs of these probes can be found at \url{https://www.dropbox.com/s/6ai0aooxnubufma/pbid.txt?dl=0}.}.
-We cleaned the dataset by removing measurements with plenty of missing segments and timeout measurements.
+We cleaned the dataset by removing measurements with plenty of missing segments and timeout measurements (see the Section~\ref{sec:cls_ft} for detailed cleaning criteria).
 128 probes remained. They are from 17 countries, 117 ASes and 120 prefixes. All these probes are equipped with the lasted v3 hardware.
 
 %%\marginpar{pre-processing}
 The measurements from different Atlas probes are not strictly aligned.
-This brings inconvenience in analysis that compare RTT changes across probes. 
-We therefore found a set of new timestamps for ping measurements that minimizes the average distance from initial measurement timestamps to it.
-The resulted average time distortion from the new timestamps to initial ones is $55.01 sec$, being much smaller than the measurement interval, i.e.\ $240s ec$.
-We henceforth aligned the initial RTT measurement measurements to the closest new timestamp.
-For several rare moments when no measurement data was available, we padded them with closest RTT measurements.
-Hence, we achieved a dataset with aligned timestamps and equal length.
+This brings inconvenience in comparing RTT changes in time across probes. 
+We therefore tried to find a new set timestamps that minimizes the distance from the initial measurement timestamps to it, across all probes.
+The resulted average distortion in time is $55.01 sec$ per datapoint, being much smaller than the measurement interval, i.e.\ $240 sec$.
+We aligned all the RTT time series in the dataset by enforcing this new set of timestamps.
+For several rare moments when no measurement data was available, we padded them with the closest RTT measurements.
+Till this point, we fabricated a dataset of RTT time series with aligned timestamps and equal length.
 
 \subsection{Data representation}
 In order to capture the temporal structure of time series, we tired following data transformations that result still in time series.
 
 \paragraph*{Raw RTT}  The aligned and padded raw RTT measurements are used as them are for the sake of comparison. This representation is denoted as \textbf{RTT} later on.
 
-\paragraph*{Segments by changepoint detection} In the purpose of filtering unnecessary variations in the raw RTT measurements, we applied changepoint detection to them. The operation cuts each RTT time series into segments of different characteristics. We then simplify each RTT time series with the mean value of each segment without changing its total length. So achieved time series are denoted as \textbf{Seg}. The changepoint detection is performed with R package \textit{changepoint}, version 2.2.1~\cite{Killick2013a}. The min RTT is first subtracted from each RTT time series. Then we assume Poisson distribution during the change detection. We later on dedicate  Chapter~\ref{sec:cpt_rtt} to the change detection for RTT measurements, where more technical details can be found.
+\paragraph*{Segments by changepoint detection} In the purpose of filtering unnecessary variations in the raw RTT measurements, we applied changepoint detection to them. 
+The operation cuts each RTT time series into segments of different characteristics. 
+We then simplify each RTT time series with the mean value of each segment without changing its total length. 
+So achieved time series are denoted as \textbf{Seg}. 
+The changepoint detection is performed with R package \textit{changepoint}, version 2.2.1~\cite{Killick2013a}. 
+The min RTT is first subtracted from each RTT time series. 
+Then we assume Poisson distribution during the change detection. 
+We later on dedicate Chapter~\ref{sec:cpt_rtt} to the change detection for RTT measurements, where more technical details can be found.
 
-\paragraph*{Z-normalized time series} This process produces zero mean unite variance time series. It is a very common data pre-processing in time series clustering~\cite{Ulanova2015,Ratanamahatana2004}. It helps remove the difference among RTT measurements caused by level difference that is less relevant to shape. However, it as well cause RTT time series with large change amplitudes to resemble a lot those with small variations, and make them indistinguishable. Due to this undesired feature, the actual clustering result with z-normalized time series is relatively meaningless. Therefore, we no longer discuss this data representation.
+\paragraph*{Z-normalized time series} This process produces zero mean unite variance time series. It is a very common data pre-processing in time series clustering~\cite{Ulanova2015,Ratanamahatana2004}. It helps remove level differences that is less relevant to Time series shapes. However, under this representation, RTT time series with large and frequent changes resemble a lot those with small variations, to an extent that they become hardly distinguishable. Due to this undesired feature, the actual clustering result with z-normalized time series is relatively meaningless. Therefore, we no longer discuss this data representation.
 
 \paragraph*{Mode-centered and piece-wise scaled time series}  In this transformation, we first center each RTT series around its mode by:
 \begin{align*}
@@ -649,21 +657,22 @@ F_s(x) =
        10 \times \log_2 (|x_i|) - \beta \hfill & \text{$|x|\geq 60$},\\
   \end{cases}
 \end{align*}
-where $\beta = 10 \times \log_2 60 - 50$, being simply a term to make the $F_s(x)$ continuous in value. 
-The intuition behind these operations are 1) since networks tend to have a dominant configuration and are most of the time free of congestion, it is variation around the most popular value that defines the shape of the RTT time series; 2) for little variations less than 10 msec, we would like to consider them as insignificant noises and filter them; for moderate deviations, say in the range of $[10 msec, 60 msec)$, are changes that we would like to take into account during clustering thus conserved linearly; while for super large changes, sometimes outlier values, greater than 60 msec, we would like to suppress their impact on clustering results. We refer to resulted time series as \textbf{MP}.
+where $\beta = 10 \times \log_2 60 - 50$.
+It is simply a term to make the $F_s(x)$ continuous in value. 
+The intuition behind these operations are 1) since networks tend to have a dominant configuration and are most of the time free of congestion, its is the variations around the most popular value that defines the shape of the RTT time series; 2) for little variations less than 10 msec, we would like to consider them as insignificant noises and filter them; for moderate deviations, say in the range of $[10 msec, 60 msec)$, are changes that we would like to take into account during clustering, and are thus conserved linearly; while for super large changes, sometimes outlier values, greater than 60 msec, we would like to suppress their impact on clustering results. We refer to the resulted time series as \textbf{MP}.
 
 \subsection{Distance measure}
-Wang et al.\ \cite{Wang2013} performed a comprehensive study on distance measures for time series data. They showed no distance measure is significantly better (in terms of the accuracy finding 1 closest neighbour) than \acf{DTW} on a majority of data studied \cite{UCRArchive}, while \ac{ED} is of similar performance as \acf{DTW} when training sample are big enough. Therefore, we consider these two well studied distance measures.
+Wang et al.\ \cite{Wang2013} performed a comprehensive study on distance measures for time series data. They showed no distance measure is significantly better (in terms of the accuracy finding 1 closest neighbour) than \acf{DTW} on a majority of data studied \cite{UCRArchive}.
+Meanwhile \ac{ED} is of similar performance as \acf{DTW} when training sample are big enough. 
+Therefore, we consider these two well studied distance measures.
 
-\paragraph*{Euclidean Distance} is a non-elastic distance measure, which can only be applied to two time series of same length. For $x$ and $y$ of length $N$, ED is defined as:
-\begin{align}
-ED(x,y) = \sqrt{(x_1 - y_1)^2 + (x_2 - y_2)^2 + \dots + (x_N - y_N)^2}.
-\end{align}
-All the above presented data representation contain time series of same length, thus applicable.
+\paragraph*{Euclidean Distance} is a non-elastic distance measure, which can only be applied to two time series of same length. All the above presented data representation contain time series of same length, thus applicable.
 
-\paragraph*{Dynamic Time Wrapping} is an elastic distance measure, which allows it to handle time series of different length. Yet, \cite{Ratanamahatana2005} showed that there is no significant difference in terms of classification accuracy for \ac{DTW} in handling time series of different length and re-interpolated series of same length. 
+\paragraph*{Dynamic Time Wrapping} is an elastic distance measure, which allows it to handle time series of different length. Yet, \citet{Ratanamahatana2005} showed that there is no significant difference in terms of classification accuracy for \ac{DTW} when handling time series of different length and re-interpolated series of same length. 
 Therefore, padding shall bring few impact when employing \ac{DTW}.
-Different from ED, \ac{DTW} stretches or compress the two time series so that one resembles the other as much as possible. That is, one value in a time series can be aligned/matched to one or multiple values of arbitrary positions in the other time series, so that the accumulated distance between all aligned/matched points are the smallest. Constraints exist in finding such alignment, or in other words wrapping path, the details of which can be found in \cite{Sakoe1978, Keogh2005, Giorgino2009}.
+Different from ED, \ac{DTW} stretches or compress the two time series so that one resembles the other as much as possible. That is, one value in a time series can be aligned/matched to one or multiple values of arbitrary positions in the other time series, so that the accumulated distance between all aligned/matched points are the smallest. Constraints can be as well specified in finding such alignments, or in other words wrapping path.
+We give only intuitive explanations here.
+More details of \ac{DTW} and window constraints can be found in \cite{Sakoe1978, Keogh2005, Giorgino2009}.
 
 \begin{figure}[!htb]
 \centering
@@ -672,7 +681,9 @@ Different from ED, \ac{DTW} stretches or compress the two time series so that on
 \label{fig:dtw_ex}
 \end{figure}
 
-Figure~\ref{fig:dtw_ex} gives an example of how \ac{DTW} aligns a query RTT series to a reference series. We can see that the RTT variation of the traces happen in times far apart from each other. However, with \ac{DTW}, these variations are sort of aligned. The advantage of this feature is that \ac{DTW} can identify shape similarities that are not aligned in time.
+Figure~\ref{fig:dtw_ex} is an example of how \ac{DTW} aligns a query RTT series to a reference series~\footnote{\ac{DTW} is not a symmetric distance measure, in the sense that if query and reference time series are swapped, a different distance value can be produced.}. 
+We can see matches between RTT datapoints that are far away from each other. 
+%The advantage of this feature is that \ac{DTW} can identify shape similarities that are not aligned in time.
 
 \begin{figure}[!htb]
 \centering
@@ -688,15 +699,22 @@ Figure~\ref{fig:dtw_ex} gives an example of how \ac{DTW} aligns a query RTT seri
 \label{fig:dtw_ex_win}
 \end{figure}
 
-However, matching variations far away in time as is the case in Figure~\ref{fig:dtw_ex} dosen't really help in finding synchronized changes, which is of interest to us. Therefore we apply a window restricting the range of alignment/matching between two RTT time series. The window used is visualized in Figure~\ref{fig:win}. With window size equaling 4, a data point in one time series can no longer be match to a point 5 index further in the other series. 5 index in our RTT measurements, means 20 min, which is already a large range. With the window, the new alignment is shown in Fig~\ref{fig:dtw_ex_win}.
+However, matching variations far away in time, such as the case in Figure~\ref{fig:dtw_ex} is not helpful for the search of synchronized RTT changes across probes.
+Therefore we apply a window restricting the range of alignment/matching between two RTT time series. The window used is visualized in Figure~\ref{fig:win}. With window size equaling 4, a data point in one time series can no longer be match to a datapoint 5 index or further away in another time series. 5 index in our RTT measurement settings means 20 min, which is already a large range. 
+With the window restriction, the new alignment for the two time series in Figure~\ref{fig:dtw_ex} is now given in Figure~\ref{fig:dtw_ex_win}.
+Not surprisingly, the distance becomes larger, which we regard as a more faithful measure of the dissimilarity of the two time series.
 
 \subsection{Clustering results}
 
 %%\marginpar{justify the use of \ac{PAM} as clustering algorithm}
-We used \ac{PAM} instead of k-means because 1) \ac{PAM} is more robust than k-means, for its clustering result is less impacted by outlier observations~\footnote{The only difference between \ac{PAM} abd k-means lies in that k-means uses the mean value of cluster members as the prototype of that cluster, around which the cluster member are iteratively adjusted, while \ac{PAM}, a.k.a. k-medoids uses the cluster member that minimizes the total distance between itself and all other cluster members as the cluster prototype.}.
-2) the mean 'value' of a set of time series does not have any practical meaning, while the medoid is a common choice~\cite{Aghabozorgi2015}. 
+We used \ac{PAM} instead of k-means in this study because 1) \ac{PAM} is more robust than k-means, for its clustering result is less impacted by outlier observations~\footnote{The only difference between \ac{PAM} abd k-means lies in the fact that k-means uses the mean value of cluster members as the prototype of that cluster, around which the cluster member are iteratively adjusted. Meanwhile, \ac{PAM}, a.k.a. k-medoids uses the cluster member that minimizes the total distance between itself and all other cluster members as the cluster prototype.}.
+2) the mean 'value' of a set of time series does not have any practical meaning, while the medoid is a plausible choice~\cite{Aghabozorgi2015}. 
 
-The clustering result with \ac{ED} is relatively not meaningful, and will not be discussed later on. It forms one cluster containing a majority of RTT time series without observably similarity among them, and several small clusters having strictly matched RTT spikes. We believe it is because the distance definition is too stiff .
+The clustering result using \ac{ED} is not very meaningful, and will not be discussed later on.
+The resulted cluster size is highly uneven. 
+It forms always, regardless k setting, 1)one cluster containing a majority of RTT time series without observably similarity among them, and 2) several small clusters having strictly matched RTT spikes.
+We believe it is because the distance definition is too stiff.
+Strict match of big values lowers significantly the distance that otherwise would be accumulated.
 
 \begin{figure}[!htb]
 \centering
@@ -704,7 +722,10 @@ The clustering result with \ac{ED} is relatively not meaningful, and will not be
 \caption{\ac{ASW} over the entire data set with varying k.}
 \label{fig:sil_comp}
 \end{figure}
-We thus mainly compare the clustering results using \ac{DTW} and \ac{PAM} over the three data representations: \textbf{RTT}, \textbf{Seg} and \textbf{MP}. The \ac{ASW} with varying cluster number k is given in Figure~\ref{fig:sil_comp}. The curve for \textbf{MP} demonstrates a very typical step-wise shape, evidence of strong cluster structure when $k \leq 10$. Among the three representations, the clustering algorithm is most confident of the clusters identified for \textbf{MP}.
+We thus mainly compare the clustering results using \ac{DTW} and \ac{PAM} over the three data representations: \textbf{RTT}, \textbf{Seg} and \textbf{MP}. 
+The overall \ac{ASW} with varying cluster number k is given in Figure~\ref{fig:sil_comp}. 
+The curve of \textbf{MP} demonstrates a very typical step-wise shape, evidence of strong cluster structure when $k \leq 10$ and how this structure is broken when more clusters are enforced.
+Among the three representations, the clustering algorithm is most confident of the clusters identified using \textbf{MP}.
 
 \begin{figure}[!htb]
 \centering
@@ -713,21 +734,32 @@ We thus mainly compare the clustering results using \ac{DTW} and \ac{PAM} over t
 \label{fig:rtt3d_mp_cls2}
 \end{figure}
 
-Investigating RTT time series of resulted clusters, we found that RTT time series in \textbf{RTT} are essentially grouped by their RTT level, indicating the meaning value of raw RTT time series dominates the distance calculation. \textbf{MP} and \textbf{Seg} contain pretty similar clusters when the \ac{ASW} is relatively high for both data representation at $k=5$. One cluster containing exactly the same member RTT time series under both representations is shown in Figure~\ref{fig:rtt3d_mp_cls2}. With both representation methods, a almost 0.8 \ac{ASW} is achieved for this cluster, meaning that the clustering algorithm is extremely certain about this result. Other clusters of \textbf{MP} and \textbf{Seg} are as well of relevance, indicating they are very effective ways of extracting temporal structures in time series.
+To understand the resulted clusters with the three data representation, we first look at the raw RTT time series of these cluster members.
+With \textbf{RTT}, we found that clusters are essentially formed according to by their raw RTT level.
+This suggests that the mean value of raw RTT time series dominates the distance calculation. 
+The resulted clusters of \textbf{MP} and \textbf{Seg} have pretty similar members when $k=5$ and the overall \ac{ASW} is high. One cluster contains exactly the same members under both representations.
+The raw RTT time series are plotted in Figure~\ref{fig:rtt3d_mp_cls2}.
+It is obvious that all these RTT time series experienced a very alike RTT change over a same period.
+Both representation methods achieved an almost 0.8 \ac{ASW} under \ac{DTW}.
+This implies that the clustering algorithm is extremely certain about this result.
+The presence of this cluster is a strong evidence that the methods experimented in this study are indeed capable of identifying groups of time series with same RTT changes.
+Other clusters of \textbf{MP} and \textbf{Seg} are as well of relevance, suggesting again that they are very effective ways of extracting temporal structures in time series.
 
-\subsection{Network implications of shared RTT variation}
+\subsection{Network implications of shared RTT variations}
 
 The 5 RTT time series in Figure~\ref{fig:rtt3d_mp_cls2} experienced a big RTT increase of at least $40msec$ for nearly a day on Jan. 20th, 2016.
+We seek to find out what happened from a network aspect.
 
 %%\marginpar{What happened?}
-\paragraph*{Common AS hop} The only intermediate AS shared by all the 5 probes is AS6939.
-Meanwhile, other 94 probes in our dataset that pass through AS6939 didn't experience this RTT change.
-3 of the 5 probes pass through IXP AS8674, right before entering AS6939.
+\paragraph*{Common AS hop} The only intermediate AS hop shared by all the 5 probes is AS6939.
+Meanwhile, other 94 probes in the dataset that pass through AS6939 didn't experience this RTT change.
+Therefore, we can not conclude that AS6939 is the cause.
+3 of the 5 probes in the cluster pass through IXP AS8674, right before entering AS6939.
 The other 2 have unannounced IP addresses interconnecting AS6939.
 
 \paragraph*{Routing changes} No AS path change is witnessed during this period.
-However, there are IP level path changes within AS6939 happened at the same moment as the shared RTT changes~\footnote{We are capable of distinguishing real IP path changes and those due to \ac{LB}, more technical details in Section~\ref{sec:cpt_rtt}.}.
-RTT till the hop entering AS6939 experienced the most significant increase when inspecting the traceroute measurements.
+However, there are IP level path changes within AS6939 that happened at the same moment as the shared RTT changes~\footnote{We are capable of distinguishing real IP path changes and those due to \ac{LB}, more technical details in Section~\ref{sec:cpt_rtt}.}.
+RTT till the hop entering AS6939 experienced the most significant increase during the end-to-end delay increase.
 
 \paragraph*{Possible scenario} Our guess was that IXP AS8674 changed the next-hop in reaching AS6939 out of some reason and the impacted traffic fell on a congested inter-AS link.
 The \acf{NOC} team of AS8674 kindly replied to our query and told us that they did ``not see any special disturbance''. 
@@ -736,15 +768,26 @@ In both cases, it turned out to be very difficult to identify which part of the 
 Yet, capable of clustering in first place RTT time series with similar shapes does help narrow down the scope of possible causes.
 
 \subsection{Limitations of time series clustering}
-
 Time series clustering with \textbf{MP}/\textbf{Seg} and \ac{PAM} offered very interesting results and helped us chasing down a specific case of RTT change shared by multiple RTT time series.
 However, it is still not ideal in the context of measurement-based TE for following reasons.
 
 First, it won't scale. In order to obtain a distance matrix among $n$ time series, $O(n^2)$ distance calculation is needed. The computation cost for clustering could thus be prohibitively high when there are thousands of RTT time series, one for each destination prefix. 
 
-Second, the interpretation of clustering results remain ad hoc, and thus hard to be automatized. \ac{ASW} of each cluster can serve as an indicator of cluster quality/relevance. Yet, what level of \ac{ASW} should be considered significant enough is hard to justify. In previous analyses, we always resorted to raw RTT time series to judge if the clusters are indeed meaningful or not, before carrying out more specific analysis. On top of that, the clustering results do not state when RTT changes shared by the cluster members actually happen, preventing as well systematic investigation of relating network events at these moments to infer the causes of the RTT changes.
+Second, the interpretation of clustering results remain ad hoc, and thus hard to automatize. 
+\ac{ASW} of each cluster can serve as an indicator of cluster quality/relevance. 
+Yet, what level of \ac{ASW} should be considered significant enough is hard to justify. 
+In previous analyses, we always resorted to raw RTT time series to judge if the clusters are indeed meaningful or not, before carrying out more specific analysis. 
+On top of that, the clustering results do not state when RTT changes shared by the cluster members actually happen, preventing as well systematic investigation of relating network events at these moments.
 
-Third, it is hard to transform clustering into an online process. Along the time, different parts of the Internet might cause RTT changes, impacting different sets of RTT measurements, hence different clusters over time. This requires the clustering methods to update the resulted clusters as new measurements flow in. This is not what clustering methods studied in this chapter are capable of.
+Third, it is hard to transform clustering into an online process. 
+Along the time, different parts of the Internet might cause RTT changes, and impact different sets of RTT measurements.
+Therefore different different clusters are expected over time. 
+This requires the clustering methods to update the resulted clusters as new measurements flow in. 
+The clustering methods studied in this chapter are clearly inapt.
 
-To address the above issues, we found simplifying RTT time series via changepoint detection promising. It first outputs the moments when each RTT time series experiences significant changes. Based on this change-or-not binary status, we can then easily form groups of time series sharing the same change. With evolving groups, we can track the causes for different RTT changes over time in the Internet.
+To address the above issues, we found simplifying RTT time series via changepoint detection promising. 
+Its power has already been demonstrated with the \textbf{Seg} data representation.
+It first outputs the moments when each RTT time series experiences significant changes. 
+Based on this change-or-not binary status, we can then easily form groups of time series sharing the same change. 
+With evolving groups, we can further track the causes for different RTT changes over time in the Internet.
 We develop this idea in Chapter~\ref{sec:cpt_rtt} and ~\ref{sec:infer}.
