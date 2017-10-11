@@ -309,34 +309,37 @@ Without prior knowledge or assumption, the study aims at automatically revealing
 We emulated a typical RTT measurements between two ASes, i.e. one local client AS (one host) and one destination AS (multiple hosts), with RIPE Atlas built-in measurements $\#1006$ and $\#5006$.
 They are respectively IPv4 ping and traceroute measurements from all Atals probes to m.root-servers.net (202.12.27.33). 
 Ping measurement is scheduled at 240 seconds interval, while traceroute at 1800 seconds.
-120 RIPE Atlas probes within AS3215 are selected to construct our database.\footnote{The 120 probes are the same ones in user-defined measurement \#2427397. The metadata of the that measurement are accessible to everyone.}
-All the probes hit the same DNS root server clusters via a same AS path.
+120 RIPE Atlas probes within AS3215 are selected to construct our database~\footnote{The 120 probes are the same ones in user-defined measurement \#2427397. The metadata of the that measurement are accessible to everyone.}.
+These probes hit the same DNS root server clusters via a same AS path: AS3215, AS5511, (PARIX), AS7500~\footnote{Some of these probes are now moved to a different network. For example, probe 2036 is now within AS35540, probe 877 is hosted in AS12322, etc. Therefore, if the same tracerouts are repeated now or afterward, it will be normal to expect some probe to employ a different AS path.}. 
 Time window for the data collection ranges from 2015-09-28 10:00:00 UTC to 2015-09-29 12:00:00 UTC.
 
 We cleaned the data collected, with following steps:
 \begin{itemize}
-\item Remove probes with unstable connection to the Atlas platform. (Short total length, multiple missing segments~\ref{sec:miss_atlas});
-\item Remove probes suffering from obvious hardware or local network issues. (high packet loss, or error flag found in measurement results).
+\item Remove probes with unstable connection to the Atlas platform. (Short total length,  $< 95\%$ expected length; multiple missing segments~\ref{sec:miss_atlas});
+\item Remove probes suffering from obvious hardware or local network issues. (high packet loss, $> 5%$ measurement data are timeout; any error flag found in measurement results).
 \end{itemize}
 
 We then consider only 100 common probes in both ping and trace traces remained after cleaning.
 All valid probes considered, the average IP hop number to the destination, m-root server, is 9. 
 For the traceroute data set, we decided to concentrate on the first 3 hops (which should cover the access network). As a consequence, the traceroute data set are further cut into 3 parts, where each contains the RTT time-series till the corresponding hop.
 
-To sum up, we fabricated four RTT time series data sets, on which we performed time series clustering:
+To sum up, we fabricated four RTT time series data sets, each with 100 RTT time series.
 \begin{itemize}
-\item \texttt{pingData}, end-to-end RTT time series;
-\item \texttt{traceData1}, RTT series till the first hop;
-\item \texttt{traceData2}, RTT series till the second hop;
-\item \texttt{traceData3}, RTT series till the third hop;
+\item \texttt{pingData}, end-to-end RTT time series, 391 datapoints per trace;
+\item \texttt{traceData1}, RTT series till the first hop, 53 datapoints per trace;
+\item \texttt{traceData2}, RTT series till the second hop, 53 datapoints per trace;
+\item \texttt{traceData3}, RTT series till the third hop, 53 datapoints per trace;
 \end{itemize}
 
 \subsection{Clustering RTT series in feature space}
 \label{sec:cls_ft}
 Generally speaking, a time series clustering approach can be decomposed into three parts: data representation, distance measure and clustering algorithm~\cite{Aghabozorgi2015}. 
-Due to its high dimension, time series is seldom used in its raw form, whence data representation.
+Due to its high dimension, time series is seldom used in its raw form~\footnote{The curse of dimensionality:\url{https://en.wikipedia.org/wiki/Curse_of_dimensionality}.}.
+Therefore, a time series needs to be transformed and represented with fewer datapoints that still captures its essence.
 Common approaches include dimension reduction~\cite{Elhamifar2013}, pattern extraction~\cite{Ulanova2015}, etc.
-Distance measure quantifies the similarity/dissimilarity of two time series. Finally, clustering algorithm defines the procedure of grouping time series based the distances calculated on their data representation space.
+Distance measure quantifies the similarity/dissimilarity of two time series with their new data representation.
+A well known practice is Euclidean distance that we usually apply on a Cartesian coordination system.
+Finally, clustering algorithm defines the procedure of grouping time series based on the distances calculated on their data representation space.
 For each of these components, multiple possibilities exist. However, it is not clear which ones in combination could be the best fit for RTT measurements. 
 
 In this section, we extracted a set of features listed below from each individual time-series and used in actual clustering. 
@@ -397,16 +400,36 @@ With RTT time series represented in the above feature space, we simply use \acf{
 \end{figure}
 
 %%\marginpar{Which cluster method is the most appropriate?}
+% do i need to detail how ASW is calculated?
 Several clustering algorithms are available. 
-In order to choose the one that fits best to our data set and decide the most appropriate cluster number, we use \acf{ASW}~\cite{Rousseeuw1987} to evaluate the quality of resulted clusters. 
-It takes value in the range of $[-1,1]$. 
-\ac{ASW} of a certain achieved cluster is a measure of how tightly all the data points in the cluster are grouped together. 
-While the \ac{ASW} over the entire dataset, is a measure of how appropriately the entire data set has been clustered. For a single clustering method, we can find out what is the cluster number k that this algorithm is most confident of by picking the k offering the biggest \ac{ASW}. Across two different clustering algorithms, we could tell which one performs better by comparing the \ac{ASW} of resulted clusters, i.e. a better clustering result shall have a bigger \ac{ASW} value.
+In order to choose the one that fits best to our data set and decide the most appropriate cluster number, we use \acf{ASW}~\cite{Rousseeuw1987} to evaluate the quality of the resulted clusters.
 
-Following clustering algorithms are tested: hierarchical clustering with Ward linkage, k-means and \ac{PAM}.
-Dataset-wide \ac{ASW} are visualized in Figure~\ref{fig:pingSil}. We can see that for \texttt{PingData}, k-means algorithm with $k=2$ offers relatively confident clustering results. 
+For each datapoint $i$, we denote the average distance to other datapoints within the same cluster as $a(i)$.
+It can be regarded as an indication of how well datapoint $i$ is clustered to this cluster. 
+Then we find the $i$'s closest neighbouring cluster, which is the one that has the smallest average distance to $i$. 
+We then calculate the average distance from $i$ to the members of its closest neighbouring cluster, and denote it as $b(i)$. It is an indicator of how well datum $i$ is matched to its neighbouring cluster. 
+The silhouette of $i$ is hence defined using $a(i)$ and $b(i)$ as follows:
+\begin{align*}
+s(i) =
+\begin{cases} 
+       1-\frac{a(i)}{b(i)}    \hfill & \text{if $a(i)<b(i)$}, \\
+       0 \hfill & \text{if $a(i) = b(i)$ }, \\
+       \frac{b(i)}{a(i)} - 1 \hfill & \text{if $a(i)>b(i)$}.\\
+  \end{cases}
+\end{align*}
+$s(i)$ takes value in range $[-1,1]$. When $a(i) \ll b(i)$, $s(i)$ approaches 1, which indicates that data-point $i$ fits well in its own cluster. 
+On the contrary, if $s(i)$ draws near $-1$, it means that the its closest neighbour cluster seems to be a better fit for datapoint $i$ than where it belongs now. 
+The average $s(i)$ over all data-points within a cluster is a measure of how tightly grouped the members of this cluster are. 
+And the average $s(i)$ over the entire dataset is a measure of how appropriately the clusters are formed.
+\ac{ASW} as well takes value in $[-1,1]$.
+
+Traditionally, the most appropriate cluster number k under a certain clustering algorithm can be identified by varying k to achieve the biggest \ac{ASW} over the entire dataset.
+Same logic can be applied to the comparison of different clustering algorithms using a same distance metric.
+The algorithm with better clustering result shall lead to a bigger overall \ac{ASW} value.
+This is how we compare the fitness of hierarchical clustering with Ward linkage, k-means and \ac{PAM}.
+Dataset-wide \ac{ASW} for \texttt{PingData} are visualized in Figure~\ref{fig:pingSil}. We can see that k-means algorithm with $k=2$ offers relatively confident clustering results. 
 This observation holds as well true for traceroute data sets.
-Hence, such settings are used in the rest of this study.
+Hence, this settings are used in the rest of this study: feature space, \acf{ED}, k-mean, $k=2s$.
 
 
 \subsection{Clustering result interpretation}
@@ -426,13 +449,13 @@ Hence, such settings are used in the rest of this study.
 AWS &\multicolumn{3}{c|}{0.46} & \multicolumn{3}{c|}{-0.17} & \multicolumn{3}{c|}{0.33} & \multicolumn{3}{c}{0.30}\\
 \bottomrule
 \end{tabular}
-\caption{Summary of clusters characters on \texttt{PingData} feature space. Clusters are achieved from each corresponding dataset, while the statistics of clusters are computed with \texttt{PingData}.}
+\caption{Summary of clusters characters on \texttt{PingData} feature space. Clusters are formed from each corresponding dataset. Meanwhile the intra-cluster distance, the intra-cluster \ac{ASW} and the overall \ac{ASW} are calculated over \texttt{PingData} distance. It is a compatibility test for clusters from traceroute datasets with \texttt{PingData}.}
 \label{tab:summary_cls}
 \end{table}
 
 \subsubsection{Characteristics of achieved clusters}
-Table~\ref{tab:summary_cls} provides several metrics describing the achieved clusters: size of cluster, intra-cluster distance, intra-cluster \ac{ASW}, and overall dataset-wide \ac{ASW} at the bottom.
-Focusing on the column for \texttt{PingData} in this section, we notice that two clusters of unbalanced size are obtained.
+Table~\ref{tab:summary_cls} describes achieved clusters with several metrics: size of cluster, intra-cluster distance, intra-cluster \ac{ASW}, and overall \ac{ASW} at the bottom.
+Focusing on the column for \texttt{PingData} in this section (otherwise it would be confusing), we notice that two clusters of unbalanced size are obtained.
 Cluster 2 is much larger in size, yet with smaller intra-cluster distance. 
 In accordance, the cluster algorithm is more confident of this cluster than the other, as the cluster \ac{ASW} is much higher.
 This indicates that the members within cluster 2 demonstrate strong common features and are thus more closely placed to each other in the feature space.
@@ -447,9 +470,10 @@ This indicates that the members within cluster 2 demonstrate strong common featu
 %%\marginpar{view from \ac{PCA} surface}
 This ``guess'' can be straightforwardly observed from the projection of clusters on \acf{PCA} surface, shown in Figure~\ref{fig:ping_pca}.
 The contribution of each feature is as well indicated on the graph.
-We notice that selected features point to different directions on the \ac{PCA} surface, suggesting that they contribute to a non-redundant description of the date set.
+We notice that selected features point to different directions on the \ac{PCA} surface.
+This suggests that they form together a non-redundant (or not that much) description of the date set.
 As a consequence, no single feature takes dominant position in forming the clusters.
-Still, tendency is that cluster 2 includes data points with little  changes, small entropy and small standard deviation. 
+Still, the tendency is that cluster 2 includes data points with little changes, small entropy and small standard deviation. 
 
 \begin{figure}[!htb]
     \centering
@@ -471,7 +495,8 @@ Still, tendency is that cluster 2 includes data points with little  changes, sma
 Figure~\ref{fig:rtt_ping} plots the RTT time series of these two clusters. Cluster 2, as expected, contains mainly time series with only a few variations and spikes. 
 On the other hand, cluster 1 is composed of traces with large variations.
 This explains why the members of cluster 2 are more closely located to each other. 
-It is because for a time-series to be smooth, there is only one form, while for it to be full of variations, there could be many possibilities.
+It is because for a time-series to be smooth, there is only one form.
+while for it to be full of variations, there could be many possibilities.
 %Let's also note that for smooth time-series (cluster 2), there is only one form, 
 %while many different possible shapes can be observed in the other cluster.
 
@@ -484,33 +509,40 @@ It is because for a time-series to be smooth, there is only one form, while for 
 
 \subsubsection{Advantage of clustering}
 What is also worthy of noticing is that cluster 2 actually tolerates traces with a few spikes and variation of small amplitude. 
-This is due to the advantage of using clustering instead of ranking with one single feature, which would also be viable to filter out ``noisy'' traces. 
-For instance, we could rank the RTT traces by their entropy and assume top x traces are ``noisy'' ones. 
+It is actually an interesting feature.
+An alternative approach than clustering to filter out ``noisy'' traces would be ranking these time series with one single metric.
+For instance, we could rank the RTT traces by their entropy and assume top $x$ traces are ``noisy'' ones. 
 The shorting-coming of such approach is two-fold.
 First, single feature might ``wrongly'' rank certain RTT time series. 
 For example, entropy~\cite{Molina-Pico2011} and power spectral density are very sensitive to spikes. 
-In networking uses, we believe that one or a few spikes in an RTT measurement shall not deteriorate an entire measurement time series. 
-Second, one has to define threshold values to deliberately separate data set into two or more parts. 
-While with clustering, multiple features can be considered at same time. 
-Plus, the most appropriate number of clusters changes automatically with the input and reveals the inherent structure of the data set. 
-By setting a larger cluster number, one could achieve more fine-grained clustering results that convey subtler information. An example is given in Figure~\ref{fig:cls8_k12}, where several traces of similar variation shape is grouped together.
+In networking uses, we believe that one or a few spikes in an RTT measurement shall not deteriorate an entire measurement time series, since RTT measurements can be impacted by many aspects other than path quality, e.g. load on end host or routers,  within a short duration.
+Second, one has to define threshold values, i.e. the $x$, to deliberately separate data set into two or more parts. 
+While with clustering, multiple features can be considered at the same time. 
+Plus, the most appropriate number of clusters changes automatically with the input and reveals the inherent structure of the dataset. 
+By setting a larger cluster number, one could achieve finer grained clustering results that convey subtler information. 
+An example is given in Figure~\ref{fig:cls8_k12}, where several traces of similar variation shape is grouped together.
 
 \subsubsection{Implications for interdomain TE}
-The two clusters achieved are as well of relevance in interdomain TE. 
-It shows that when measuring an AS-level path by probing multiple hosts in the destination network, resulted RTT time series can take very different shapes. 
-One possible explication is that the IP-level path toward certain hosts suffers from local problems.
-If certain RTT variation is due to congestion on an inter-AS link, then it shall be shared by all the RTT time-series. If not shared, such RTT variation is probably related to local issues can not be avoided by changing an egress transit provider in sending out the traffic.
-Therefore, when comparing multiple RTT time series between two ASes, the ones with fewer variations are supposed to be less impacted by these local conditions and give a more faithful view on the AS-level path performance.
-One another advantage of using smoother RTT time series in choosing egress transit is that resulted routes are supposed to be more stable. as fewer variations should potentially trigger fewer route changes. 
+The two clusters of \texttt{pingData} are particularly meaningful to interdomain TE, where one might measure one single AS path with multiple end hosts.
+It shows that the resulted RTT time series can take very different shapes, even though the same AS path is concerned. 
+One possible explication is that the IP-level path toward these end hosts undergo various local issues.
+And some of these issues have obvious impact on end-to-end latency.
+If there were an AS-level issue, for instance congestion on an inter-AS link, it will be shared by all the RTT time-series. 
+If certain RTT change is not common, it is then probably related to local issues that can not be surely avoided by changing an egress transit provider in sending out the traffic.
+Therefore, when comparing multiple RTT time series toward a same destination AS/prefix, the ones with fewer variations are supposed to be less impacted by these local conditions.
+They shall thus offer a more faithful view on the AS-level path performance.
+One another advantage of using smoother RTT time series in route selection is that the resulted routes are supposed to be more stable.
+Fewer RTT variations should potentially trigger fewer route changes. 
 
 \subsubsection*{Take-away}
-To summarize, when clustering RTT time series in feature space, no specific assumption is imposed by the extracted features, yet we arrive at two clusters that tell noisy traces apart from smooth ones.
-This reveals the inherent structure of the data set, that is for multiple RTT time series describing a common AS-level path, a majority of them resembles each other and demonstrates least variations possible, while a handful of ``outliers'' may exist that contain diverse additional variations. 
-Considering the source of our data, our assumption is that some of the RIPE Atlas probes are continuously suffering from local system or access network conditions. 
+When clustering RTT time series in feature space, we arrive at two clusters that tell noisy traces apart from smooth ones without prior knowledge/assumption on the dataset structure.
+This reveals the inherent structure of the dataset that describes a same AS path with multiple RTT time series.
+A majority of these time series resembles each other and demonstrates least variations possible, while a handful of ``outliers'' may contain diverse additional variations. 
+Considering the source of our data, our assumption is that some of the RIPE Atlas probes are continuously suffering from some local issues.
 %%%TODO: caption of table 1, feature space, explanation
 %%% What is "feature space". not defined sorry. 
 
-\subsection{Where do the RTT variations come from?}
+\subsection{Where do the additional RTT variations come from?}
 
 \begin{table}[!htb]
 \centering
@@ -530,45 +562,52 @@ Considering the source of our data, our assumption is that some of the RIPE Atla
 \end{table}
 
 In this part, we tried to find out the origin of these additional RTT variations in cluster 1 of \texttt{PingData}, and their practical meanings in networking.
-To this end, we clustered the RTT time-series of the first 3 hops extracted from traceroute measurements, and compared the cluster members to the ones obtained from end-to-end ping measurements in Table~\ref{tab:comp_cls}.
+To this end, we clustered, with the same method, the three datasets that are constructed from the first 3 hops in traceroute measurements.
+We test the compatibility of these cluster members with clusters of \texttt{pingData} in Table~\ref{tab:comp_cls}.
 
-We observed that for \texttt{traceData2} (hop 2) and \texttt{traceData3} (hop 3), not only the cluster sizes arrived are in accordance to those from \texttt{pingData}, but also a majority of cluster members overlaps. 
-That is to say, using RTT series till the 2nd hop or the 3rd hop, we ended up with similar clustering results as with end-to-end RTT series. 
-This observation is further confirmed by Table~\ref{tab:summary_cls}, which calculates some statistic measures on \texttt{pingData} feature space for clusters resulted from each dataset. 
+We observed that for \texttt{traceData2} (hop 2) and \texttt{traceData3} (hop 3), not only the cluster sizes arrived are close to those from \texttt{pingData}, but also a majority of cluster members overlaps. 
+That is to say, using RTT time series till the 2nd hop or the 3rd hop, we ended up with similar clustering results as with end-to-end RTT measurements. 
+This observation is further confirmed by Table~\ref{tab:summary_cls}, which describes the clusters from traceroute datasets on \texttt{pingData} feature space.
 Clusters from \texttt{traceData1} have the poorest overall \ac{ASW} indicating that its clusters are not a good fit for end-to-end RTT time series. 
-However, clusters resulted from \texttt{traceData2} and \texttt{traceData3} seems to be quite OK on the feature space of \texttt{PingData}, as the overall \ac{ASW} is not far away from that achieved with \texttt{PingData} itself.
+However, clusters resulted from \texttt{traceData2} and \texttt{traceData3} seem to be quite compatible with \texttt{PingData}, since the overall \ac{ASW} is not far away from that achieved with \texttt{PingData} itself.
 %Considering that clustering on the feature space can indeed group RTT time-series by their level of variance, shown in Figure~\ref{fig:rtt_ping} and Figure~\ref{fig:ping_pca},
-As clustering results on end-to-end RTT and on RTT till the 
-2nd and 3rd hop are highly similar, we are able to assume that most variations in the end-to-end RTT data set are expressed by the link between 1st and 2nd hop.
+Given that the clustering results of \texttt{pingData}, \texttt{traceData2} and \texttt{traceData3} are similar, we deduce that most variations in \texttt{pingData} actually comes from the link between the 1st and the 2nd hop.
 
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=\textwidth]{gfx/chap3/trace1_cls2_traceRTT.pdf}
-\caption{RTT (in msec) till first hop. The first hop is assumed to be the hop till home router, yet three different baselines are observed. This might due to differences in connection methods, hardware and firmware versions of Atlas probe and ISP home router.}
+\caption{RTT (in msec) till first hop. The first hop is assumed to be the hop till the home router. Three different baselines are observed. This might due to differences in connection methods, hardware and firmware versions of Atlas probe and ISP home router.}
 \label{fig:trace1_traceRTT}
 \end{figure}
 
-In this specific case, where the probes involved are within the residential network of an ISP AS3215, the first hop probably arrives at the home router. This guess is indirectly confirmed by the observation that most traceroute records has \texttt{192.168.1.1} as the first hop address. As expected, RTT traces till the first hop are all generally pretty smooth according to Figure~\ref{fig:trace1_traceRTT}. We manually searched second hop addresses, e.g. \texttt{80.10.127.143} in \url{https://db-ip.com/80.10.127.143}. Results returned show that they are all access equipment of the ISP.
-It is thus logical to find most variation between the 1st hop (home router) and the 2nd hop (ISP access equipment), as it corresponds to the ISP access network.  
+In this specific case, the probes involved are mostly hosted in the residential network of an ISP AS3215.
+The first hop are generally the home router. 
+This guess is indirectly confirmed by the observation that most traceroute records has \texttt{192.168.1.1} as the first hop address. 
+As expected, RTT traces till the first hop are all pretty smooth according to Figure~\ref{fig:trace1_traceRTT}. We manually searched information regarding second hop addresses, e.g. \texttt{80.10.127.143} in \url{https://db-ip.com/80.10.127.143}. Results returned show that they are all access equipment of the ISP.
+It is thus logical to find most variation between the 1st hop (the home router) and the 2nd hop (ISP access equipment), as it corresponds to the ISP's access network.  
 
 Such finding is of course not a huge surprise.% but rather a common sense among network engineers. 
 However, it suggests that with our clustering method, we are able to get rid of RTT measures that undergo severe access network problems. 
 
 \subsection*{Wrap-up}
-In this study, we date-mined RTT time series between two ASes. 
+In this study, we datamined RTT time series between two ASes. 
 We found out that RTT time series collected in this study demonstrate diverse variation shapes though one common AS path is measured.
 It confirmed that RTT measurements need to be ``cleaned''.
 We clustered these RTT time series by extracting %a couple of 
 several features as their data representation. 
-Resulted clusters successfully separate noisy traces from smooth ones according to human intuition and expertise.
-Furthermore, we located the occurring location of most variations in end-to-end RTT measurements by applying the presented clustering methods to the first hops of traceroute measurements.
+Resulted clusters successfully separated noisy traces from smooth ones according to human intuition and expertise.
+Furthermore, we located the occurring location of most variations in the end-to-end RTT measurements by applying the clustering methods to the first hops of traceroute measurements.
 Our results confirmed the common sense that most variations come from the access network.
+
 
 \section{Multiple RTT time series with synchronized changes}
 \label{sec:ripe_case_study}
 
-A case, illustrated in Figure~\ref{fig:cls8_k12}, where multiple RTT measurements undergoing at the same time a similar shape RTT variation, intrigues us a lot. This RTT change is not observed on other RTT measurements, which indicates that a common part exclusive to these RTT measurements in Figure~\ref{fig:cls8_k12} could have caused this change.
-Capable of inferring the location where RTT changes in the Internet happen from readily available delay and path measurements on the client TE platform offers precious visibility that might contribute to better route selection logic.
+An RTT time series cluster, illustrated in Figure~\ref{fig:cls8_k12},  contains multiple RTT measurements undergoing  a similar shape RTT variation at the same time.
+This RTT change is not observed on other RTT measurements within the dataset.
+The implications is that a common part exclusive to these RTT measurements in Figure~\ref{fig:cls8_k12} could have caused this change.
+Inferring the location responsible for RTT changes in Internet is a an intriguing topic in its own right.
+Moreover, it contributes to better route selection logic, if achievable with only end-to-end delay and path measurements.
 
 Clustering in feature space (Section~\ref{sec:cls_ft}) is however not an appropriate approach for the identification of RTT time series with similar shapes, because the features extracted, summarizing the entire time series, do not have the capability conveying information concerning temporal structure.
 Therefore, we study the clustering approaches where the data representation of RTT time series remain time series.
