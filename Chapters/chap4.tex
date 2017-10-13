@@ -3,37 +3,43 @@
 
 \section*{Abstract}
 There are two major motivations for the study on change detection for \ac{RTT} measurements, both of which contributes to measurement-based intradomain \ac{TE}.
-First, moments of important changes in RTT measurements can serve as trigger for route re-selection, argued in this chapter.
-Second, it helps group RTT time series undergoing same changes, covered by Chapter~\ref{sec:infer}.
+First, moments of important changes in RTT measurements can serve as trigger for route re-selection.
+Second, it helps group RTT time series undergoing same changes.
+This part will be covered in Chapter~\ref{sec:infer}.
 
 %In section XX, we further discuss how change detection is employed in inferring the causes of RTT changes, which eventually provide clue to TE decisions for destination prefixes with out hosts that can be probed.
 
-Change detection methods, conceived for the robust yet sensitive detection of significant change in time series, is a competent tool for RTT measurement processing.
-Among the extensive works on change detection methods and their applications in various domains, few focus on RTT measurements. It is thus unclear which approach works the best on such data.  
-In this chapter, we present an evaluation framework for change detection on RTT times series, consisting of:
+Change detection methods is a competent tool for RTT measurement processing.
+It is devised to detect significant changes in time series.
+Many domains has benefited from these methods, yet few effort was put on RTT measurements. 
+It is thus unclear how well such methods work on RTT time series, and which method works the best. 
+In this chapter, we first presented an evaluation framework for change detection on RTT times series, consisting of:
 \begin{enumerate}
 	\item a carefully labelled 34,008-hour RTT dataset as ground truth;
 	\item a scoring method specifically tailored for RTT measurements.
 Furthermore, we proposed a data transformation that improves the detection performance of existing methods.
 \end{enumerate}
-
-In the purpose of discussing change detection sensitivity and relevance with regard to network events, path changes are as well attended to. 
-We fix shortcomings of previous works by distinguishing path changes due to routing protocols (IGP and BGP) from those caused by load balancing. 
-We apply our change detection methods to a large set of measurements from RIPE Atlas. 
-The characteristics of both RTT and path changes are analyzed; the correlation between the two are also illustrated. 
+Finally, we investigated the change detection performance with regard to network events learnt through path measurements.
+%We fixed shortcomings of previous works by distinguishing path changes due to routing protocols (IGP and BGP) from those caused by load balancing. 
+%We apply our change detection methods to a large set of measurements from RIPE Atlas. 
+%The characteristics of both RTT and path changes are analyzed; the correlation between the two are also illustrated. 
 \clearpage
 
 
 \section{RTT changes: the trigger for interdomain TE}
 RTT measurements intervene in measurement-based interdomain TE at two phases. 
-First, RTT measurements reveals the moments when route re-selection is needed, otherwise the transmission performance may undergo avoidable degradation.  
-Second, RTT measurements serve as decision making material in route re-selection. We relay on the measured delay, transmission cost and routing politics and etc., to decide which path/transit provider is the best choice  in reaching a each destination at certain moment. 
-We focus on the first phase in this chapter.
+First, RTT measurements reveals the moments when route re-selection is needed. %otherwise the transmission performance may undergo avoidable degradation.  
+Second, RTT measurements serve as decision making material in route re-selection. %We relay on the measured delay, transmission cost and routing politics and etc., to decide which path/transit provider is the best choice in reaching a each destination at certain moment. 
+We discuss in this chapter the usage of RTT measurements during the first phase.
 
-Moments when route re-selection is needed are basically when significant changes happen in certain RTT measurements. In order to detect changes in numerous RTT time series of different characteristics stemmed from various underlying Internet paths, the detection method should 1) be capable of tolerating noises in RTT measurements, such as short living spikes, yet remain sensitive to events that really matter; 2) be free of ad hoc, e.g. destination dependent, parameters in achieving the desired robustness. 
-Change detection methods, fitted candidate for such task, aim exactly at detecting moments of changes that cut time series into segment of different statistic characteristics.
-
-Before studying how change detection methods work on RTT time series, we first look at some straightforward way of employing RTT measurements in TE. We explain why these possible practices are not good enough and hence justify our study on change detection methods.
+Moments when route re-selection is needed are basically when the performance on certain AS path changes.
+The challenge for performance change detection mainly comes from two aspects.
+First, RTT measurements are noisy.
+Many factors along the measured path may contribute to this, e.g. end-host load fluctuation, bursty traffic, etc.
+This requires change detection methods to tolerate noises such as short living spikes, yet remain sensitive to events that really matter.
+Second, the delay characteristics on different paths can differ a lot. 
+It is thus desirable that change detection can be done without path/destination dependent parameters.
+Many commonly seen practices fail to meet the above listed requirements. 
 
 %\marginpar{Some straw-man practices. Other possibilities may as well work.}
 \paragraph{Preference over smaller average RTT} Continuously repeated RTT measurements over time can tell which transit provider among available ones offers the smallest delay in average in reaching a specific destination. Employing this transit provider can thus ensure a good overall performance. However, this approach falls short in handling transient RTT augmentation during for example congestion.
