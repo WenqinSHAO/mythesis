@@ -28,38 +28,45 @@ Finally, we investigated the change detection performance with regard to network
 
 \section{RTT changes: the trigger for interdomain TE}
 RTT measurements intervene in measurement-based interdomain TE at two phases. 
-First, RTT measurements reveals the moments when route re-selection is needed. %otherwise the transmission performance may undergo avoidable degradation.  
+First, RTT measurements reveal the moments when route re-selection is needed. %otherwise the transmission performance may undergo avoidable degradation.  
 Second, RTT measurements serve as decision making material in route re-selection. %We relay on the measured delay, transmission cost and routing politics and etc., to decide which path/transit provider is the best choice in reaching a each destination at certain moment. 
 We discuss in this chapter the usage of RTT measurements during the first phase.
 
-Moments when route re-selection is needed are basically when the performance on certain AS path changes.
+Moments when route re-selection is needed are basically when the performance on certain AS paths change.
 The challenge for performance change detection mainly comes from two aspects.
 First, RTT measurements are noisy.
-Many factors along the measured path may contribute to this, e.g. end-host load fluctuation, bursty traffic, etc.
-This requires change detection methods to tolerate noises such as short living spikes, yet remain sensitive to events that really matter.
+Many factors along the measured path may contribute to the variations of end-to-end delay, e.g. end-host load fluctuation, bursty traffic, etc.
+This requires change detection methods to tolerate noises such as short living spikes, yet remain sensitive to events that really matter such as persistent congestion.
 Second, the delay characteristics on different paths can differ a lot. 
-It is thus desirable that change detection can be done without path/destination dependent parameters.
+It is thus desirable to detect changes for these time series without path/destination dependent parameters.
 Many commonly seen practices fail to meet the above listed requirements. 
 
 %\marginpar{Some straw-man practices. Other possibilities may as well work.}
-\paragraph{Preference over smaller average RTT} Continuously repeated RTT measurements over time can tell which transit provider among available ones offers the smallest delay in average in reaching a specific destination. Employing this transit provider can thus ensure a good overall performance. However, this approach falls short in handling transient RTT augmentation during for example congestion.
+\paragraph{Preference over smaller average RTT} Repeated RTT measurements over time can tell which transit provider offers the smallest delay in average toward a specific destination. 
+Employing this transit provider for that destination can thus ensure a good overall performance. 
+However, this approach falls short in handling transient RTT augmentation during congestion.
 
-\paragraph{Threshold of RTT value} In order to mitigate the consequence of stiff route choice, one can introduce some dynamism by simply comparing the instant RTT measurements with a hard-coded threshold. Once the RTT surpasses the threshold value, even through the transit with smallest average RTT, route re-selection can be trigger to look for a better performance path at that specific moment.
-The drawback of this method is that the threshold values depend on each individual destination, and are thus not trivial to configure.
+\paragraph{RTT threshold} One can react to transit RTT increase by comparing the instant RTT measurements to a hard-coded threshold. 
+Once the RTT surpasses the threshold value, route re-selection can be triggered to look for a better performance path at that specific moment.
+The drawback of this method is that the an appropriate threshold value depends on each individual destination, and are thus not trivial to configure.
 
-\paragraph{Threshold of RTT change amplitude} Focusing on the difference of consecutive measurements in time rather than the instant RTT value can transform the ad hoc RTT value threshold to a change amplitude threshold reused by all destinations. %\marginpar{Here RTT change refers to the value difference between two RTT measurements. Elsewhere, RTT change means the change in RTT time series detected by change detection methods.}
-This change amplitude threshold could be absolute values such as 30 msec or a percentage, e.g. $30\%$,  making the change amplitude in msec proportionally adapted to the level of RTT.
-The shortcoming of this approach comes from the fact that RTT measurements (via ICMP or TCP) could be pretty noisy, full of shorting living yet large amplitude variations, leading to unnecessarily frequent route re-selection.
+\paragraph{Threshold of RTT change amplitude} In order to bypass the RTT threshold configuration that may vary among destinations, one can instead apply a single global threshold for the amplitude of RTT changes.
+This change amplitude threshold could be absolute values such as 30 msec or proportional to the RTT level, say $30\%$ of previous measurement.
+The shortcoming of this approach comes from the fact that RTT measurements (via ICMP or TCP) could be pretty noisy.
+Shorting living variations with large amplitude are not rare.
+Their presence might lead to unnecessarily frequent route re-selection.
 
-\paragraph{Smoothing the RTT measurements} One straightforward to remain robust when handling noisy RTT measurement is to smooth it before usage. A possible way is the perform \ac{EWMA} over a couple of past measurements~\cite{Akella2008}. However, the application of such filters introduces additional parameters to be tuned, and likely in an ad hoc manner. Moreover, such filter will as well introduce a delay to the perception of an actual change.
+\paragraph{Smoothing the RTT measurements} One straightforward way to be robust when handling noisy RTT measurements is to smooth it before usage. 
+\ac{EWMA} can be applied over a couple of past measurements~\cite{Akella2008}. However, the application of such filters introduces additional parameters to be tuned, and likely in an ad hoc manner. 
+%Moreover, such filter will as well introduce a delay to the perception of an actual change.
 
 
 \section{RTT change, network events and TE}
 \label{sec:rtt_path}
-In this section, we summarize previous studies on RTT variations and the network events that causes RTT changes.
-We explain why certain RTT analysis method adopted in mentioned works is not a good fit for TE uses.
+In this section, we summarize previous studies on RTT variations and the  their relation to network events.
+We explain why certain RTT analysis method adopted in the mentioned works is not a good fit for TE uses.
 
-Path changes and congestion are known to be the major reasons for RTT changes.
+%Path changes and congestion are known to be the major reasons of RTT changes.
 It is generally agreed that inter-domain routing changes impact the RTT level greatly.
 Pucha et al.~\cite{Pucha2007} showed that inter-domain routing changes cause larger median RTT variation than intra-domain ones.
 Rimondini et al.~\cite{Rimondini2014} confirmed that $72.5\%$ BGP route changes in their study are associated with RTT change.
@@ -74,52 +81,63 @@ Conflicts in previous works could be caused by the difference in locations from 
 For instance, Chandrasekaran et al.~\cite{Chandrasekaran} observed that AS path changes only have marginal impact on RTT in the core of Internet, while previous works~\cite{Pucha2007, Schwartz2010} include as well access networks.
 Results might as well change over time. For instance, the ``flattened'' Internet topology, the increasing amount of traffic in private CDN over the last decade~\cite{Labovitz2011, Roughan2011} might have changed the characteristics of path change and congestion, and consequently how they impact RTT.
 
-Bearing this in mind, we emphasize the efforts on methods and tools enabling iterative
-analysis on the relationship between RTT and path changes over time, rather than one shot observation or analysis on a specific dataset.
+Bearing this in mind, we would like to emphasize the efforts on methods and tools. 
+Beyond one-shot observation or analysis on a specific dataset, they allow iterative analysis over time.
 
-The discussion and discovery of previous works are enlightening, yet their methods of processing RTT measurements can hardly fuel RTT change triggered intra-domain TE.
+The discussion and discovery of previous works are enlightening, yet their methods for RTT measurement processing can hardly be applied to intra-domain TE.
 In ~\cite{Pucha2007, Schwartz2010, Chandrasekaran},
-RTT measurements are first grouped by underlying paths; impact of path changes are then estimated through comparison of associated RTT statistics, e.g. percentiles.
-In our TE scheme, RTT rather than path are more intensively measured~\cite{shao2016}.
-This is because path measurements do not necessarily reflect all the changes in RTT, meanwhile being more resource-consuming.
-For example, congestion in upstream network can only be learnt through change detection on RTT measurements.
+RTT measurements are first grouped by underlying paths; 
+impact of path changes are then estimated through comparison of associated RTT statistics, e.g. percentiles.
+However, in a practical TE system sketched in Figure~\ref{fig:archi}, RTT are measured with higher frequency than paths.
+The underlying reasons are threefold.
+First, RTT measurement are in general less costly. 
+Considering the potential number of destination to be monitored (see Section~\ref{sec:pref_selec}), path measurements are better limited.
+Second, smaller RTT is the objective of TE, we thus have the incentive to follow its evolution closely. Meanwhile, path is just a result of optimization.
+Third, RTT changes generally happen more frequently than path changes.
+One important reason is congestion.
+Grouping RTT measurements by path changes can not really help learn the presence of
+such events.
+Therefore, we need to explore methods that can identify inherent RTT changes, instead of relying on external measures such as path changes to describe the variation of transmission performance.
 
 \section{Code space and data collection}
 \label{sec:cpt_data}
-%%% Why is it part of the "Related Work" section ? 
-%%% Wenqin: it is not. The related work section remains to be filled.
 The main code space for work in this chapter is made public on Github with documentation: \url{https://github.com/WenqinSHAO/rtt}.
 The implementations of proposed methods are decoupled from the context of this project, and thus can easily be employed elsewhere.  
 
-We applied our methods on RIPE Atlas built-in measurements~\cite{atlas} and performed data analysis.
+We applied our methods to RIPE Atlas built-in measurements~\cite{atlas} and performed data analysis.
 These measurements are openly available so that the results of this work can be reproduced by other researchers or compared to alternative approaches.
-We collected RIPE Atlas built-in ping and traceroute measurement toward DNS b-root (measurement ID 1010, 5010) from 6029 v3 probes located in 2050 different ASes, 153 countries from 2016-10-01 to 2017-01-01~\footnote{Measurements to other destinations might as well do. The fact whether the destination is anycast or not is of few importance in this work. The focus is on method rather than on a specific dataset.}.
+We collected RIPE Atlas built-in ping and traceroute measurement toward DNS b-root (measurement ID 1010, 5010) from 6029 v3 probes located in 2050 different ASes, 153 countries from 2016-10-01 to 2017-01-01~\footnote{Measurements to other destinations might as well do. The fact whether the destination is anycast or not is of few importance in this work. The focus is on the method rather than on a specific dataset.}.
 184,358,516 ping and 23,507,910 traceroute measurements are collected and analyzed.
-The traceroute measurements flowed through 3036 ASes, 120 IXPs, containing 10720 different AS paths.
+The traceroute measurements flowed through 3036 ASes, 120 IXPs, containing 10,720 different AS paths.
 %The script and the configurations to collect above data are as well included in the project repository.
 
 
 \section{Changepoint detection}
 \label{sec:cpt}
-In this section, we introduce change detection method and its previous application on RTT measurements.
+In this section, we introduce changepoint detection and its previous application on RTT measurements.
 
 % Such changes are generally caused by path change or congestion, and thus have important implications in networking and traffic engineering.
-\subsection{A primer on change detection}
+\subsection{A primer on changepoint detection}
 The moments that cut a time series into segments of different characteristics are called \textit{changepoints}.
 The problem of detecting the most appropriated changepoints is known as changepoint detection or change detection.
+With such method, changes in RTT measurements can be detected and quantified without the help of path measurements.
 
-One common approach to changepoint detection translates the quest of finding the best changepoints into the following optimization problem \footnote{Other formulations exist. A wider literature can be found in \cite{Haynes2016, Eckley2011}. We focus on this approach in this work since it has well maintained libraries that prevent potential issues regarding the implementation~\cite{Killick2013a, Haynes2016}.}.
-Assume we are given a sequence of data, $y_{1:n} = (y_1, y_2,...y_n)$.
+One common approach to changepoint detection is to translate the quest of finding the best changepoints into the following optimization problem \footnote{Other formulations exist. A wider literature can be found in \cite{Haynes2016, Eckley2011}. We focus on this approach since it has well maintained libraries that prevent potential issues regarding the implementation~\cite{Killick2013a, Haynes2016}.}.
+Assume we are given a sequence of measurement data, $y_{1:n} = (y_1, y_2,...y_n)$.
 We expect changepoint detection method to produce $m$ ordered changepoints, $\tau_{1:m} = (\tau_1, \tau_2,...\tau_m)$.
 $\tau_i$ is the position of $i^{th}$ changepoints and takes value from in ${1,..,n-1}$.
 These changepoints are given in an ordered way such that $\tau_i < \tau_j$ if and only if $i < j$.
 We define $\tau_0 = 0$ and $\tau_{m+1} = n$.
-Together with the detected $m$ changepoints, they cut $y_{1:n}$ into $m+1$ segments, with the $i_{th}$ segment containing $y_{\tau_{i-1}+1:\tau_i}$.
-For each segment, a cost is calculated. The detection method seeks to minimize the cost sum of all the segments: 
+Together with the detected $m$ changepoints, they cut $y_{1:n}$ into $m+1$ segments, with the $i_{th}$ segment containing $y_{\tau_{i-1}+1:\tau_i}, 1 \geq i \leq m+1 $.
+For each segment, a cost is calculated. 
+The cost can be seen as the appropriateness of the the segment.
+The detection method seeks to minimize the cost sum of all the segments (so that the produced $m$ changepoints are the most relevant): 
 \begin{equation*}
 \sum_{i=1}^{m+1}[C(y_{\tau_{i-1}:\tau_i-1})] + \beta f(m).
 \end{equation*}
-Here $C$ is a cost function while $\beta f(m)$ is a penalty to prevent over-fitting ---  the two major parameters to be set.
+Here $C$ is the cost function that measures the appropriateness of each segment.
+$\beta f(m)$ is a penalty function to prevent over-fitting.
+These two functions are the major parameters to be tuned.
 
 One commonly used cost function is minus of the maximum log-likelihood of the segment following a certain distribution~\cite{Killick2011,Horvath1993,Chen2001}:
 \begin{equation*}
@@ -128,45 +146,90 @@ C(y_{s:t}) = - \max_\theta \sum_{i=s}^t \log f(y_i|\theta).
 Here $f(y|\theta)$ is a density function with distribution parameter $\theta$. 
 For example, if we assume a Normal distribution, then we have $\theta = (\mu, \delta^2)$:
 $f(y|\theta) = f(y|\mu, \delta^2) = \frac{1}{\sqrt{2\delta^2\pi}} e^{-\frac{(x-\mu)}{2\delta^2}}$.
-In such case, the choice of cost function is restrained to the choice of distribution types.
+The $\theta$ over the segment is obtained through maximum-likelihood estimation, assuming the distribution type.
+A smaller cost indicates the segment is more likely generated with the specified generative model (distribution type).
+With the above cost function, the choice of cost function is restrained to the choice of distribution types.
 Currently supported distributions in \cite{Killick2013a} are: Normal, Exponential, Gamma and Poisson.
-A recent progress proposes a cost function based on empirical distribution likelihood, where the specification on distribution type is not necessary. It is thus a non-parametric method~\cite{Haynes2016}. 
+However, in practice the exact distribution type could be unknown a priori, or different from supported ones.
+A recent progress thus proposes a cost function that is based on empirical distribution likelihood, where the specification on distribution type is not necessary. It is thus a non-parametric method~\cite{Haynes2016}. 
 
-When it comes to penalty, $f(m)$ is generally a function linear to the number of parameters introduced by $m$ changepoints: 
-$m + (m+1)dim(\theta)$ \footnote{$dim(\theta)$ is the dimension of $\theta$. In the case of Normal distribution, $dim(\theta) = 2$.}.
-%%% JLR: dim ??? Not explicit for people not familiar with these works.
-%%% Wenqin: footnote added.
+When it comes to the penalty function, $f(m)$ is generally increasing and linear to the number of parameters introduced by $m$ changepoints: 
+$m + (m+1)dim(\theta)$ ($m$ changepoints and $m+1$ segments) \footnote{$dim(\theta)$ is the dimension of $\theta$. In the case of Normal distribution, $dim(\theta) = 2$.}.
 Common choices of $\beta$ are information criteria, such as Akaike’s Information Criterion (AIC) with $\beta=2$, Schwarz Information Criterion (SIC, also known as BIC) with $\beta=\log n$, Hannan-Quinn Information Criterion with $\beta = 2 \log \log n$, and Modified BIC (MBIC) with 
 $\beta f(m) = -\frac{1}{2} [3f(m)\log n + \sum_{i=1}^{m+1} log(r_i - r_{i-1})]$, where $r_i = \tau_i/n$~cite{Zhang2007}.
 We have MBIC $>$ BIC $>$ Hannan Quinn. Note that larger penalty value leads to less sensitive detection.
 
-\subsection{Application of change detection to RTT measurements}
-RTT traces, like many other time series, may undergo sudden changes in level or volatility, generally caused by path change or congestion.
+\subsection{Application of changepoint detection to RTT measurements}
+%RTT traces, like many other time series, may undergo sudden changes in level or volatility, generally caused by path change or congestion.
 Among the extensive studies on change detection methods and their applications in various domains~\cite{Zhang2007,Reeves2007, Yu2008},
 Rimondini et al.~\cite{Rimondini2014} are among the first to employ change detection in network RTT measurement analysis.
-However, they tuned the detection sensitivity in a way that detected changes correlate best to the BGP changes of the destination prefix among other randomly selected prefixes, which potentially ignores the RTT change due to intra-domain changes and congestion.
-Plus, such tuning is potentially required for each individual RTT time series, thus hard to scale.
-To achieve more general approach decoupled from path measurements, we propose in next section an evaluation framework for the selection and calibration of change detection methods for RTT measurements.
+However, they tuned the detection sensitivity in a way that the detected changes correlate best to the BGP changes of the destination prefix among other randomly selected prefixes.
+This approach risks ignoring the RTT changes due to intra-domain changes and congestion.
+Plus, such tuning is potentially required for each individual destination, thus hard to scale.
+To achieve more general approach decoupled from path measurements, we propose in next section an evaluation framework for the selection and the calibration of change detection methods over RTT measurements.
 
 
 \section{Evaluation framework for changepoint detection on RTT measurements}
 \label{sec:eval_frame}
-Which method (among the wide variety of existing ones) is the most appropriate for Internet RTT time series is still not stated. Moreover, many changepoint detection methods are parametric. Identifying the best settings for these methods remains challenging.
+Which method (among the wide variety of existing ones) is the most appropriate for Internet RTT time series is still not stated. 
+Moreover, many changepoint detection methods are parametric. 
+Identifying the best settings for these methods remains as well challenging.
 One fundamental issue in addressing the above problems is the lack of an evaluation framework.
 
-An evaluation framework should be composed of two parts: 1) datasets of ``ground truth'', 2) a scoring method.
-We are not aware of any RTT time series labelled with moments of change that are publicly available as of this writing.
-We manually labelled 50 real RTT time series from RIPE Atlas containing 408,087 RTT measurements.
-Details are given in Sec.~\ref{sec:label}.
+An evaluation framework quantifies the performance of a certain detection method over a reference dataset that is representative of Internet RTT measurements.
+With the quantified score, different setting of a same method, or different methods can be compared tuned to delivery best detection results.
+Naturally, an evaluation framework should be composed of two parts: 1) datasets of ``ground truth'', 2) a scoring method.
 
-As for the scoring method, classic true/false positive classification is too rigid for 
-both manual labelling and change point detection, see Sec.~\ref{sec:score}.
-We argue that a slight shift in time could be tolerated.
+Dataset of ``ground truth'' is not only a set of RTT time series that are representative of the delay characters over the Internet.
+It should as well carry labels indicating the moments of change in these time series.
+We are not aware of such dataset that are publicly available as of this writing.
+%We manually labelled 50 real RTT time series from RIPE Atlas containing 408,087 RTT measurements.
+%Details are given in Sec.~\ref{sec:label}.
+We explain in Section~\ref{sec:label} how we construct a such dataset with great care.
+
+As for the scoring method, it quantifies the similarity/different between the ``ground truth'' and the detected moments of change.
+We show in Section~\ref{sec:score} that classic true/false positive classification is too rigid for both manual labeling and change point detection.
+We further explore and address the challenges of comparing two set of events with time shift tolerance.
+%We argue that a slight shift in time could be tolerated.
 % Numenta proposed an evaluation method (for anomaly detection) with window option~\cite{Lavin2016}. However, they attribute equal weight to each ground truth events of anomaly (wich are homologous to RTT changes in our case). 
-We propose weighting each actual RTT changes according to their operational importance. 
+%We propose weighting each actual RTT changes according to their operational importance. 
 
 \subsection{Scoring methods}
 \label{sec:score}
+
+A natural way to assess the difference/similarity of two set of moments in time is to classify each detected moment of change into two classes: true positive, if the moment can as well be found in the ground truth set; or false positive, if the moment is a false alarm for being absent in the ground truth set.
+
+The ratio between true positive and the total number of detected changes is called precision.
+It is a measure of the relevance of the detection results with regard to ground truth.
+The ratio between the true positive and total number of ground truth moments of change is called recall.
+It is a measure of the coverage of detected moments of change.
+Precision and recall, both metrics are important to describe the performance a detection method, since there is often a trade-off between precision and recall when tuning the detection sensitivity of a method.
+If a method is over-sensitive (extreme case: all the moments in a time series are marked as change), it might achieve a good recall,  however the precision must be fairly poor.
+On the other hand, if the detection method is too prudent, the precision could be satisfying, meanwhile it probably leaves a lot of actual changes go undetected, thus poor recall.
+A good detection method thus shall excel in both metric.
+
+This is the basic idea of true/positive scoring method.
+It is often used in classification problems.
+Changepoint detection can as well be regarded as classification problem.
+It classifies each moment in a given time series into two classes: a moment of change or not.
+Therefore, the scoring method naturally fits in and are indeed expressive.
+
+However, changepoint detection is yet still a bit different from classification, just as timestamps are not like categorical data.
+In changepoint detection for time series, we seek to mark the moments of change in time. 
+If the marked moment falls exactly on the same timestamps of a ground truth moment of change, that would be perfect. Category matches.
+If the marked moment is several datapoints away, that will still be OK.
+With in reasonable distance, match can still happen.
+If the marked moment is too far away from any ground truth moment of change, then it shall be considered irrelevant.
+Such tolerance in time comes from two aspects.
+From a methodological point of view, slightly shifted detection just happens. 
+It is different from totally irrelevant detection or no detection.
+Plus, when generating ground truth labels, we will see in Section~\ref{sec:label}, some slight errors can hardly be avoided completely due to human factors.
+From a practical point of view, a shifted detection within a reasonable range is still useful for TE uses.
+
+Therefore, the picture is not either black or white.
+A tolerance window shall be rather considered.
+However true/positive scoring method by default does not support this option.
+In order to facilitate the discussion how to properly enable tolerance window option, we introduce following notions.
 
 We assume ground truth $T_{1:k}$ containing $k$ positions in $y_{1:n}$ indicating moments of actual change, while $\tau_{1:m}$ is the output of changepoint detection.
 A classic True Positive ($TP$) is a $\tau_j, \exists T_i \in T_{1:k}, T_i = \tau_j$, a False Positive ($FP$) otherwise. False Negative ($FN$) composes of $\{T_i \mid \nexists \tau_j \in \tau_{1:m}, \tau_j = T_i \}$.
