@@ -176,19 +176,19 @@ Moreover, many changepoint detection methods are parametric.
 Identifying the best settings for these methods remains as well challenging.
 One fundamental issue in addressing the above problems is the lack of an evaluation framework.
 
-An evaluation framework quantifies the performance of a certain detection method over a reference dataset that is representative of Internet RTT measurements.
-With the quantified score, different setting of a same method, or different methods can be compared tuned to delivery best detection results.
+An evaluation framework quantifies the performance of a certain detection method over a reference dataset.
+With quantified evaluation, different setting of a same method, or different methods can be compared and tuned to delivery the best detection results.
 Naturally, an evaluation framework should be composed of two parts: 1) datasets of ``ground truth'', 2) a scoring method.
 
-Dataset of ``ground truth'' is not only a set of RTT time series that are representative of the delay characters over the Internet.
+Dataset of ``ground truth'' is not only a set of RTT time series that are representative of the delay characters over Internet.
 It should as well carry labels indicating the moments of change in these time series.
 We are not aware of such dataset that are publicly available as of this writing.
 %We manually labelled 50 real RTT time series from RIPE Atlas containing 408,087 RTT measurements.
 %Details are given in Sec.~\ref{sec:label}.
 We explain in Section~\ref{sec:label} how we construct a such dataset with great care.
 
-As for the scoring method, it quantifies the similarity/different between the ``ground truth'' and the detected moments of change.
-We show in Section~\ref{sec:score} that classic true/false positive classification is too rigid for both manual labeling and change point detection.
+As for the scoring method, it quantifies the similarity/difference between the ``ground truth'' and the detected moments of change.
+We explain in Section~\ref{sec:score} that classic true/false positive classification is too rigid for both manual labeling and change point detection.
 We further explore and address the challenges of comparing two set of events with time shift tolerance.
 %We argue that a slight shift in time could be tolerated.
 % Numenta proposed an evaluation method (for anomaly detection) with window option~\cite{Lavin2016}. However, they attribute equal weight to each ground truth events of anomaly (wich are homologous to RTT changes in our case). 
@@ -197,39 +197,40 @@ We further explore and address the challenges of comparing two set of events wit
 \subsection{Scoring methods}
 \label{sec:score}
 
-A natural way to assess the difference/similarity of two set of moments in time is to classify each detected moment of change into two classes: true positive, if the moment can as well be found in the ground truth set; or false positive, if the moment is a false alarm for being absent in the ground truth set.
+A natural way to assess the difference/similarity of two set of moments in time is to classify each detected moment of change into two categories: true positive, if the moment can as well be found in the ground truth set; or false positive, if the moment is a false alarm for being absent in the ground truth set.
 
 The ratio between true positive and the total number of detected changes is called precision.
 It is a measure of the relevance of the detection results with regard to ground truth.
 The ratio between the true positive and total number of ground truth moments of change is called recall.
-It is a measure of the coverage of detected moments of change.
-Precision and recall, both metrics are important to describe the performance a detection method, since there is often a trade-off between precision and recall when tuning the detection sensitivity of a method.
+It is a measure of the coverage of true moments of change by the detection method.
+Precision and recall, both metrics are important to describe the performance of a detection method, since there is often a trade-off between precision and recall when tuning the detection sensitivity of the concerned method.
 If a method is over-sensitive (extreme case: all the moments in a time series are marked as change), it might achieve a good recall,  however the precision must be fairly poor.
 On the other hand, if the detection method is too prudent, the precision could be satisfying, meanwhile it probably leaves a lot of actual changes go undetected, thus poor recall.
-A good detection method thus shall excel in both metric.
+A good detection method thus shall excel in both metrics.
 
-This is the basic idea of true/positive scoring method.
+Above is the basic idea of true/positive scoring method.
 It is often used in classification problems.
-Changepoint detection can as well be regarded as classification problem.
+Changepoint detection can as well be regarded as one.
 It classifies each moment in a given time series into two classes: a moment of change or not.
-Therefore, the scoring method naturally fits in and are indeed expressive.
+Therefore, the scoring method naturally fits in and is indeed expressive.
 
-However, changepoint detection is yet still a bit different from classification, just as timestamps are not like categorical data.
+Yet, changepoint detection is still a bit different from classification, just as timestamps are not like categorical data.
 In changepoint detection for time series, we seek to mark the moments of change in time. 
-If the marked moment falls exactly on the same timestamps of a ground truth moment of change, that would be perfect. Category matches.
-If the marked moment is several datapoints away, that will still be OK.
-With in reasonable distance, match can still happen.
+If the marked moment falls exactly on the same timestamp of a ground truth moment of change, that is perfect. Category matches for the same timestsamp across the two sets.
 If the marked moment is too far away from any ground truth moment of change, then it shall be considered irrelevant.
+If the marked moment is just a few datapoints away from a certain ground truth moment of change, that is actually still OK.
 Such tolerance in time comes from two aspects.
-From a methodological point of view, slightly shifted detection just happens. 
-It is different from totally irrelevant detection or no detection.
-Plus, when generating ground truth labels, we will see in Section~\ref{sec:label}, some slight errors can hardly be avoided completely due to human factors.
-From a practical point of view, a shifted detection within a reasonable range is still useful for TE uses.
+From a practical point of view, a shifted detection within a reasonable time range is still useful for TE.
+It is still more valuable than a false alarm far away from any true changes, as well more meaningful than a miss alarm saying nothing about the occurring change.
+From a methodological point of view, slightly shifted detection just happens when  the exact moment of change are blurred by noises.
+Plus, when generating ground truth labels, we will see in Section~\ref{sec:label}, it is very hard to completely avoid slight errors due to human factors.
+This suggests that even the ground truth dateset is not extremely strict or certain about the position of change moments.
+Therefore, a certain level of time shift tolerance is reasonable in evaluation.
+Such tolerance in time implies that two timestamps with the same category (change moment) across the two sets shall be allowed a match even if they are not exactly the same. 
+As long as the distance in time between them is within a reasonable range, a match shall be allowed.
 
-Therefore, the picture is not either black or white.
-A tolerance window shall be rather considered.
-However true/positive scoring method by default does not support this option.
-In order to facilitate the discussion how to properly enable tolerance window option, we introduce following notions.
+However, there are still ambiguity when introducing a tolerance window to true/false positive scoring.
+In order to facilitate the demonstration, we introduce following notions.
 
 We assume ground truth $T_{1:k}$ containing $k$ positions in $y_{1:n}$ indicating moments of actual change, while $\tau_{1:m}$ is the output of changepoint detection.
 A classic True Positive ($TP$) is a $\tau_j, \exists T_i \in T_{1:k}, T_i = \tau_j$, a False Positive ($FP$) otherwise. False Negative ($FN$) composes of $\{T_i \mid \nexists \tau_j \in \tau_{1:m}, \tau_j = T_i \}$.
