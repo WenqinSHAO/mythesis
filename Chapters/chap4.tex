@@ -197,6 +197,8 @@ We further explore and address the challenges of comparing two set of events wit
 \subsection{Scoring methods}
 \label{sec:score}
 
+\subsubsection{True/False positive for changepoint detection}
+
 A natural way to assess the difference/similarity of two set of moments in time is to classify each detected moment of change into two categories: true positive, if the moment can as well be found in the ground truth set; or false positive, if the moment is a false alarm for being absent in the ground truth set.
 
 The ratio between true positive and the total number of detected changes is called precision.
@@ -214,6 +216,7 @@ Changepoint detection can as well be regarded as one.
 It classifies each moment in a given time series into two classes: a moment of change or not.
 Therefore, the scoring method naturally fits in and is indeed expressive.
 
+\subsubsection{Tolerance of time shift}
 Yet, changepoint detection is still a bit different from classification, just as timestamps are not like categorical data.
 In changepoint detection for time series, we seek to mark the moments of change in time. 
 If the marked moment falls exactly on the same timestamp of a ground truth moment of change, that is perfect. Category matches for the same timestsamp across the two sets.
@@ -229,10 +232,11 @@ Therefore, a certain level of time shift tolerance is reasonable in evaluation.
 Such tolerance in time implies that two timestamps with the same category (change moment) across the two sets shall be allowed a match even if they are not exactly the same. 
 As long as the distance in time between them is within a reasonable range, a match shall be allowed.
 
+\subsubsection{Optimal matching between ground truth changepoints and detected moments of change}
 However, there are still ambiguity when introducing a tolerance window to true/false positive scoring.
 In order to facilitate the demonstration, we introduce following notions.
 
-We assume ground truth $T_{1:k}$ containing $k$ positions in $y_{1:n}$ indicating moments of actual change, while $\tau_{1:m}$ is the output of changepoint detection~\footnote{($T_{1:k}$ and $\tau_{1:m}$ takes value from $1$ to $n$, $y$'s indexes)}.
+We assume ground truth $T_{1:k}$ containing $k$ positions in $y_{1:n}$ indicating moments of actual change, while $\tau_{1:m}$ is the output of changepoint detection~\footnote{$T_{1:k}$ and $\tau_{1:m}$ take value from $1$ to $n$, $y$'s indexes}.
 A classic True Positive ($TP$) is a $\tau_j, \exists T_i \in T_{1:k}, T_i = \tau_j$.
 If we were to introduce a window of size $w$, we have to modify the definition of $TP$. But how?
 
@@ -242,7 +246,7 @@ However the definition of recall becomes confusing when there are multiple detec
 It is because the total number of timestamps in all the $TP$ sets no longer strictly represents (is actually equal or larger than) the total number of ground truth moments of change that are successfully detected.
 The total $TP$ timestamp numbers could even be larger than total number of ground truth, which results a recall value superior than one.
 Meanwhile, it is unnecessary in practice to have multiple alarms informing the occurrence of one same change.
-Therefore, it is not ideal having multiple $\tau$ matched to a $\T$ for the sake of tolerance window.
+Therefore, it is not ideal having multiple $\tau$ matched to a $T$ for the sake of tolerance window.
 
 \begin{figure}[!htb]
 \centering
@@ -290,7 +294,7 @@ More formally, an optimal mapping between $T_{i:k}$ and $\tau_{i:m}$ with shift 
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=.95\textwidth]{gfx/chap4/bipartit_graph_cons.pdf}
+\includegraphics[width=.7\textwidth]{gfx/chap4/bipartit_graph_cons.pdf}
 \caption{Constructing a bipartit graph from ground truth and detected moments of change. When the distance between a ground truth moment of change and a detected change is equal or smaller than the defined tolerance window size, there is an edge connecting them. The weight of this edge equals to the distance in time between the two nodes.}
 \label{fig:bipartit_graph_cons}
 \end{figure}
@@ -319,9 +323,10 @@ Precision of the changepoint detection method, defined as  $\frac{TP}{TP+FP}$, c
 Recall, defined as $\frac{TP}{TP+FN}$, can be regarded as the fraction of all ground truth change points that the method can successfully detect.
 
 
+\subsubsection{Ground truth changepoints with weights}
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=.95\textwidth]{gfx/chap4/groundtruth_weight.pdf}
+\includegraphics[width=.8\textwidth]{gfx/chap4/groundtruth_weight.pdf}
 \caption{An illustration of how each ground truth (green square) moment of change is weighted. The example focuses on the while with a purple filling.}
 \label{fig:groundtruth_weight}
 \end{figure}
