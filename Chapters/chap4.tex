@@ -381,23 +381,35 @@ Red vertical lines correspond to generated changes.}
 \end{figure}
 
 In order to determine which detection method works the best on RTT time series, 
-a dataset with \textit{a priori} labelled moments of RTT change is required, serving as ground truth, in the above presented scoring method. It's quality is essential to the relevance of evaluation results.
+a dataset with \textit{a priori} labeled moments of RTT change is required, serving as ground truth.
+ It's quality is essential to the credibility of evaluation results.
 
-There are two approaches to a labelled ground truth: 1) artificially generated data; 2) real data with labels.
-Real data is naturally the preferred choice and 
-can only be labelled by humans with domain knowledge in absence of systematic automation, which is however tedious and error-prone. 
+There are two approaches to labeled ground truth dataset: 1) artificially generated data; 2) real data with labels manually put on.
+Real data is more representative of the Internet delay character.
+It is thus the preferred choice.
+However, it can only be labeled by humans with domain knowledge in absence of systematic automation.
+Manual labeling is tedious and error-prone.
+Without due care, it can undermine the quality of the entire ground truth dataset.
 %Moreover, identifying significant change in RTT time series lacks an operational standard.
-Therefore, it is of importance to first design tools facilitating the labelling and second to evaluate the quality of so produced `ground truth'.
-More specifically, 1) a set of tools for interactive visual inspection (for RTT time series and labels) are developed to minimize human errors~\footnote{\url{https://github.com/WenqinSHAO/rtt_visual.git}}; 2) we fabricated a synthetic RTT dataset with known moments of actual change, and compared the human detection results to generated change moments~\footnote{\url{https://github.com/WenqinSHAO/rtt_gen.git}}. The labellers are the authors of this work, who are researchers/graduate students in networking. 
+Therefore, it is of importance to first design tools to facilitate the manual work and second to evaluate the quality of so produced `ground truth'.
+More specifically, 1) a set of tools for interactive visual inspection (for RTT time series and labels) are developed to minimize human errors~\footnote{\url{https://github.com/WenqinSHAO/rtt_visual.git}}; 2) we fabricated a synthetic RTT dataset with known moments of actual change, and compared the human detection results to generated changepoints~\footnote{\url{https://github.com/WenqinSHAO/rtt_gen.git}}. The labellers are the authors of this work, who are researchers/graduate students in networking. 
 %JLR: we need to gain space. Delete.
 %They were required to mark moments of RTT change worthy of inspection, according to their expertise and experience in the domain. %(no other guidelines were given apart from that).
 
-The synthetic dataset contains 20 RTT timeseries %with 6485 datapoints on average,
+The synthetic dataset contains 20 RTT timeseries, %with 6485 datapoints each on average,
 representing 8646 hours of RTT measurements with 935 generated changepoints.
-%The time interval between datapoints is 4min, in line with RIPE Atlas built-in ping measurement.
+The time interval between datapoints is 4min, in line with RIPE Atlas built-in ping measurement.
+These synthetic RTT timeseries are generated following these steps.
+First, we randomly generate for each RTT time series several phases/segments of different delay baselines.
+Different RTT baselines corresponds to the different physical lengths on different Internet paths.
+For each phase of RTT baseline, we add noises representing micro queue length changes, waiting time due to router load and scheduling policies etc.
+Finally for each phase of RTT baseline, we generate relatively long during congestion with its own Markov process.
+For the detailed generative models and model parameters of each step, please refer to the documentation in the code space.
 An example of these synthetic RTT trace is shown in Fig.~\ref{fig:art_example}.
-Each trace contains several stages of random RTT level representing different underlying paths.
-Each path has its own Markov process deciding the chance of getting into/out of a congestion phase. 
+The red vertical lines are moments when there is a base line RTT change, or a congestion period starts/ends.
+Short living spikes are considered rather as noises than real changes.
+%Each trace contains several stages of random RTT level representing different underlying paths.
+%Each path has its own Markov process deciding the chance of getting into/out of a congestion phase. 
 %The amplitude of each congestion segment is as well randomly generated.
 
 \begin{figure}[!htb]
@@ -410,9 +422,15 @@ The detection performance of human labellers on the synthetic dataset is shown i
 Human labellers have $100\%$ for both $Precision$ and $Recall$ on 14 traces.
 For the rest, the $Precision$ remains high. A few changes are miss out, but their total weight remain limited.
 
-%Ensured that human labellers are capable of detecting changes, we proceed with real RTT traces. 
-Real RTT traces of various characters are selected from RIPE Atlas to construct the ground truth dataset. Some are full of fluctuations; some contain periodic congestion, some have many stage changes, etc.
-The entire dataset represents more than 34,008 hours, i.e. 1417 days, of RTT measurements. 1047 changepoints were identified by the labellers.
+%Ensured that human labellers are capable of detecting changes, we proceed with real RTT traces.
+A great amount of real RTT traces of various characters are as well selected from RIPE Atlas to construct the ground truth dataset.
+Some are full of fluctuations; some contain periodic congestion, some have many stage changes, etc.
+50 real RTT timeseries containing 408,087 datapoints are selected.
+They represent more than 34,008 hours, i.e. 1417 days, of RTT measurements. 
+
+
+%How the labelling is done.
+1047 changepoints were identified by the labellers.
 The labelled RTT traces along with the synthetic traces are all available in the main project repository given in Sec.~\ref{sec:cpt_data}.
 
 \subsection{Candidate changepoint methods}
