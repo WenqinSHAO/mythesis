@@ -119,7 +119,7 @@ In this section, we introduce changepoint detection and its previous application
 % Such changes are generally caused by path change or congestion, and thus have important implications in networking and traffic engineering.
 \subsection{A primer on changepoint detection}
 The moments that cut a time series into segments of different characteristics are called \textit{changepoints}.
-The problem of detecting the most appropriated changepoints is known as changepoint detection or change detection.
+The problem of detecting the most appropriate changepoints is known as changepoint detection or change detection.
 With such method, changes in RTT measurements can be detected and quantified without the help of path measurements.
 
 One common approach to changepoint detection is to translate the quest of finding the best changepoints into the following optimization problem \footnote{Other formulations exist. A wider literature can be found in \cite{Haynes2016, Eckley2011}. We focus on this approach since it has well maintained libraries that prevent potential issues regarding the implementation~\cite{Killick2013a, Haynes2016}.}.
@@ -128,42 +128,44 @@ We expect changepoint detection method to produce $m$ ordered changepoints, $\ta
 $\tau_i$ is the position of $i^{th}$ changepoints and takes value from in ${1,..,n-1}$.
 These changepoints are given in an ordered way such that $\tau_i < \tau_j$ if and only if $i < j$.
 We define $\tau_0 = 0$ and $\tau_{m+1} = n$.
-Together with the detected $m$ changepoints, they cut $y_{1:n}$ into $m+1$ segments, with the $i_{th}$ segment containing $y_{\tau_{i-1}+1:\tau_i}, 1 \geq i \leq m+1 $.
+Together with the $m$ detected changepoints, they cut $y_{1:n}$ into $m+1$ segments, with the $i_{th}$ segment containing $y_{\tau_{i-1}+1:\tau_i}, 1 \leq i \leq m+1 $.
 For each segment, a cost is calculated. 
-The cost can be seen as the appropriateness of the the segment.
-The detection method seeks to minimize the cost sum of all the segments (so that the produced $m$ changepoints are the most relevant): 
+The cost can be seen as an inverse measure of the appropriateness of the the segment.
+The detection method seeks to minimize the sum of all the segments' cost (so that the produced $m+1$ segments/$m$ changepoints are the most relevant): 
 \begin{equation*}
 \sum_{i=1}^{m+1}[C(y_{\tau_{i-1}:\tau_i-1})] + \beta f(m).
 \end{equation*}
-Here $C$ is the cost function that measures the appropriateness of each segment.
+Here $C$ is the cost function that measures the fitness of each segment.
 $\beta f(m)$ is a penalty function to prevent over-fitting.
 These two functions are the major parameters to be tuned.
 
-One commonly used cost function is minus of the maximum log-likelihood of the segment following a certain distribution~\cite{Killick2011,Horvath1993,Chen2001}:
+One commonly used cost function is the minus of the maximum log-likelihood of the segment following a certain distribution~\cite{Killick2011,Horvath1993,Chen2001}:
 \begin{equation*}
 C(y_{s:t}) = - \max_\theta \sum_{i=s}^t \log f(y_i|\theta).
 \end{equation*}
 Here $f(y|\theta)$ is a density function with distribution parameter $\theta$. 
 For example, if we assume a Normal distribution, then we have $\theta = (\mu, \delta^2)$:
-$f(y|\theta) = f(y|\mu, \delta^2) = \frac{1}{\sqrt{2\delta^2\pi}} e^{-\frac{(x-\mu)}{2\delta^2}}$.
+$f(y|\theta) = f(y|\mu, \delta^2) = \frac{1}{\sqrt{2\delta^2\pi}} e^{-\frac{(y-\mu)}{2\delta^2}}$.
 The $\theta$ over the segment is obtained through maximum-likelihood estimation, assuming the distribution type.
-A smaller cost indicates the segment is more likely generated with the specified generative model (distribution type).
-With the above cost function, the choice of cost function is restrained to the choice of distribution types.
-Currently supported distributions in \cite{Killick2013a} are: Normal, Exponential, Gamma and Poisson.
-However, in practice the exact distribution type could be unknown a priori, or different from supported ones.
+A smaller cost indicates the segment is more likely generated with the specified generative model (distribution type). 
+It is the parameter change, not the model change, that the change detection actually identifies.
+With the above formulation, the choice of cost function is restrained to the choice of distribution types.
+Currently supported ones in \cite{Killick2013a} are: Normal, Exponential, Gamma and Poisson.
+However, in practice the exact distribution type could be unknown a priori, or different from the supported ones.
+Or the generative model itself (not just the parameters) can change over time.
 A recent progress thus proposes a cost function that is based on empirical distribution likelihood, where the specification on distribution type is not necessary. It is thus a non-parametric method~\cite{Haynes2016}. 
 
 When it comes to the penalty function, $f(m)$ is generally increasing and linear to the number of parameters introduced by $m$ changepoints: 
 $m + (m+1)dim(\theta)$ ($m$ changepoints and $m+1$ segments) \footnote{$dim(\theta)$ is the dimension of $\theta$. In the case of Normal distribution, $dim(\theta) = 2$.}.
 Common choices of $\beta$ are information criteria, such as Akaike’s Information Criterion (AIC) with $\beta=2$, Schwarz Information Criterion (SIC, also known as BIC) with $\beta=\log n$, Hannan-Quinn Information Criterion with $\beta = 2 \log \log n$, and Modified BIC (MBIC) with 
-$\beta f(m) = -\frac{1}{2} [3f(m)\log n + \sum_{i=1}^{m+1} log(r_i - r_{i-1})]$, where $r_i = \tau_i/n$~cite{Zhang2007}.
+$\beta f(m) = -\frac{1}{2} [3f(m)\log n + \sum_{i=1}^{m+1} log(r_i - r_{i-1})]$, where $r_i = \tau_i/n$~\cite{Zhang2007}.
 We have MBIC $>$ BIC $>$ Hannan Quinn. Note that larger penalty value leads to less sensitive detection.
 
 \subsection{Application of changepoint detection to RTT measurements}
 %RTT traces, like many other time series, may undergo sudden changes in level or volatility, generally caused by path change or congestion.
 Among the extensive studies on change detection methods and their applications in various domains~\cite{Zhang2007,Reeves2007, Yu2008},
 Rimondini et al.~\cite{Rimondini2014} are among the first to employ change detection in network RTT measurement analysis.
-However, they tuned the detection sensitivity in a way that the detected changes correlate best to the BGP changes of the destination prefix among other randomly selected prefixes.
+However, they tuned the detection sensitivity in a way that the detected changes correlate best to the BGP route changes of toward the measured destination prefix among other randomly selected prefixes.
 This approach risks ignoring the RTT changes due to intra-domain changes and congestion.
 Plus, such tuning is potentially required for each individual destination, thus hard to scale.
 To achieve more general approach decoupled from path measurements, we propose in next section an evaluation framework for the selection and the calibration of change detection methods over RTT measurements.
@@ -177,19 +179,19 @@ Identifying the best settings for these methods remains as well challenging.
 One fundamental issue in addressing the above problems is the lack of an evaluation framework.
 
 An evaluation framework quantifies the performance of a certain detection method over a reference dataset.
-With quantified evaluation, different setting of a same method, or different methods can be compared and tuned to delivery the best detection results.
+With quantified evaluation, different settings of a same method, or different methods can be compared and tuned to delivery the best detection results.
 Naturally, an evaluation framework should be composed of two parts: 1) datasets of ``ground truth'', 2) a scoring method.
 
 Dataset of ``ground truth'' is not only a set of RTT time series that are representative of the delay characters over Internet.
 It should as well carry labels indicating the moments of change in these time series.
-We are not aware of such dataset that are publicly available as of this writing.
+We are not aware of any such dataset that is publicly available as of this writing.
 %We manually labelled 50 real RTT time series from RIPE Atlas containing 408,087 RTT measurements.
 %Details are given in Sec.~\ref{sec:label}.
-We explain in Section~\ref{sec:label} how we construct a such dataset with great care.
+We explain in Section~\ref{sec:label} how we construct a ground truth dataset with great care.
 
-As for the scoring method, it quantifies the similarity/difference between the ``ground truth'' and the detected moments of change.
-We explain in Section~\ref{sec:score} that classic true/false positive classification is too rigid for both manual labeling and change point detection.
-We further explore and address the challenges of comparing two set of events with time shift tolerance.
+As for the scoring method, it quantifies the similarity/difference between the ``ground truth'' and the detected changepoints.
+We explain in Section~\ref{sec:score} that classic true/false positive classification is too rigid for both manual labeling and changepoint detection.
+We further explore and address the challenges of comparing two set of timestamps with time shift tolerance.
 %We argue that a slight shift in time could be tolerated.
 % Numenta proposed an evaluation method (for anomaly detection) with window option~\cite{Lavin2016}. However, they attribute equal weight to each ground truth events of anomaly (wich are homologous to RTT changes in our case). 
 %We propose weighting each actual RTT changes according to their operational importance. 
@@ -199,13 +201,13 @@ We further explore and address the challenges of comparing two set of events wit
 
 \subsubsection{True/False positive for changepoint detection}
 
-A natural way to assess the difference/similarity of two set of moments in time is to classify each detected moment of change into two categories: true positive, if the moment can as well be found in the ground truth set; or false positive, if the moment is a false alarm for being absent in the ground truth set.
+A natural way to assess the difference/similarity of two set of moments in time is to classify each detected moment of change into two categories: true positive, if the moment is as well a ground truth changepoint; or false positive otherwise.
 
-The ratio between true positive and the total number of detected changes is called precision.
+The ratio between true positive and the total number of detected changepoints is called precision.
 It is a measure of the relevance of the detection results with regard to ground truth.
-The ratio between the true positive and total number of ground truth moments of change is called recall.
-It is a measure of the coverage of true moments of change by the detection method.
-Precision and recall, both metrics are important to describe the performance of a detection method, since there is often a trade-off between precision and recall when tuning the detection sensitivity of the concerned method.
+The ratio between the true positive and total number of ground truth changepoints is called recall.
+It is a measure of the coverage of the actual changes that are successfully identified by the detection method.
+Precision and recall, both metrics are important to describe the performance of a detection method, since there is often a trade-off between them when tuning the detection sensitivity of the concerned method.
 If a method is over-sensitive (extreme case: all the moments in a time series are marked as change), it might achieve a good recall,  however the precision must be fairly poor.
 On the other hand, if the detection method is too prudent, the precision could be satisfying, meanwhile it probably leaves a lot of actual changes go undetected, thus poor recall.
 A good detection method thus shall excel in both metrics.
@@ -213,63 +215,64 @@ A good detection method thus shall excel in both metrics.
 Above is the basic idea of true/positive scoring method.
 It is often used in classification problems.
 Changepoint detection can as well be regarded as one.
-It classifies each moment in a given time series into two classes: a moment of change or not.
-Therefore, the scoring method naturally fits in and is indeed expressive.
+The ground truth data set labels each timestamps of a given time series as a changepoint or not.
+Meabwhile, a changepoint detection method classifies each timestamps into the same two categories: change or not.
+And the evaluation by true/false positive compares the labels, the ground truth one and the detected one, for each timestamps. 
+Therefore, the described scoring method naturally fits in and is indeed expressive.
 
 \subsubsection{Tolerance of time shift}
 Yet, changepoint detection is still a bit different from classification, just as timestamps are not like categorical data.
 In changepoint detection for time series, we seek to mark the moments of change in time. 
-If the marked moment falls exactly on the same timestamp of a ground truth moment of change, that is perfect. Category matches for the same timestsamp across the two sets.
-If the marked moment is too far away from any ground truth moment of change, then it shall be considered irrelevant.
-If the marked moment is just a few datapoints away from a certain ground truth moment of change, that is actually still OK.
+If the marked moment falls exactly on a same timestamp of a ground truth changepoint, that is perfect. Categories match for the same timestsamp across the two sets.
+If the marked moment is too far away from any ground truth moment of change, then it shall be considered as a false alert.
+If the marked moment is just a few datapoints away from a certain ground truth changepoint, that is actually still OK.
 Such tolerance in time comes from two aspects.
 From a practical point of view, a shifted detection within a reasonable time range is still useful for TE.
-It is still more valuable than a false alarm far away from any true changes, as well more meaningful than a miss alarm saying nothing about the occurring change.
+It is still more relevant than a false alarm far away from any true changes, as well as more informative than a miss alarm saying nothing about the occurring change.
 From a methodological point of view, slightly shifted detection just happens when  the exact moment of change are blurred by noises.
-Plus, when generating ground truth labels, we will see in Section~\ref{sec:label}, it is very hard to completely avoid slight errors due to human factors.
+Plus, when generating ground truth labels, we will see in Section~\ref{sec:label}, it is very hard to completely avoid slight errors, such as shift by several datapoints when putting the labels, due to human factors.
 This suggests that even the ground truth dateset is not extremely strict or certain about the position of change moments.
-Therefore, a certain level of time shift tolerance is reasonable in evaluation.
-Such tolerance in time implies that two timestamps with the same category (change moment) across the two sets shall be allowed a match even if they are not exactly the same. 
-As long as the distance in time between them is within a reasonable range, a match shall be allowed.
+Therefore, a certain level of time shift tolerance is actually required in evaluation, avoiding underestimate potential meaningful detection.
+Such tolerance in time implies that two timestamps labeled as changepoint across the two sets shall be allowed a match, as long as the distance in time between them is within a reasonable range.
 
 \subsubsection{Optimal matching between ground truth changepoints and detected moments of change}
-However, there are still ambiguity when introducing a tolerance window to true/false positive scoring.
+However, there are still ambiguity concerning how to introduce a tolerance window to true/false positive scoring.
 In order to facilitate the demonstration, we introduce following notions.
 
-We assume ground truth $T_{1:k}$ containing $k$ positions in $y_{1:n}$ indicating moments of actual change, while $\tau_{1:m}$ is the output of changepoint detection~\footnote{$T_{1:k}$ and $\tau_{1:m}$ take value from $1$ to $n$, $y$'s indexes}.
+We assume ground truth $T_{1:k}$ containing $k$ positions in $y_{1:n}$ indicating moments of actual change, while $\tau_{1:m}$ is the output of changepoint detection.
 A classic True Positive ($TP$) is a $\tau_j, \exists T_i \in T_{1:k}, T_i = \tau_j$.
 If we were to introduce a window of size $w$, we have to modify the definition of $TP$. But how?
 
-One possibility is to apply the window to each ground truth moment of change.
-That is for each $T_j$, all the detected moments of change ${\tau_i | T_j - w \geq \tau_i \leq T_j + w }$ shall be considered $TP$ for providing useful information detecting $T_j$ according to the definition of tolerance window.
-However the definition of recall becomes confusing when there are multiple detected moments of changes in the $TP$ for a single ground truth moment.
-It is because the total number of timestamps in all the $TP$ sets no longer strictly represents (is actually equal or larger than) the total number of ground truth moments of change that are successfully detected.
-The total $TP$ timestamp numbers could even be larger than total number of ground truth, which results a recall value superior than one.
+One possibility is to apply the window to each ground truth changepoints.
+That is for each $T_j$, all the detected moments of change $\{\tau_i | T_j - w \leq \tau_i \leq T_j + w \}$ shall be considered $TP$ for providing useful information (help detecting $T_j$) according to the definition of tolerance window.
+However the definition of recall becomes confusing when there are multiple detected changepoints classified as $TP$ for a single ground truth changepoint.
+It is because the total number of timestamps in all the $TP$ sets no longer strictly represents (is actually equal or larger than) the total number of ground truth changepoints that are successfully detected.
+The total $TP$ timestamp numbers could even be larger than the total number of ground truth, which leads to a recall value larger than one.
 Meanwhile, it is unnecessary in practice to have multiple alarms informing the occurrence of one same change.
 Therefore, it is not ideal having multiple $\tau$ matched to a $T$ for the sake of tolerance window.
 
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=.95\textwidth]{gfx/chap4/matching_dilemma.pdf}
-\caption{A matching dilemma between detected moments of change and two ground truth moments.}
+\caption{A matching dilemma between detected moments of change and two ground truth changepoints.}
 \label{fig:matching_dilemma}
 \end{figure}
 
-One cure to the above approach is to pick only the $\tau$ that minimizes the temporal distance to each $T$ if multiple are within the tolerance range.
-The remaining shall be regarded as false positives for not being the most relevant to any ground truth moment of change.
-Another issue occurs when the tolerance range of two ground truth moment of change overlaps.
+One cure to the above approach is to pick only the $\tau$ that minimizes the temporal distance to each $T$, if multiple are within the tolerance range.
+The remaining shall be regarded as false positives for not being the most relevant to any ground truth changepoints.
+Another issue occurs when the tolerance range of two ground truth changepoints overlaps.
 And a $\tau$ falls in the tolerance range of both ground truth timestamps.
 Which one should this $\tau$ detect?
 A such dilemma is illustrated in Figure~\ref{fig:matching_dilemma}.
 The tolerance range of the first ground truth moment is indicated in light orange in the graph.
 Two detected moments of change fall in this range.
 The later one is regarded as a $TP$ for being the closest match to the first ground truth moment.
-Meanwhile, this detected moment of change is as well in the tolerance range of the second ground truth moment.
+Meanwhile, this changepoint from detection is as well in the tolerance range of the second ground truth changepoint.
 However, it can no longer be used to detect the later ground truth event, thus leaving the later undetected.
-It is not necessary an optimal arrangement of matching between ground truth and detection events when tolerance window allows.
-Because both ground truth has at least one detected moment of change within their window, yet on of them is left undetected.
+It is not necessary an optimal arrangement of matching between ground truth and detection events.
+Because both ground truth has at least one detected moment of change within their window, yet one of them is left undetected.
 
-The realization of the above dilemma made us question what is an optimal matching from from an overall view.
+The realization of the above dilemma made us question what is an optimal matching from an overall view.
 An reasonable formulation could be one that first maximizes the number of $TP$, i.e. matching (one-to-one) between ground truth and detection timestamps as long as the tolerance window allows.
 Then the it minimizes the total/average distance between these matched pair of timestamps to maximize the relevance of the matching.
 More formally, an optimal mapping between $T_{i:k}$ and $\tau_{i:m}$ with shift tolerance $w$ is defined as $MP = \{(T_x, \tau_y)\} \mid |T_x - \tau_y| \leq w \}$, as the one that first maximizes $|MP|$, the size of $MP$, and then minimizes $\sum_{(T_x, \tau_y) \in MP} |T_x - \tau_y|$. 
@@ -295,22 +298,22 @@ More formally, an optimal mapping between $T_{i:k}$ and $\tau_{i:m}$ with shift 
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=.7\textwidth]{gfx/chap4/bipartit_graph_cons.pdf}
-\caption{Constructing a bipartit graph from ground truth and detected moments of change. When the distance between a ground truth moment of change and a detected change is equal or smaller than the defined tolerance window size, there is an edge connecting them. The weight of this edge equals to the distance in time between the two nodes.}
+\caption{Constructing a bipartit graph from ground truth and detected changepoints. When the distance between a ground truth and detected changepoint is equal to or smaller than the defined tolerance window size, there is an edge connecting them. The weight of this edge equals to the distance in time between the two nodes.}
 \label{fig:bipartit_graph_cons}
 \end{figure}
 
-A convenient way to find the $MP$ is through the construction of a bipartite graph$G = (V \cup W, E)$, illustrated in Figure~\ref{fig:bipartit_graph_cons}.
+A convenient way to find the $MP$ is through the construction of a bipartite graph $G = (V \cup W, E)$, illustrated in Figure~\ref{fig:bipartit_graph_cons}.
 $V \cup W$ are the vertices of the graph.
-They are made of the ground truth and detected moments of change, i.e $V = T_{i:k}$ and $W = \tau_{1:m}$.
+They are made of the ground truth and detected changepoints, i.e $V = T_{i:k}$ and $W = \tau_{1:m}$.
 Edge $E$ is composed of all ground truth and detected change moments pairs the distance between which are no larger than the tolerance window, i.e. $E = \{(p, q) \mid |p - q| \leq w, p \in V, q \in W \}$.
-The cost of each edge is defined as the distance/shift in time between ground truth and the detected change point $C(e) = |p-q|, e \in E$.
+The cost of each edge is defined as the distance/shift in time between its two extremities $C(e) = |p-q|, e \in E$.
 Once the graph is constructed, the problem of finding the optimal mapping $MP$ is translated into a well studied task of finding the \textit{minimum cost maximum-cardinality matching} of $G$.
 
-The Hungarian matching algorithm, as well known as the Kuhn-Munkres algorithm, is an established way of solving \textit{minimum cost maximum-cardinality matching} problem~\footnote{An explanation to how the algorithm works would be lengthy and deviate the discussion to a direction that is less original to this thesis. Interested reader can find well written and illustrated guide to it via this link: \url{https://brilliant.org/wiki/hungarian-matching/}.}. 
+The Hungarian matching algorithm, as well known as the Kuhn-Munkres algorithm, is an established way of solving \textit{minimum cost maximum-cardinality matching} problem~\footnote{An explanation to how the algorithm works would be lengthy and deviate the discussion to a direction that is less original. Interested reader can find a well written and illustrated guide to it via this link: \url{https://brilliant.org/wiki/hungarian-matching/}.}. 
 The complexity of the algorithm is cubic to the number of the vertices in the graph.
-When there are a large number of potential changes to be detected, it can thus take a while to compute.
+When there are a large number (e.g. $> 100$) of potential changes to be detected, it can thus take a while to compute.
 A performance boost is though possible due to the presence of the tolerance window.
-An edge is not going to connect two vertex, each from one part of the graph, that are far away in time.
+An edge is not going to connect two vertices, each from one part of the graph, that are far away in time.
 This feature allows us to cut the graph into much smaller disconnected sub-graphs.
 The cutting is illustrated in Figure~\ref{fig:bipartit_graph_cons} by the dotted lines.
 For positive numbers, the sum of cubic is always smaller than the cubic of number sum.
@@ -318,7 +321,7 @@ Applying the Hungarian algorithm on disconnected sub-graphs can therefore reduce
 
 Once the $MP$ is identified for $G$, the definitions for $TP$, precision and recall all come up naturally.
 For each detection $\tau_j$, if $\exists m \in MP, \tau_j \in m$, it is regarded as a $TP$, otherwise as a $FP$ (false positive).
-All the ground truth without matched detection $\{T_i \mid \nexists m \in MP, T_j \in m\}$ contributes to $FN$.
+All the ground truth without matched detection $\{T_i \mid \nexists m \in MP, T_j \in m\}$ contributes to $FN$ (false negative).
 Precision of the changepoint detection method, defined as  $\frac{TP}{TP+FP}$, can be interpreted as the fraction of detection that is relevant or useful.
 Recall, defined as $\frac{TP}{TP+FN}$, can be regarded as the fraction of all ground truth change points that the method can successfully detect.
 
@@ -331,10 +334,9 @@ Recall, defined as $\frac{TP}{TP+FN}$, can be regarded as the fraction of all gr
 \label{fig:groundtruth_weight}
 \end{figure}
 
-Each detected change may be treated equally, yet not all ground truth RTT changes are equally important in practice.
+Each detected change may be treated equally (e.g. followed by root cause analysis, route re-selection), yet not all ground truth RTT changes are equally important in practice.
 Some changes could be for example relatively short living or small in amplitude.
-We thus propose to weight a ground truth change, as demonstrated in Figure~\ref{fig:groundtruth_weight} for purple filled ground truth changepoint.
-For each $T_i$, its weight depends on the following three elements:
+We thus propose to weight each ground truth changepoint $T_i$ according to the follow three elements illustrated in Figure~\ref{fig:groundtruth_weight} for the purple filled ground truth changepoint:
 \begin{enumerate}
 \item the length of RTT segment following $T_i$, i.e. $T_{i+1} - T_i$;
 \item the RTT level difference across $T_i$, denoted as $M_i$; 
