@@ -380,37 +380,61 @@ Red vertical lines correspond to generated changes.}
 \label{fig:art_example}
 \end{figure}
 
-In order to determine which detection method works the best on RTT time series, 
+In order to determine which detection method works the best over RTT timeseries, 
 a dataset with \textit{a priori} labeled moments of RTT change is required, serving as ground truth.
- It's quality is essential to the credibility of evaluation results.
+It's quality is essential to the credibility of evaluation results.
 
-There are two approaches to labeled ground truth dataset: 1) artificially generated data; 2) real data with labels manually put on.
-Real data is more representative of the Internet delay character.
+There are two approaches to fabricate a labeled ground truth dataset: 1) artificially generated data; 2) real data with labels manually put on.
+Obviously, real data is more representative of the Internet delay character.
 It is thus the preferred choice.
-However, it can only be labeled by humans with domain knowledge in absence of systematic automation.
+However, it can only be labeled by humans with domain knowledge.
 Manual labeling is tedious and error-prone.
 Without due care, it can undermine the quality of the entire ground truth dataset.
 %Moreover, identifying significant change in RTT time series lacks an operational standard.
-Therefore, it is of importance to first design tools to facilitate the manual work and second to evaluate the quality of so produced `ground truth'.
-More specifically, 1) a set of tools for interactive visual inspection (for RTT time series and labels) are developed to minimize human errors~\footnote{\url{https://github.com/WenqinSHAO/rtt_visual.git}}; 2) we fabricated a synthetic RTT dataset with known moments of actual change, and compared the human detection results to generated changepoints~\footnote{\url{https://github.com/WenqinSHAO/rtt_gen.git}}. The labellers are the authors of this work, who are researchers/graduate students in networking. 
-%JLR: we need to gain space. Delete.
-%They were required to mark moments of RTT change worthy of inspection, according to their expertise and experience in the domain. %(no other guidelines were given apart from that).
 
-The synthetic dataset contains 20 RTT timeseries, %with 6485 datapoints each on average,
-representing 8646 hours of RTT measurements with 935 generated changepoints.
-The time interval between datapoints is 4min, in line with RIPE Atlas built-in ping measurement.
-These synthetic RTT timeseries are generated following these steps.
-First, we randomly generate for each RTT time series several phases/segments of different delay baselines.
+Therefore, it is important to verify the labeling quality.
+To that end, we rely on an artificial dataset.
+The idea is to generate some synthetic RTT timeseries with known changepoints.
+These artificial timeseries are then mixed up with real RTT timeseries during human labeling.
+Once the labeling is done, we compare the human-labeled changepoints over the artificial dataset with its the generated changepoints, using the scoring method presented in Section~\ref{sec:score}.
+That is to evaluate the detection performance of human labellers using generated model as ground truth.
+
+Synthetic RTT timeseries are after all not real RTT measurements.
+Human labellers performing perfectly over generated traces doesn't necessary indicate that they would do as well on real RTT measurements.
+Therefore it is highly desired that the artificial RTT timeseries resemble real ones as much as possible.
+Following these steps are taken to generate a synthetic RTT time series.
+First, we randomly generate several phases/segments of different delay baselines.
 Different RTT baselines corresponds to the different physical lengths on different Internet paths.
 For each phase of RTT baseline, we add noises representing micro queue length changes, waiting time due to router load and scheduling policies etc.
 Finally for each phase of RTT baseline, we generate relatively long during congestion with its own Markov process.
-For the detailed generative models and model parameters of each step, please refer to the documentation in the code space.
-An example of these synthetic RTT trace is shown in Fig.~\ref{fig:art_example}.
-The red vertical lines are moments when there is a base line RTT change, or a congestion period starts/ends.
-Short living spikes are considered rather as noises than real changes.
-%Each trace contains several stages of random RTT level representing different underlying paths.
-%Each path has its own Markov process deciding the chance of getting into/out of a congestion phase. 
-%The amplitude of each congestion segment is as well randomly generated.
+Random parameters appropriate to each baseline segment decide the chance of get into and get out of a congestion period.
+The generated changepoints are moments when there are baseline delay changes and congestion entrance/exit.
+Short living spikes (length $\leq 2$ datapoints) are considered noises rather than real changes.
+For the detailed generative models and model parameters of each step, please refer to the documentation in the code space available at \url{https://github.com/WenqinSHAO/rtt_gen.git}.
+20 synthetic RTT timeseries, with 6485 datapoints each on average, are generated with the fabricated tool.
+The time interval between datapoints is 4min, in line with RIPE Atlas built-in ping measurement.
+They represent 8646 hours of RTT measurements with 935 generated changepoints.
+An example of these synthetic RTT trace is shown in Figure~\ref{fig:art_example}.
+The red vertical lines, indicating generated changepoints, are moments when there is a base line RTT change, or a congestion period starts/ends.
+
+%Ensured that human labellers are capable of detecting changes, we proceed with real RTT traces.
+As for the real RTT measurements, a great amount of real RTT traces of various characters are selected from RIPE Atlas to construct the ground truth dataset.
+Some are full of fluctuations; some contain periodic congestion, some have many step-wise changes, etc.
+50 real RTT timeseries containing 408,087 datapoints are selected.
+They represent more than 34,008 hours, i.e. 1417 days, of RTT measurements. 
+
+How the labeling is done by humans over a large data set as is crucial to the data quality.
+Looking at all these timeseries and marking changepoint timestamps with a text editor is clearly not a good idea.
+To enable intuitive (what humans are good at) labeling, we fabricated an interactive tool to visualize RTT time series \url{https://github.com/WenqinSHAO/rtt_visual.git}.
+With this tool, the labellers can easily pan, zoom RTT time series and verify the positions of marked changepoints~\footnote{The labellers are researchers/graduate students in networking.}.
+1047 changepoints were identified by the labellers for these real RTT timeseries.
+All the labelled RTT traces, synthetic and real, along with the generated changepoints are all available in the main project repository specified in Sec.~\ref{sec:cpt_data}.
+During the labeling process, the labellers all found that they were not sure whether a given RTT timeseries is real or synthetic.
+We therefore judge that the synthetic dataset are good enough.
+After revealing the identity of each time series, the labellers concluded that the synthetic RTT timeseries seemed to have less rich variation patterns compared to the real ones.
+There are moments when the labellers were not quite sure if a changepoint were to be placed or not, or where exactly to place a changepoint.
+These suspicious moments all turned out to be within real RTT timeseries.
+The presence of such difficulty is exactly one reason that time shift tolerance is needed in detection performance evaluation.
 
 \begin{figure}[!htb]
 \centering
@@ -418,21 +442,15 @@ Short living spikes are considered rather as noises than real changes.
 \caption{$Presicion$, $Recall_W$ and weighted $F_2$ of human labellers on synthetic dataset.}
 \label{fig:antoine_eval}
 \end{figure}
-The detection performance of human labellers on the synthetic dataset is shown in Fig.~\ref{fig:antoine_eval}~\footnote{Note that the labellers had no idea these series were synthetic, since they are mixed up with real traces during labelling.}. 
+Figure~\ref{fig:antoine_eval}
+
+The detection performance of human labellers on the synthetic dataset is shown in Figure~\ref{fig:antoine_eval}. 
 Human labellers have $100\%$ for both $Precision$ and $Recall$ on 14 traces.
 For the rest, the $Precision$ remains high. A few changes are miss out, but their total weight remain limited.
+This suggests that the human labellers, with diligence and the help of the visualization tool, are indeed capable
+of high quality labeling.
 
-%Ensured that human labellers are capable of detecting changes, we proceed with real RTT traces.
-A great amount of real RTT traces of various characters are as well selected from RIPE Atlas to construct the ground truth dataset.
-Some are full of fluctuations; some contain periodic congestion, some have many stage changes, etc.
-50 real RTT timeseries containing 408,087 datapoints are selected.
-They represent more than 34,008 hours, i.e. 1417 days, of RTT measurements. 
-
-
-%How the labelling is done.
-1047 changepoints were identified by the labellers.
-The labelled RTT traces along with the synthetic traces are all available in the main project repository given in Sec.~\ref{sec:cpt_data}.
-
+\section{Evaluating changepoint methods}
 \subsection{Candidate changepoint methods}
 \label{sec:method}
 According to the primer on changepoint detection in Sec.~\ref{sec:cpt}, there are two major parameters for a changepoint method formulated in that way: penalty and cost function/distribution.
@@ -471,12 +489,12 @@ We performed distribution test for 813 RTT segments longer than 20 datapoints ag
 Chi-squared test for Poisson; Kolmogorov-Smirnov test for Exponential. Distribution parameters are estimated through Maximum Likelihood Estimation.}. None of these distributions seems to to have dominant popularity among the labelled RTT segments.
 
 Changes are detected for selected real RTT traces with all distribution types.
-The detection performance in terms of $Precision$, $Recall$, $Recall_W$, $F_2$ and weighted $F_2$ under optimal penalty are given in Fig.~\ref{fig:real_eval}.
+The detection performance in terms of $Precision$, $Recall$, $Recall_W$, $F_2$ and weighted $F_2$ under optimal penalty are given in Figure~\ref{fig:real_eval}.
 More than $75\%$ of changes in terms of weight can be detected for more than half of the traces with any distribution.
 All distribution types have better score in terms of recall and $F_2$ with their weighted variation, indicating some changepoints missed out are indeed of little operational importance.
 Normal distribution has more fitting RTT segments than others, however its overall $F_2$ score (weighted or not) is not outstanding. This suggests that the goodness of fit is not a guarantee for detection performance.
 
-Fig.~\ref{fig:real_eval} confirms that the detection with Normal distribution is over-sensitive even with MBIC, the largest adaptive penalty setting. For the other methods, their performances are rather close. 
+Figure~\ref{fig:real_eval} confirms that the detection with Normal distribution is over-sensitive even with MBIC, the largest adaptive penalty setting. For the other methods, their performances are rather close. 
 \texttt{cpt\_poisson} seems to have a slight advantage according to weighted $F_2$.
 Compared to \texttt{cpt\_poisson\_naive}, \texttt{cpt\_poisson} achieves higher $Recall_W$ without obviously sacrificing $Precision$.
 As a matter of fact, without data transformation, assuming Exponential distribution detects no changepoint for a big part traces in the real RTT dataset.
@@ -519,11 +537,11 @@ We consider \texttt{cpt\_poisson} as it is the best performing one, though by a 
 \label{fig:rtt_ch_count_cmp}
 \end{figure}
 
-Fig.~\ref{fig:rtt_ch_count_cmp} shows the distribution of RTT change numbers per probe. 4844 probe traces each containing more than 30,000 ping measurements are considered. 
+Figure~\ref{fig:rtt_ch_count_cmp} shows the distribution of RTT change numbers per probe. 4844 probe traces each containing more than 30,000 ping measurements are considered. 
 854,626 RTT change are detected by \texttt{cpt\_np}.
 \texttt{cpt\_poisson} almost doubled this number with 1,638,858 RTT changes.
 However, the median change numbers for both methods is however the same (122).
-Fig.~\ref{fig:rtt_ch_count_density_cmp} shows that the change number by \texttt{cpt\_poisson} spreads over a much wider range.
+Figure~\ref{fig:rtt_ch_count_density_cmp} shows that the change number by \texttt{cpt\_poisson} spreads over a much wider range.
 With \texttt{cpt\_poisson}, 711 probes ($11.86\%$) have more than 500 changes, while only 35 probes ($0.58\%$) with \texttt{cpt\_np} experienced that many changes.
 This is probably because the cost function of \texttt{cpt\_np} bases on the estimation of quantiles (by default 10 quantiles used, more can be set) of empirical distribution. The dimension of $\theta$ is much larger than Poisson and Normal distribution. The penalty value increases hence much faster for \texttt{cpt\_np} when new changepoint is added, which prevents extremely large number of changepoints per probe trace.
 
@@ -533,7 +551,7 @@ This is probably because the cost function of \texttt{cpt\_np} bases on the esti
 \caption{Density estimation of RTT changepoints characteristics.}
 \label{fig:rtt_chara_cmp}
 \end{figure}
-Fig.~\ref{fig:rtt_chara_cmp} compares the characters of all the RTT changes detected by the two methods.
+Figure~\ref{fig:rtt_chara_cmp} compares the characters of all the RTT changes detected by the two methods.
 Each RTT change is described by the associated level and volatility difference, i.e. $M$ and $\Delta$ defined in Sec.~\ref{sec:score}. 
 Overall, RTT changes detected by \texttt{cpt\_poisson} are of larger $M$ and $\Delta$.
 331,062 ($38.71\%$) changes with $M$ and $\Delta$ both smaller than 5ms are detected by \texttt{cpt\_np}.
@@ -638,7 +656,7 @@ IFP changes, detected with \textit{backward extension}, not overlapped with AS p
 They are potentially caused by intra-domain routing changes.
 
 The distribution of number of path changes per probe trace
-is illustrated in Fig.~\ref{fig:path_ch_count_cmp}.
+is illustrated in Figure~\ref{fig:path_ch_count_cmp}.
 One probe with the most complete traceroute measurements is selected for each of the 2050 source ASes.
 1170 ($57.07\%$) of them experienced no AS path changes over the period of three months, indicating that the AS paths are in general very stable over time.
 Still, 51 ($2.49\%$) probes underwent more than 100 AS path changes.
@@ -667,7 +685,7 @@ The notion $Precision$, introduced in section~\ref{sec:score}, is now interprete
 \caption{Precision ration between IFP changes detected by \textit{backward extension} and \textit{forward inclusion}.}
 \label{fig:ifp_bck_ch_precision_gain_cdf}
 \end{figure}
-Fig.~\ref{fig:ifp_bck_ch_precision_gain_cdf} shows that with same number of changes, IFP changes detected with \textit{backward extension} are much more likely to have a match with RTT changes for $75\%$ probes.
+Figure~\ref{fig:ifp_bck_ch_precision_gain_cdf} shows that with same number of changes, IFP changes detected with \textit{backward extension} are much more likely to have a match with RTT changes for $75\%$ probes.
 The significant increase in precision implies the occurrences of short IFP deviations, as well confirms the success of \textit{backward extension} in capturing them.
 
 \begin{table}[!htb]
@@ -704,7 +722,7 @@ Among 880 probes ever experienced AS path changes, 293 probes have more AS path 
 Among these 517 probes, 463 are with a difference smaller than 10 changes.
 The rest 363 probes have no difference across the two methods.
 Contrary to what we see in Tab.~\ref{tab:corr_overview}, the numbers of AS path matched are in fact highly consistent across the two methods for the majority of probes.
-The difference is caused by a small fraction of probes identified in Fig.~\ref{fig:as_match_diff}
+The difference is caused by a small fraction of probes identified in Figure~\ref{fig:as_match_diff}
 More the color (of a probe) is on the red side, more important the difference is between \texttt{cpt\_poisson} and \texttt{cpt\_np}.
 We can tell that those probes plainly in red all experienced a large number of AS path changes (y-axis).
 Moreover, if more path changes are matched to RTT changes detected by one method, very likely more RTT changes are as well detected by this method than the other.
@@ -724,9 +742,9 @@ All together, the difference in matched RTT changes with AS path changes fundame
 \label{fig:cpt_diff_vs_std}
 \end{figure}
 
-Fig.~\ref{fig:rtt_ch_count_density_cmp} and Tab.~\ref{tab:corr_overview} already tell that \texttt{cpt\_poisson} detects in total more RTT changes than \texttt{cpt\_np}, appearing to be more sensitive.
-However, for most probes with small overall RTT variation, \texttt{cpt\_np} is in fact more sensitive and detects more RTT changes, according to Fig.~\ref{fig:cpt_diff_vs_std}.
-This matches with Fig.~\ref{fig:rtt_ch_count_density_cmp} in the sense that \texttt{cpt\_np} detects much more changes of small amplitude.
+Figure~\ref{fig:rtt_ch_count_density_cmp} and Tab.~\ref{tab:corr_overview} already tell that \texttt{cpt\_poisson} detects in total more RTT changes than \texttt{cpt\_np}, appearing to be more sensitive.
+However, for most probes with small overall RTT variation, \texttt{cpt\_np} is in fact more sensitive and detects more RTT changes, according to Figure~\ref{fig:cpt_diff_vs_std}.
+This matches with Figure~\ref{fig:rtt_ch_count_density_cmp} in the sense that \texttt{cpt\_np} detects much more changes of small amplitude.
 For probes with relatively large overall RTT variation, \texttt{cpt\_poisson} tends to be more sensitive and the difference in change number increases with the level of RTT variance.
 With comprehensive manual inspection, we found that those RTT traces with high variance mostly underwent large amplitude RTT oscillations, many of which caused by ping timeouts. As human change detector, we also found very difficult to mark moments of change for these traces.
 
@@ -756,18 +774,18 @@ With comprehensive manual inspection, we found that those RTT traces with high v
 \label{fig:case_12849_rtt}
 \end{figure}
 A nature question following the above analysis is whether those frequent AS path changes can in fact cause RTT changes.
-Fig.~\ref{fig:as_path_ch_precision} reveals that probes with extremely frequent AS path changes have in fact very low correlation, in terms of precision, with RTT changes.
+Figure~\ref{fig:as_path_ch_precision} reveals that probes with extremely frequent AS path changes have in fact very low correlation, in terms of precision, with RTT changes.
 After extensive manual inspection, those frequent AS path changes appear to be AS-level LB, i.e. upstream ASes in reaching the destination are switched very frequently among a few providers.
 Such AS changes generally don't have a clear impact on the RTT level. 
 
 
-Yet, not all such AS-level load balancing is without consequence. For example, probe 12849 in Fig.~\ref{fig:case_12849_rtt} experienced 170 AS path changes, among which 169 are matched to RTT changes detected by \texttt{cpt\_poisson} and only 102 are matched to \texttt{cpt\_np}.
+Yet, not all such AS-level load balancing is without consequence. For example, probe 12849 in Figure~\ref{fig:case_12849_rtt} experienced 170 AS path changes, among which 169 are matched to RTT changes detected by \texttt{cpt\_poisson} and only 102 are matched to \texttt{cpt\_np}.
 These AS path changes are highly periodic and coincide with clear cut RTT changes.
 \texttt{cpt\_np} failed to detect some of the changes with smaller amplitude.
 
 \subsection{Pitfalls of IXP and IFP change detection}
 Similar to AS path changes, the correlation with RTT changes is weak for frequent IXP and IFP changes.
-In Fig.~\ref{fig:path_ch_count_density_cmp}, a group of probes are in the area of 100 to 200 IXP changes. Their correlation with RTT changes is fairly low, precision  around $0.1$.
+In Figure~\ref{fig:path_ch_count_density_cmp}, a group of probes are in the area of 100 to 200 IXP changes. Their correlation with RTT changes is fairly low, precision  around $0.1$.
 We investigate all the 58 probes in the area. These probe passed by AMS-IX to reach b-root most of the time. There were about 147 times, shared by these probes, where AMS-IX hop was replaced by a timeout hop before arriving AS6939.
 In such case, no IXP related address appears in the measured path. The presence of IXP is thus uncertain \footnote{The newly released traIXroute v2.1 can detect IXP without the presence of IXP related IP address, if the neighbouring ASes are known to be member of a same IXP. However, it is still possible that two ASes peer at multiple IXPs, where the exact IXP traversed would remain uncertain.}.
 
@@ -791,7 +809,7 @@ It turned out that most probes experienced much more than 16 end-to-end IP paths
 In such case, one Paris ID might have been mapped to more than one IP path in reality, which leads to IFP changes without actual routing change in the forward path.
 Within in each single AS, the number of different IP paths rarely exceeds 16 toward a destination. However a chain of ASes can produce way much richer combinations of end-to-end IP paths.
 
-Moreover, there is a group of probes having around 250 IFP changes according to Fig.~\ref{fig:path_ch_count_density_cmp}.
+Moreover, there is a group of probes having around 250 IFP changes according to Figure~\ref{fig:path_ch_count_density_cmp}.
 An IFP change takes place roughly every 16 measurements on these probes. 
 These changes are as well poorly correlated to RTT changes.
 %$250 \times 16 = 4000$ is about the total number of traceroute measurements over 3 months.
@@ -823,13 +841,13 @@ Such change in general doesn't have obvious consequence on RTT level.
 
 Several reasons contribute to the large amount and fraction of RTT changes unmatched to any path changes.
 First, some path changes experienced by RTT measurements are not observed. We were not able to measure the reverse path with RIPE Atlas built-in measurement, let alone detecting the changes on the reverse path. However, these changes could have contributed to RTT changes, especially in the context of inter-domain routing where paths are likely to be asymmetric.
-Second, congestion. Fig.~\ref{fig:case_26328} gives an typical example of RTT changes probably caused by congestion.
+Second, congestion. Figure~\ref{fig:case_26328} gives an typical example of RTT changes probably caused by congestion.
 %as both RTT variance and level increase correspondingly. 
 Congestion like this doesn't repeat periodically, and thus can not be detected with existing methods~\cite{Luckie2014}.
 Changepoint methods studied in this work can be potentially employed to pinpoint such transient congestion and estimate their
 impact on the tranmission performance. We envision it as future work.
 If we boldly assume that path changes on reverse paths cause comparable amount of RTT changes as forwarding paths do, there are still many RTT change unmatched. Some of them might be effectively attributed to congestion.
-Third, RTT change detection can be over-sensitive. We revealed from a macroscopic view in Sec.~\ref{sec:cpt_trace} and ~\ref{sec:as_match_diff} that \texttt{cpt\_poisson} tend to overestimate the number of changepoints when the RTT trace is noisy, while \texttt{cpt\_np} is capable of detecting delicate RTT changes. Individual traces are given in Fig.~\ref{fig:case_sensitivity} to illustrate the sensitivity difference from a microscopic view. In Fig.~\ref{fig:case_28002}, \texttt{cpt\_np} detected all the periodic small amplitude congestion. In Fig.~\ref{fig:case_26328}, both methods identified the two large `plumbs' near the end of the trace. The difference is that \texttt{cpt\_poisson} marked intermediate level changes as well.
+Third, RTT change detection can be over-sensitive. We revealed from a macroscopic view in Sec.~\ref{sec:cpt_trace} and ~\ref{sec:as_match_diff} that \texttt{cpt\_poisson} tend to overestimate the number of changepoints when the RTT trace is noisy, while \texttt{cpt\_np} is capable of detecting delicate RTT changes. Individual traces are given in Figure~\ref{fig:case_sensitivity} to illustrate the sensitivity difference from a microscopic view. In Figure~\ref{fig:case_28002}, \texttt{cpt\_np} detected all the periodic small amplitude congestion. In Figure~\ref{fig:case_26328}, both methods identified the two large `plumbs' near the end of the trace. The difference is that \texttt{cpt\_poisson} marked intermediate level changes as well.
 
 \section*{Conclusion}
 In this chapter, we proposed an evaluation framework for change detection on RTT time series.
