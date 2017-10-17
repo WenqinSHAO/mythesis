@@ -402,7 +402,8 @@ That is to evaluate the detection performance of human labellers using generated
 Synthetic RTT timeseries are after all not real RTT measurements.
 Human labellers performing perfectly over generated traces doesn't necessary indicate that they would do as well on real RTT measurements.
 Therefore it is highly desired that the artificial RTT timeseries resemble real ones as much as possible.
-Following these steps are taken to generate a synthetic RTT time series.
+Following steps are taken to generate a synthetic RTT time series.
+
 First, we randomly generate several phases/segments of different delay baselines.
 Different RTT baselines corresponds to the different physical lengths on different Internet paths.
 For each phase of RTT baseline, we add noises representing micro queue length changes, waiting time due to router load and scheduling policies etc.
@@ -411,6 +412,7 @@ Random parameters appropriate to each baseline segment decide the chance of get 
 The generated changepoints are moments when there are baseline delay changes and congestion entrance/exit.
 Short living spikes (length $\leq 2$ datapoints) are considered noises rather than real changes.
 For the detailed generative models and model parameters of each step, please refer to the documentation in the code space available at \url{https://github.com/WenqinSHAO/rtt_gen.git}.
+
 20 synthetic RTT timeseries, with 6485 datapoints each on average, are generated with the fabricated tool.
 The time interval between datapoints is 4min, in line with RIPE Atlas built-in ping measurement.
 They represent 8646 hours of RTT measurements with 935 generated changepoints.
@@ -429,6 +431,7 @@ To enable intuitive (what humans are good at) labeling, we fabricated an interac
 With this tool, the labellers can easily pan, zoom RTT time series and verify the positions of marked changepoints~\footnote{The labellers are researchers/graduate students in networking.}.
 1047 changepoints were identified by the labellers for these real RTT timeseries.
 All the labelled RTT traces, synthetic and real, along with the generated changepoints are all available in the main project repository specified in Section~\ref{sec:cpt_data}.
+Only the human-labeled real RTT time series are regarded as ground truth dataset.
 During the labeling process, the labellers all found that they were not sure whether a given RTT timeseries is real or synthetic.
 We therefore judge that the synthetic dataset are good enough.
 After revealing the identity of each time series, the labellers concluded that the synthetic RTT timeseries seemed to have less rich variation patterns compared to the real ones.
@@ -453,7 +456,7 @@ of high quality labeling.
 \section{Evaluating changepoint methods}
 \subsection{Candidate changepoint methods}
 \label{sec:method}
-With the evaluation frame ready, it opens the door to the exploration of best performing changepoint detection method for RTT measurements.
+With the evaluation framework ready, it opens the door to the exploration of best performing changepoint detection method for RTT measurements.
 For the detection family presented in Section~\ref{sec:cpt}, there are two major parameters to be set: penalty and cost function/distribution.
 We discuss the combination of these parameters, while leaving the examination of other methods for future work.
 
@@ -481,11 +484,11 @@ In this case the corresponding Poisson distribution could easily tolerate severa
 However, having coupled mean and variance can as well be a desired feature. 
 We observed during labeling that the level of RTT and its variance are often somehow positively related, particularly during congestion periods. 
 
-%%% was here
-To leverage the above describe feature and as well boost the detection senstivity, we propose for Exponential and Poisson distribution a \textit{data transformation}: subtracting the RTT time series by its minimum value (baseline) to lower down its overall RTT level~\footnote{Note that timeout measurements are set to 1000ms. For Poisson distributions, RTT values are rounded to the closest integer.}. 
+To leverage the above described feature and as well boost the detection senstivity, we propose for Exponential and Poisson distribution a \textit{data transformation}: subtracting the RTT time series by its minimum value (baseline) to lower down its overall RTT level~\footnote{Note that timeout measurements are set to 1000ms. 
+For Poisson distributions, RTT values are rounded to the closest integer.}. 
 Changes are then detected for the baseline-removed RTT time series when assuming Poisson and Exponential distribution.
 Such setting is denoted as \texttt{cpt\_poisson} and \texttt{cpt\_exp} respectively.
-For the sake of comparison, we also consider Poisson distribution without data transformation and denote it as \texttt{cpt\_poisson\_naive.}
+For the sake of comparison, we also consider Poisson distribution \textbf{without data transformation} and denote it as \texttt{cpt\_poisson\_naive}.
 Normal distribution and non-parametric approach are applied directly on initial RTT measurements.
 %\footnote{The data transformation is useless for these two methods.}.
 %results uniform level shift over all potential segments in parameter estimation for Normal and non-parametric approach, thus pointless.}.
@@ -496,22 +499,32 @@ They are denoted as \texttt{cpt\_normal} and \texttt{cpt\_np} accordingly.
 \subsection{Evaluation of candidate methods}
 \label{sec:eval}
 
-Before evaluating with the scores defined in Section~\ref{sec:score}, one might wonder whether the RTT segments labelled by human beings already (Section~\ref{sec:label}) follow principally a specific distribution, and whether that distribution leads to the best detection performance.
-We performed distribution test for 813 RTT segments longer than 20 datapoints against each of the discussed distribution types under corresponding data transformation (Section~\ref{sec:method}). 71 follow Normal distribution, 13 follow Poisson distribution, 
-11 follow Exponential distribution~\footnote{Significance level 0.05. Shapiro-Wilk Normality test; %for Normal distribution
-Chi-squared test for Poisson; Kolmogorov-Smirnov test for Exponential. Distribution parameters are estimated through Maximum Likelihood Estimation.}. None of these distributions seems to to have dominant popularity among the labelled RTT segments.
+Before evaluating the methods presented above, one might wonder whether the RTT segments in the ground truth dataset follow principally a specific distribution, and whether that distribution assumption leads to the best detection performance.
 
-Changes are detected for selected real RTT traces with all distribution types.
-The detection performance in terms of $Precision$, $Recall$, $Recall_W$, $F_2$ and weighted $F_2$ under optimal penalty are given in Figure~\ref{fig:real_eval}.
-More than $75\%$ of changes in terms of weight can be detected for more than half of the traces with any distribution.
-All distribution types have better score in terms of recall and $F_2$ with their weighted variation, indicating some changepoints missed out are indeed of little operational importance.
-Normal distribution has more fitting RTT segments than others, however its overall $F_2$ score (weighted or not) is not outstanding. This suggests that the goodness of fit is not a guarantee for detection performance.
+We performed distribution test for 813 RTT segments longer than 20 datapoints against each of the discussed distribution types.
+71 follow Normal distribution, 13 follow Poisson distribution, 11 follow Exponential distribution~\footnote{We require a significance level of 0.05. Shapiro-Wilk test is used for Normality test; %for Normal distribution
+Chi-squared test for Poisson; Kolmogorov-Smirnov test for Exponential. Distribution parameters are estimated through Maximum Likelihood Estimation.}. 
+None of these distributions seems to to have dominant popularity among the labeled RTT segments.
 
-Figure~\ref{fig:real_eval} confirms that the detection with Normal distribution is over-sensitive even with MBIC, the largest adaptive penalty setting. For the other methods, their performances are rather close. 
-\texttt{cpt\_poisson} seems to have a slight advantage according to weighted $F_2$.
-Compared to \texttt{cpt\_poisson\_naive}, \texttt{cpt\_poisson} achieves higher $Recall_W$ without obviously sacrificing $Precision$.
-As a matter of fact, without data transformation, assuming Exponential distribution detects no changepoint for a big part traces in the real RTT dataset.
-These imply that the proposed data transformation has the potential to improve detection performance for these distributions. 
+All combinations between distribution types and penalty choices are applied on the ground truth dataset.
+For each distribution type, we only plot its best performing penalty setting in terms of weighted $F_2$ score in Figure~\ref{fig:real_eval}.
+In later discussion, when we mention a specific distribution type say \texttt{cpt\_poisson}, we actually refer to a configuration including the distribution itself, the corresponding data transformation plus its best performing penalty choice. 
+More than $75\%$ of changes, in terms of weight, can be detected for more than half of the traces with any of these distributions.
+All distribution types have better weighted $F_2$ than classic $F_2$, indicating some changepoints missed out are indeed of little operational importance.
+However, it seems to have a big space for future improvements.
+Efforts are especially needed to raise the precision of the detection results.
+
+The precision of \texttt{cpt\_normal} is particularly poor.
+This confirms that \texttt{cpt\_normal} is indeed over-sensitive for RTT type of data~\footnote{Note that \texttt{cpt\_normal}'s best penalty is MBIC, the largest adaptive penalty setting. This means that the detection sensitive is already suppressed to maximum.}.
+On the contrary, the recall of \texttt{cpt\_normal} is outstanding among all the candidates.
+However, its $F_2$ scores are the poorest~\footnote{With $F_2$, recall is already weighted twice as important as precision.}.
+The poor overall detection performance highlights the importance of striking a proper balance between sensitivity and relevance.
+It suggests as well that the goodness of fit is not necessary a guarantee for detection performance.
+For rest methods, their performances are relatively close. 
+Compared to \texttt{cpt\_poisson\_naive} (without data transformation), \texttt{cpt\_poisson} achieves higher recall and weighted recall without obviously sacrificing precision.
+Consequently, \texttt{cpt\_poisson} stands a slight advantage in overall performance.
+As a matter of fact, without data transformation, assuming Exponential distribution detects no changepoint for a big part timeseries in the ground truth dataset.
+These are all evidences that the proposed data transformation improves the detection performance for Poisson and Exponential distribution.
 
 \begin{landscape}
 \begin{figure}[!ht]
@@ -522,11 +535,12 @@ These imply that the proposed data transformation has the potential to improve d
 \end{figure}
 \end{landscape}
 
-\subsection{Characters of detected RTT changes}
+\section{Characters of RTT changes}
 \label{sec:cpt_trace}
-\texttt{cpt\_poisson} and \texttt{cpt\_np} with MBIC are used to detected RTT changes for all the 6029 collected ping measurements.
+\texttt{cpt\_poisson} and \texttt{cpt\_np} with MBIC are used to detected RTT changes for all the 6029 collected ping timeseries spanning over three months.
+Please refer to Section~\ref{sec:cpt_data} for more details concerning the collected data.
 We consider \texttt{cpt\_poisson} as it is the best performing one, though by a small margin.
-\texttt{cpt\_np} is included as it performs well and its cost function follows a different principle.
+\texttt{cpt\_np} is included as it performs well and its cost function follows a different construction.
 %%% Well... It has also good performance right. Other wise you would not consider it...
 %%% Yes, but rather close with the rest. Actually except normal, all the rest are rather close... so the reason choosing it instead of exponential is because the construction of cost function is fundamentally different.
 
@@ -550,12 +564,13 @@ We consider \texttt{cpt\_poisson} as it is the best performing one, though by a 
 \label{fig:rtt_ch_count_cmp}
 \end{figure}
 
-Figure~\ref{fig:rtt_ch_count_cmp} shows the distribution of RTT change numbers per probe. 4844 probe traces each containing more than 30,000 ping measurements are considered. 
-854,626 RTT change are detected by \texttt{cpt\_np}.
+Figure~\ref{fig:rtt_ch_count_cmp} shows the distribution of RTT change numbers per probe trace. 
+4844 probe traces each containing more than 30,000 ping measurements are considered in the figure.
+854,626 RTT changepoints are detected by \texttt{cpt\_np}.
 \texttt{cpt\_poisson} almost doubled this number with 1,638,858 RTT changes.
-However, the median change numbers for both methods is however the same (122).
+Interestingly, the median change numbers for both methods is the same, 122.
 Figure~\ref{fig:rtt_ch_count_density_cmp} shows that the change number by \texttt{cpt\_poisson} spreads over a much wider range.
-With \texttt{cpt\_poisson}, 711 probes ($11.86\%$) have more than 500 changes, while only 35 probes ($0.58\%$) with \texttt{cpt\_np} experienced that many changes.
+With \texttt{cpt\_poisson}, 711 probes traces ($11.86\%$) have more than 500 changepoints, while only 35 ($0.58\%$) with \texttt{cpt\_np} experienced that many changes.
 This is probably because the cost function of \texttt{cpt\_np} bases on the estimation of quantiles (by default 10 quantiles used, more can be set) of empirical distribution. The dimension of $\theta$ is much larger than Poisson and Normal distribution. The penalty value increases hence much faster for \texttt{cpt\_np} when new changepoint is added, which prevents extremely large number of changepoints per probe trace.
 
 \begin{figure}[!thb]
@@ -564,18 +579,37 @@ This is probably because the cost function of \texttt{cpt\_np} bases on the esti
 \caption{Density estimation of RTT changepoints characteristics.}
 \label{fig:rtt_chara_cmp}
 \end{figure}
-Figure~\ref{fig:rtt_chara_cmp} compares the characters of all the RTT changes detected by the two methods.
-Each RTT change is described by the associated level and volatility difference, i.e. $M$ and $\Delta$ defined in Section~\ref{sec:score}. 
-Overall, RTT changes detected by \texttt{cpt\_poisson} are of larger $M$ and $\Delta$.
-331,062 ($38.71\%$) changes with $M$ and $\Delta$ both smaller than 5ms are detected by \texttt{cpt\_np}.
-With \texttt{cpt\_poisson}, there are only 87,021 ($5.31\%$) such changes of few importance in networking.
-Meanwhile, a relatively bigger fraction of RTT changes detected by \texttt{cpt\_poisson} have large $\Delta$ but small $M$, more precisely 319,541 ($19.49\%$) with $M<5ms, \Delta>50ms$.
-They are mostly associated with short RTT segments caused by frequent timeouts in certain probe traces. For example, probe 20854 had 2308 timeout measurements dispersed in the entire trace.
-\texttt{cpt\_poisson} appears to be more sensitive to such sporadic but short living deviations.
+We describe a detected changepoint from two aspects: 1) the difference of median RTT across the changepoint, and 2) the difference of RTT variance level across the changepoint.
+More specifically, they are $M$ and $\Delta$ defined from ground truth changepoint weighting in Section~\ref{sec:score}.
+Figure~\ref{fig:rtt_chara_cmp} visualizes the two features of RTT changepoints detected by the two methods.
+Since there is a huge amount of changepoints detected that overlaps each other on the $M$ and $\Delta$ surface,
+it becomes impossible to interpret if we were to explicitly plot each one of them.
+Therefore, we summarize all the changepoints using a 2-dimensional density estimation (with MASS:kde2d package in R).
+A same practice has been applied in Section~\ref{sec:miss_atlas} to Figure~\ref{fig:all}.
+A contour line represents a trajectory on which the changepoint density is the same on the $M$ and $\Delta$ surface.
+Inside a contour, the density becomes higher.
 
-%\spacedallcaps{Wrap-up} In this part, we described an evaluation framework adapted to change detection on RTT time series.
-%A data transformation to improve the detection sensitivity is proposed,
-%with which, Poisson distribution + MBIC achieves the most appropriate balance between sensitivity and relevance. The nuance between \texttt{cpt\_np} and \texttt{cpt\_poisson} will be further discussed in Sec~\ref{sec:corr}.
+On the $M$ and $\Delta$ surface, changepoints in the top right corner are important ones with serious networking implications.
+Both methods result a pretty high changepoint concentration in this area.
+This suggests that there were indeed significant performance changes on the measured path over the three-month time.
+\texttt{cpt\_poisson} and \texttt{cpt\_np} both succeed in identifying some of these changes.
+What seems to be weird is that there is a cluster of changepoints detected by \texttt{cpt\_poisson} on the top left panel of the the $M$ and $\Delta$ surface.
+These changepoints, more precisely 319,541 in number ($19.49\%$) with $M<5ms, \Delta>50ms$, imply big variance change yet small level changes.
+They are almost absent in the detection results of \texttt{cpt\_np}.
+After investigation over these chagnepoints, we discovered that they are mostly caused by frequent timeouts, and are associated with short RTT segment length. For example, probe 20854 had 2308 timeout measurements dispersed in the entire trace.
+Meanwhile, \texttt{cpt\_np} handled these timeouts gracefully without emitting all the time change alarms.
+\texttt{cpt\_poisson} appears to be a bit troubled by these short and frequent deviations.
+
+Changepoints in the down left corner are relatively subtler.
+They in general won't lead to significant network performance issues and can thus be safely ignored in TE practices.
+Reasonably, a small fraction of changepoints by \texttt{cpt\_poisson}, 87,021 ($5.31\%$), are with $M$ and $\Delta$ both smaller than $5msec$.
+Correspondingly, most part of this area in the figure is already outside the most outer contour.
+This suggests \texttt{cpt\_poisson} is tolerates well these small changes.
+One the other hand, \texttt{cpt\_np} appears to be quite reactive in such case.
+As a matter of fact, 331,062 ($38.71\%$) such changes are detected by \texttt{cpt\_np}.
+
+We later on cross the detected RTT changes with path changes.
+With that, we further discuss the detection sensitive and relevance of these two methods with regard to network events.
 
 \section{Detecting path changes}
 \label{sec:path}
