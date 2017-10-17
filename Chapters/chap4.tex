@@ -594,7 +594,7 @@ Both methods result a pretty high changepoint concentration in this area.
 This suggests that there were indeed significant performance changes on the measured path over the three-month time.
 \texttt{cpt\_poisson} and \texttt{cpt\_np} both succeed in identifying some of these changes.
 What seems to be weird is that there is a cluster of changepoints detected by \texttt{cpt\_poisson} on the top left panel of the the $M$ and $\Delta$ surface.
-These changepoints, more precisely 319,541 in number ($19.49\%$) with $M<5ms, \Delta>50ms$, imply big variance change yet small level changes.
+These changepoints, more precisely 319,541 in number ($19.49\%$) with $M<5msec, \Delta>50msec$, imply big variance change yet small level changes.
 They are almost absent in the detection results of \texttt{cpt\_np}.
 After investigation over these chagnepoints, we discovered that they are mostly caused by frequent timeouts, and are associated with short RTT segment length. For example, probe 20854 had 2308 timeout measurements dispersed in the entire trace.
 Meanwhile, \texttt{cpt\_np} handled these timeouts gracefully without emitting all the time change alarms.
@@ -614,18 +614,25 @@ With that, we further discuss the detection sensitive and relevance of these two
 \section{Detecting path changes}
 \label{sec:path}
 
-In this section, we detect path changes experienced by collected RTT measurements, in order to explore in depth the detection sensitivity difference with different parameters and the detection relevance compared to path changes, network events known to have consequence on RTT.
-Therefore, the purpose is not to repeat some of the studies sumeraized in~\ref{sec:rtt_path}, such as which kind of path change contributes most to RTT change, but rather to enhance the understanding on changepoint detection for RTT measurements.
+In this section, we detect path changes experienced by the collected RTT measurements.
+Both AS and IP level path changes are attended.
+They are known to have potential impact on RTT.
+RIPE Atlas built-in path measurement uses a rotating Paris ID setting.
+This brought confusion between IP path changes caused by load balancing and those due to intradomain routing changes.
+We address this issue in this section.
+%in order to explore in depth the detection sensitivity difference with different parameters and the detection relevance compared to path changes, network events known to have consequence on RTT.
+The purpose of path change detection is not to repeat some of the studies sumeraized in~\ref{sec:rtt_path}, 
+such as which kind of path change contributes most to RTT change.
+It rather helps to enhance the understanding on changepoint detection for RTT measurements.
 
 
 \subsection{Routing change and \acf{LB}}
 
-Among previous works summarized in~\ref{sec:rtt_path}, the contribution from IP-level LB to RTT variation is not clearly separated from those of real routing changes.
-Schwartz et al.~\cite{Schwartz2010} regarded all paths between a source-destination pair as ``parallel paths'' and found out that RTTs over these paths were mostly overlapping.
+Schwartz et al.~\cite{Schwartz2010} regarded all paths between a source-destination pair as ``parallel paths'' and found out that RTT measurements over these paths were mostly overlapping.
 However, there are two kinds of transitions among ``parallel paths'' that need to be distinguished.
-They are 1) IP path changes caused by protocol level route recalculation, e.g. routing change after link failure or configuration update, 
+They are 1) IP path changes caused by intradomian routing protocol dynamics, such as route recalculation after link failure or configuration update, 
 and 2) those caused by LB mechanisms. 
-Intra-domain path changes before the era of LB haven been shown to be responsible for important RTT changes~\cite{Pucha2007}. 
+Intradomain path changes before the era of LB haven been shown to be responsible for important RTT changes~\cite{Pucha2007}. 
 On the other hand, LB paths are of equal/close administrative cost, hence similar characteristics~\cite{Augustin2011}.
  
 Trivial as it may sound, detecting IP path changes is challenging for RIPE Atlas built-in traceroute measurements.
@@ -634,50 +641,55 @@ The difficulties come from two aspects: 1) the wide deployment of IP-level LB; 2
 IP paths taken by two neighbouring measurements can naturally differ -- 
 load-balanced on different available paths.  
 From this angle, plain IP path changes doesn't mean that there were topological or configuration changes that lead to any real routing change. 
-On the other hand, having different Paris IDs every time can also be helpful in this context.  If traceroute were locked on a single Paris ID, it would then be impossible to detect routing changes that only affect paths corresponding to other Paris IDs.
+On the other hand, having different Paris IDs every time can also be helpful in this context.  If traceroute were locked on a single Paris ID, it would then be unlikely to detect routing changes that only affect paths corresponding to other Paris IDs.
 
-\subsection{IP Forwarding Pattern change}
+\subsection{Intradomain Routing Pattern change}
 When a different IP path is measured with a same Paris ID,
-there is potentially a routing change. We call this kind of IP path change an \ac{IFP} change.
-In the example below, the IFP change happens when Paris ID 2 begins to take IP path E instead of B. We refer to two measurements with same Paris ID but different IP paths as \textit{conflicting} measurements.
+there is potentially a routing change. 
+We call this kind of IP path change an \acf{IRP} change.
+In the example below, the IRP change happens when Paris ID 2 begins to take IP path E instead of B. We refer to the two measurements with same Paris ID but different IP paths as \textit{conflicting} measurements.
 \begin{Verbatim}[fontsize=\small]
-                             | IFP change
+                             | IRP change
 Paris ID: 0 1 2 3 4 .. 15 0 1|2 3 ..
 IP Path:  A B B A A .. C  A B|E E ..
        A measurement series  | boundary -> forward
 \end{Verbatim}
 
-IFP changes can thus be identified by constructing a set of measurement series, each containing no conflicting measurements. Yet, across two series next to each other, there shall be as least one pair of conflicting measurements, otherwise they can be merged.
-This can be done by moving the boundary of measurement series \textit{forward} to include non-conflicting measurements, till a conflict is encountered, as shown in the above example.
+IRP changes can thus be identified by constructing a series of measurement sequences.
+Each sequence shall not contain conflicting measurements. 
+Yet, combing any two neighboring sequences, there shall be as least one pair of conflicting measurements, as otherwise they can be merged.
+This can be done by moving the boundary of measurement sequences \textit{forward} to include non-conflicting measurements, till a conflict is encountered, as shown in the above example.
 We call this approach \textit{forward inclusion}.
 
-The drawback of \textit{forward inclusion} is that it potentially delays the detection of actual IFP changes.
-This is because, when including non-conflicting measurements forwardly, a measurement series always has the chance to absorb measurements till it experiences all possible Paris IDs.
-However an actual IFP change could happen before that moment.
-An example of possibly delayed IFP change is given right below:
+The drawback of \textit{forward inclusion} is that it potentially delays the detection of actual IRP changes.
+This is because, when including non-conflicting measurements forwardly, a measurement sequence always has the chance to absorb measurements till it experiences all the possible Paris IDs.
+However an actual IRP change could happen before that moment.
+An example of possibly delayed IRP change is given right below:
 \begin{Verbatim}[fontsize=\small]
-        !Possible position of actual IFP change        
+        !Possible position of actual IRP change        
 .. 1|2 3!4 5 .. 15 0 1|2 3 4 5 ... 15 0 1 2 3 4 5 ..
 .. B|B A!A C .. C  A B|E E A C ... C  A B E E A C ..
-                      | IFP change forward inclusion
+                      | IRP change forward inclusion
                       | backward <- boundary
 \end{Verbatim}
-With \textit{forward inclusion}, an IFP change will be detected at the 2nd appearance of Paris ID 2.
-While the actual change probably happens at the 1st appearance of Paris ID 4, since starting from it, all the measurements are non-conflicting with the later measurement series.
-The 1st appearance of Paris 2 and 3 are in fact a short deviation from a popular IFP.
+With \textit{forward inclusion}, an IRP change will be detected at the 2nd appearance of Paris ID 2.
+While the actual change probably happens at the 1st appearance of Paris ID 4.
+It is because starting from the first Paris ID 4, all the measurements are non-conflicting with the later measurement series.
+The 1st appearance of Paris ID 2 and 3 are in fact a short deviation from a popular IRP.
 
 Cases like this are highly possible, because networks tend to have some stable configurations that lead to a few dominant paths over time~\cite{Chandrasekaran, Pucha2007}. 
-Deviations from dominant/popular IFPs are thus likely to be short living.
+Deviations from dominant/popular IRPs are thus likely to be short living.
 With RIPE Altas built-in measurements, they probably won't last long enough to experience all the Paris IDs~\footnote{It takes at least 450min (30min * 15) to go through all the 16 Paris IDs used in RIPE Atlas built-in traceroute.}.
-To maximize the presence of popular IFPs, we only push backwardly the boundary obtained by \textit{forward inclusion} if 1) the latter measurement series is longer than the previous one; 2) the latter measurement series experiences all the Paris IDs at least twice.
+To better reflect the presence popular IRPs, we push backwardly the boundary obtained by \textit{forward inclusion} if 1) the latter measurement sequence is longer than the previous one; 2) the latter measurement sequence experiences all the Paris IDs at least twice.
 We refer to this approach as \textit{backward extension}.
-We show later on that IFP changes detected by \textit{backward extension} have a much larger chance matching with RTT changes.
+We show later on in Figure~\ref{fig:IRP_bck_ch_precision_gain_cdf} that IRP changes detected by \textit{backward extension} have a much larger chance matching with RTT changes.
 
 \subsection{Characters of detected path changes}
 AS-level path changes are as well detected after translating IP hops to ASN hops~\cite{routeviews}.
 We didn't consider third-party address~\cite{Hyun2003, Zhang2010} and IP alias techniques\cite{Gunes2009,Keys2010a} in this operation.
 It is because the focus is to detect changes instead of constructing an accurate Internet topology.
-We did detect the presence of IXPs using the heuristics proposed by traIXroute~\cite{Nomikos2016}, since individual studies have shown that IXP could be involved in large RTT changes~\cite{kopp2016}.
+We did detect the presence of IXPs using the heuristics proposed by traIXroute~\cite{Nomikos2016}.
+Studies have shown that IXP could be involved in large RTT changes~\cite{kopp2016}.
 
 \begin{figure}[!htb]
     \centering
@@ -693,47 +705,63 @@ We did detect the presence of IXPs using the heuristics proposed by traIXroute~\
 	\caption{\footnotesize Density.}
 	\label{fig:path_ch_count_density_cmp}
 	\end{subfigure}
-\caption{Path change times per probe trace distribution. One probe with most complete traceroute measurement is chosen for each AS. 2050 probes/ASes are inlcuded in the graph.}
+\caption{Distribution of path change times per probe. One probe with most complete traceroute measurement is chosen for each AS. 2050 probes/ASes are included in the graph.}
 \label{fig:path_ch_count_cmp}
 \end{figure}
+
 We consider only AS path changes where the difference starts from a hop position involving public ASNs in both AS paths.
 Difference due to temporal presence of non-responding hops are ignored.
-IXP change happens when the difference starts from a position involving at least one IXP hop in the two AS paths.
-IFP changes, detected with \textit{backward extension}, not overlapped with AS path/IXP changes are considered.
-They are potentially caused by intra-domain routing changes.
+IXP change happens when the difference starts from a position involving at least one IXP hop in the two consecutive AS paths.
+IRP changes are detected with \textit{backward extension}. 
+Those overlap with any AS path/IXP changes are excluded, since they are potentially caused by intradomain routing changes.
 
-The distribution of number of path changes per probe trace
-is illustrated in Figure~\ref{fig:path_ch_count_cmp}.
+%%was here
+The distribution of the number of path changes per probe trace is illustrated in Figure~\ref{fig:path_ch_count_cmp}.
 One probe with the most complete traceroute measurements is selected for each of the 2050 source ASes.
 1170 ($57.07\%$) of them experienced no AS path changes over the period of three months, indicating that the AS paths are in general very stable over time.
 Still, 51 ($2.49\%$) probes underwent more than 100 AS path changes.
 717 probes ($34.98\%$) didn't have any IXP change.
 140 probes experienced frequent ($> 100$) IXP changes.
-IFP changes are much more frequent than the other two path changes. 
-Half of the selected probes experienced more than 90 IFP changes.
+IRP changes are much more frequent than the other two path changes. 
+Half of the selected probes experienced more than 90 IRP changes.
 We investigate the nature of these path changes, together with their potential impact on RTT, in Section~\ref{sec:corr}.
 
 \section{Match between RTT and path changes}
 \label{sec:corr}
 
-If a pair of RTT and path change are close in time, chances are that the RTT changes is caused by the path change. We say that these two changes are correlated. This is a demonstration of relevance between detected RTT change and underlying routing activities.
+If a pair of RTT and path change on a same Internet path is close in time, chances are that the RTT change is caused by the path change. We say that these two changes are correlated or matched. 
+%This is a demonstration of relevance between detected RTT change and underlying routing activities.
 %We are interested in knowing the fraction/quantity of RTT and path changes that
-
-However, there is no straightforward matching between the two changes, as the measurement intervals are different: $30min$ for traceroute while $4min$ for ping. 
+However, there is no straightforward way matching the two types of change, as the measurement intervals are different: $30min$ for traceroute while $4min$ for ping. 
 Again, \textit{minimum cost maximum-cardinality matching} appears to be a reasonable formulation of the correlation between RTT and path changes.
 We therefore borrow the concept of optimal matching in changepoint evaluation (Section~\ref{sec:score}).
-The shift tolerance window is set to the interval of traceroute measurement, as causal relationship between the RTT and path change is possible within that range.
+The shift tolerance window is set to the interval of traceroute measurement, as causal relationship between the RTT and path change is possible (though not necessary) within that range.
 A pair of RTT and path changes are correlated/matched if they are within in the so produced optimal matching.
-The notion $Precision$, introduced in section~\ref{sec:score}, is now interpreted as the fraction of path changes that are matched to an RTT change. 
+The notion precision, introduced in section~\ref{sec:score}, is now interpreted as the fraction of path changes that are matched to an RTT change.
+Recall now means the fraction of RTT changes that can be explained/matched to a certain type of path change.
+We compare separately AS, IXP and \ac{IRP} path changes to RTT changes detected with \texttt{cpt\_np} and \texttt{cpt\_poisson}.
+The matching is calculated for the 2050 probes each from a distinct AS, mentioned in the previous section.
 
+
+\subsection{Forward or backward?}
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=.72\textwidth]{gfx/chap4/ifp_bck_ch_precision_gain_cdf.pdf}
-\caption{Precision ration between IFP changes detected by \textit{backward extension} and \textit{forward inclusion}.}
-\label{fig:ifp_bck_ch_precision_gain_cdf}
+\caption{Precision ration between IRP changes detected by \textit{backward extension} and \textit{forward inclusion}.}
+\label{fig:IRP_bck_ch_precision_gain_cdf}
 \end{figure}
-Figure~\ref{fig:ifp_bck_ch_precision_gain_cdf} shows that with same number of changes, IFP changes detected with \textit{backward extension} are much more likely to have a match with RTT changes for $75\%$ probes.
-The significant increase in precision implies the occurrences of short IFP deviations, as well confirms the success of \textit{backward extension} in capturing them.
+
+In Section~\ref{sec:path}, we methods were described to detect \ac{IRP} changes: \textit{backward extension} and \textit{forward inclusion}.
+Do the \ac{IRP} changes detected with these two methods have any difference in terms of matching with RTT changes?
+To answer this question, we compare for each probe the matching precision of these two methods.
+The result of this comparison is plotted in Figure~\ref{fig:IRP_bck_ch_precision_gain_cdf}, in the form of CDF (over probes) of the precision ratio.
+\textit{backward extension} produces the same number of \ac{IRP} changes as \textit{forward inclusion} does for each probe trace.
+However, \ac{IRP} changes by \textit{backward extension} are more likely to have a match with RTT changes for $75\%$ probes.
+These probes are on the right side of the graph where the precision ration is bigger than 1.	
+The significant increase in precision implies that the path changes detected by \textit{backward extension} are more accurate and are thus is a necessary improvement to the basic approach.
+Later on, we refer always to changes detected by \textit{backward extension} when talking about \ac{IRP} change.
+
+\subsection{Summary of matching between path change and RTT change}
 
 \begin{table}[!htb]
 \caption{Number of RTT changes matched with a path change for the selected 2050 probes.}
@@ -747,33 +775,42 @@ The significant increase in precision implies the occurrences of short IFP devia
 \midrule
 AS path change & 11,794 & 6,380 & 51,282 \\
 IXP change & 9,126 & 8,341 & 73,544\\
-IFP change & 38,700 & 36,400 & 244,713\\
+IRP change & 38,700 & 36,400 & 244,713\\
 \midrule
 \# RTT changes & 481,877 & 307,312 & \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Tab.~\ref{tab:corr_overview} details the number of matched RTT and path change pairs.
-A large fraction of path changes doesn't match with any RTT changes.
-Especially, the fraction of AS path changes matched to RTT changes with either detection method is much lower than the reported $72.5\%$ in \cite{Rimondini2014}.
-An important part of RTT changes detected by both method doesn't match with any change in the forwarding path either.
-Moreover, the number of RTT changes correlates with AS path changes differs greatly across the two changepoint methods,
-while the number matched to IXP or IFP change are relatively close.
-We explore the underlying reasons behind above phenomena.
+Table~\ref{tab:corr_overview} details the number of matches between path and RTT changes.
+Each cell tells the number of matches between the corresponding line (path change type) and column (RTT change detection method).
+The last column contains the total number of path changes of each kind.
+Similarly, the last line provides the total number of of RTT changes detected by the two methods.
+
+The fraction of AS path changes matched to RTT changes by either detection method is much lower than the reported $72.5\%$ in \cite{Rimondini2014}.
+It seems that with our dataset and methods, AS path change have less significant impact on RTT than previous understanding.
+Moreover, the number of AS path change matched \texttt{cpt\_np} RTT change is only about half of that with \texttt{cpt\_possion} RTT changes.
+On the contrary, matching numbers for IXP and \ac{IRP} changes are quite close across the two RTT change detection methods.
+All of these are very intriguing phenomena.
+We try to explore the underlying reasons in the next section with a close-up look.
 
 \section{Change detection sensitivity and relevance}
 \subsection{\texttt{cpt\_poisson} matches better with AS path change?}
 \label{sec:as_match_diff}
-Among 880 probes ever experienced AS path changes, 293 probes have more AS path changes matched to \texttt{cpt\_poisson} RTT changes, 224 have more AS path changes matched to \texttt{cpt\_np} changes, 
-Among these 517 probes, 463 are with a difference smaller than 10 changes.
-The rest 363 probes have no difference across the two methods.
-Contrary to what we see in Tab.~\ref{tab:corr_overview}, the numbers of AS path matched are in fact highly consistent across the two methods for the majority of probes.
-The difference is caused by a small fraction of probes identified in Figure~\ref{fig:as_match_diff}
-More the color (of a probe) is on the red side, more important the difference is between \texttt{cpt\_poisson} and \texttt{cpt\_np}.
-We can tell that those probes plainly in red all experienced a large number of AS path changes (y-axis).
-Moreover, if more path changes are matched to RTT changes detected by one method, very likely more RTT changes are as well detected by this method than the other.
-All together, the difference in matched RTT changes with AS path changes fundamentally lies in the difference of detection sensitivity (number of detected RTT changes) across different probe traces. This difference is manifested through extremely frequent AS Path changes of several specific probes.
+It seems that there are much more \texttt{cpt\_poisson} RTT changes matched with AS path change, according to Table~\ref{tab:corr_overview}. But really?
+Among the 880 probes ever experienced AS path changes, 293 probes have more AS path changes matched to \texttt{cpt\_poisson} RTT changes, 224 have more AS path changes matched to \texttt{cpt\_np} changes, 
+Among the above mentioned 517 probes, 463 are actually with a difference smaller than 10 AS path changes.
+The rest 363 (among the 880) probes have no difference across the two methods.
+
+Contrary to what we see in Table~\ref{tab:corr_overview}, the numbers of AS path matched are in fact highly consistent across the two methods for the majority of probes.
+The difference is caused by a small fraction of probes identified in Figure~\ref{fig:as_match_diff}.
+In the graph, each dot represents one of the 880 probes that ever experienced AS path changes.
+More the color (of a probe) is on the red side, larger the difference is between \texttt{cpt\_poisson} and \texttt{cpt\_np}.
+We can tell from the graph that those probes plainly in red all experienced a large number of AS path changes (y-axis).
+Moreover, when there is more \texttt{cp\_poisson} RTT changes than \texttt{cpt\_np} ones for a probe (the positive side of the X-axis), it's more likely that more AS path changes are effectively matched to \texttt{cp\_poisson} RTT changes (the left panel).
+And vice verse.
+All together, the difference in matched RTT changes with AS path changes fundamentally lies in the difference of detection sensitivity (number of detected RTT changes) across different probe traces.
+This difference is manifested through extremely frequent AS Path changes of several specific probes.
 
 \begin{figure}[!htb]
 \centering
@@ -782,6 +819,9 @@ All together, the difference in matched RTT changes with AS path changes fundame
 \label{fig:as_match_diff}
 \end{figure}
 
+
+\subsection{Is \texttt{cpt\_poisson} more sensitive?}
+\label{sec:over_sensitive}
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=.64\textwidth]{gfx/chap4/cpt_diff_vs_std.pdf}
@@ -789,11 +829,27 @@ All together, the difference in matched RTT changes with AS path changes fundame
 \label{fig:cpt_diff_vs_std}
 \end{figure}
 
-Figure~\ref{fig:rtt_ch_count_density_cmp} and Tab.~\ref{tab:corr_overview} already tell that \texttt{cpt\_poisson} detects in total more RTT changes than \texttt{cpt\_np}, appearing to be more sensitive.
-However, for most probes with small overall RTT variation, \texttt{cpt\_np} is in fact more sensitive and detects more RTT changes, according to Figure~\ref{fig:cpt_diff_vs_std}.
-This matches with Figure~\ref{fig:rtt_ch_count_density_cmp} in the sense that \texttt{cpt\_np} detects much more changes of small amplitude.
+\texttt{cpt\_poisson} detects in total more RTT changes than \texttt{cpt\_np}, according to Figure~\ref{fig:rtt_ch_count_density_cmp} and Table~\ref{tab:corr_overview}.
+Therefore, \texttt{cpt\_poisson} seems to be more sensitive in change detection. But really?
+With a close-up look, we discovered that the number of RTT changes detected with the two methods is somehow related to the overall variation level of each probe trace.
+This relationship is visualized in Figure~\ref{fig:cpt_diff_vs_std}.
+Each dot represents a probe RTT timeseries. 
+The X-axis indicates the standard deviation, while the Y-axis tells the difference in RTT changepoint numbers across the two methods.
+Again, to facilitate the interpretation, we overlapped the graph with a 2-dimensional density estimation for the datapoints on the surface. Inner contours represent dense area.
+
+For most probes traces with small overall RTT variation, \texttt{cpt\_np} is in fact more sensitive and detects more RTT changes, according to Figure~\ref{fig:cpt_diff_vs_std}.
+This observation matches with Figure~\ref{fig:rtt_ch_count_density_cmp} in the sense that \texttt{cpt\_np} detects much more changes of small amplitude.
+
 For probes with relatively large overall RTT variation, \texttt{cpt\_poisson} tends to be more sensitive and the difference in change number increases with the level of RTT variance.
 With comprehensive manual inspection, we found that those RTT traces with high variance mostly underwent large amplitude RTT oscillations, many of which caused by ping timeouts. As human change detector, we also found very difficult to mark moments of change for these traces.
+
+As a matter of fact, \texttt{cpt\_poisson} is not capable of adjusting detection sensitive according to the variation level of input timeseries.
+For example, for a RTT timeseries that is full of large amplitude variations, 
+we would expect a detection method to restrain a little bit.
+This incapability is because the variation tolerance of a Poisson model is coupled with the the timeseries mean.
+After removing the baseline, different RTT timeseries are actually of similar mean, thus leading to similar sensitivity.
+For an overly noisy RTT timeseries, the `constant' sensitivity turns out to be over-sensitive.
+Meanwhile,  \texttt{cpt\_np} seems to be very elastic in detection sensitivity and less variant in the number of changepoints produced.
 
 \subsection{How AS path changes match to RTT changes?}
 \begin{figure}[!htb]
@@ -820,24 +876,42 @@ With comprehensive manual inspection, we found that those RTT traces with high v
 \caption{RTT from Probe 12849. Red lines for RTT change detected by \texttt{cpt\_poisson}; green dotted lines for RTT change by \texttt{cpt\_np}. Orange strips for AS path changes.}
 \label{fig:case_12849_rtt}
 \end{figure}
-A nature question following the above analysis is whether those frequent AS path changes can in fact cause RTT changes.
+
+Two `bizarre' phenomena has been so far observed: 1) the match between AS path change and RTT change are much weaker than what reported in previous studies; 2) Certain ASes experienced extremely frequent AS paths changes.
+Are these two somehow related? 
+We investigate this issue through a per probe breakdown between AS path change numbers and path change matching precision in Figure~\ref{fig:as_path_ch_precision}.
+In the graph, each red dot represents a probe. The Y-axis tells the fraction of AS path changes that are matched to an RTT change.
+Since many probes (red dots) overlap with each other on the surface, we estimated the 2-dimensional distribution density and illustrated it with contour lines.
+Inner contours are area with dense probes.
+
 Figure~\ref{fig:as_path_ch_precision} reveals that probes with extremely frequent AS path changes have in fact very low correlation, in terms of precision, with RTT changes.
-After extensive manual inspection, those frequent AS path changes appear to be AS-level LB, i.e. upstream ASes in reaching the destination are switched very frequently among a few providers.
+After extensive manual inspection, those frequent AS path changes appear to be AS-level LB, i.e. the upstream AS employed in reaching the destination are switched very frequently among a few providers.
+This could be a possible consequence of multipath BGP.
 Such AS changes generally don't have a clear impact on the RTT level. 
+For probes with fewer AS path changes, the chance of having match between AS path change and RTT change is in fact pretty high.
 
-
-Yet, not all such AS-level load balancing is without consequence. For example, probe 12849 in Figure~\ref{fig:case_12849_rtt} experienced 170 AS path changes, among which 169 are matched to RTT changes detected by \texttt{cpt\_poisson} and only 102 are matched to \texttt{cpt\_np}.
+Not all AS-level load balancing is without consequence. For example, probe 12849 in Figure~\ref{fig:case_12849_rtt} experienced 170 AS path changes, among which 169 are matched to RTT changes detected by \texttt{cpt\_poisson} and only 102 are matched to \texttt{cpt\_np}.
 These AS path changes are highly periodic and coincide with clear cut RTT changes.
 \texttt{cpt\_np} failed to detect some of the changes with smaller amplitude.
+This presence of such case confirms the need for measurement-based TE.
+Otherwise, unwise routing decisions, performance-wise, can be made without realization.
 
-\subsection{Pitfalls of IXP and IFP change detection}
-Similar to AS path changes, the correlation with RTT changes is weak for frequent IXP and IFP changes.
-In Figure~\ref{fig:path_ch_count_density_cmp}, a group of probes are in the area of 100 to 200 IXP changes. Their correlation with RTT changes is fairly low, precision  around $0.1$.
-We investigate all the 58 probes in the area. These probe passed by AMS-IX to reach b-root most of the time. There were about 147 times, shared by these probes, where AMS-IX hop was replaced by a timeout hop before arriving AS6939.
-In such case, no IXP related address appears in the measured path. The presence of IXP is thus uncertain \footnote{The newly released traIXroute v2.1 can detect IXP without the presence of IXP related IP address, if the neighbouring ASes are known to be member of a same IXP. However, it is still possible that two ASes peer at multiple IXPs, where the exact IXP traversed would remain uncertain.}.
+\subsection{Pitfalls of IXP and IRP change detection}
+Similar to AS path changes, for frequent IXP and IRP changes the correlation with RTT changes is weak.
+In Figure~\ref{fig:path_ch_count_density_cmp}, a group of probes experienced from 100 to 200 IXP changes. 
+Their correlation with RTT changes is fairly low.
+Only around $10\%$ of IXP changes on these probes are matched to an RTT change.
+
+We investigate all the 58 probes in the area. These probe passed by AMS-IX to reach b-root most of the time. There were about 147 times, shared by these probes, where AMS-IX hop was replaced by a timeout hop before arriving at AS6939.
+In such case, no IXP related address appears in the measured path. The presence of IXP is thus uncertain.
+Still, we count it as an IXP change according to our definition in Section~\ref{sec:path}
+\footnote{The newly released traIXroute v2.1 can detect IXP without the presence of IXP related IP address, if the neighbouring ASes are known to be member of a same IXP. However, it is still possible that two ASes peer at multiple IXPs, where the exact IXP traversed would remain uncertain.}.
+This suggests that the detection of IXP changes are not very accurate, especially for those probes with many IXP changes.
+This problem is stemmed from the difficulty of IXP inference in path measurements.
+
 
 \begin{table}[!htb]
-\caption{Quantiles of IP path numbers per probe trace.}
+\caption{Quantiles of unique IP path numbers per probe trace.}
 \label{tab:ip_path_count}
 \centering
 \footnotesize
@@ -851,17 +925,17 @@ $5\%$ & $10\%$ & $25\%$ & $50\%$ & $75\%$ & $95\%$ & $100\%$\\
 \end{tabular}
 \end{table}
 
-The correlation of IFP changes with RTT changes are much weaker than that of AS and IXP path changes.
-It turned out that most probes experienced much more than 16 end-to-end IP paths, Tab.~\ref{tab:ip_path_count}.
-In such case, one Paris ID might have been mapped to more than one IP path in reality, which leads to IFP changes without actual routing change in the forward path.
+The correlation of IRP changes with RTT changes are much weaker than that of AS and IXP path changes.
+It turned out that most probes experienced much more than 16 end-to-end IP paths, according to Table.~\ref{tab:ip_path_count}.
+In such case, one Paris ID might have been mapped to more than one IP path in reality.
+This might lead to IRP changes without actual routing change.
 Within in each single AS, the number of different IP paths rarely exceeds 16 toward a destination. However a chain of ASes can produce way much richer combinations of end-to-end IP paths.
 
-Moreover, there is a group of probes having around 250 IFP changes according to Figure~\ref{fig:path_ch_count_density_cmp}.
-An IFP change takes place roughly every 16 measurements on these probes. 
+Moreover, there is a group of probes having around 250 IRP changes according to Figure~\ref{fig:path_ch_count_density_cmp}.
+An IRP change takes place roughly every 16 measurements on these probes. 
 These changes are as well poorly correlated to RTT changes.
-%$250 \times 16 = 4000$ is about the total number of traceroute measurements over 3 months.
 We investigated some probes in the area and found out the frequent changes aren't necessary related to the large amount of end-to-end paths.
-For some probes, two neighbouring IFPs only differ at one or two Paris IDs.
+For some probes, two neighbouring IRPs only differ at one or two Paris IDs.
 IP paths taken by these Paris IDs oscillates between a few alternatives frequently.
 For example, the Paris ID 6, 7, 8, 9 of probe 23998 switches a lot among only 2 paths.
 Such change in general doesn't have obvious consequence on RTT level.
@@ -882,26 +956,61 @@ Such change in general doesn't have obvious consequence on RTT level.
 	\caption{\footnotesize Probe 26328.}
 	\label{fig:case_26328}
 	\end{subfigure}
-\caption{RTT trace and change detection example. Red lines for RTT change detected by \texttt{cpt\_poisson}; green dotted lines for RTT change by \texttt{cpt\_np}. Violet strips are IFP changes.}
+\caption{RTT trace and change detection example. Red lines for RTT change detected by \texttt{cpt\_poisson}; green dotted lines for RTT change by \texttt{cpt\_np}. Violet strips are IRP changes.}
 \label{fig:case_sensitivity}
 \end{figure}
 
 Several reasons contribute to the large amount and fraction of RTT changes unmatched to any path changes.
-First, some path changes experienced by RTT measurements are not observed. We were not able to measure the reverse path with RIPE Atlas built-in measurement, let alone detecting the changes on the reverse path. However, these changes could have contributed to RTT changes, especially in the context of inter-domain routing where paths are likely to be asymmetric.
-Second, congestion. Figure~\ref{fig:case_26328} gives an typical example of RTT changes probably caused by congestion.
-%as both RTT variance and level increase correspondingly. 
-Congestion like this doesn't repeat periodically, and thus can not be detected with existing methods~\cite{Luckie2014}.
-Changepoint methods studied in this work can be potentially employed to pinpoint such transient congestion and estimate their
-impact on the tranmission performance. We envision it as future work.
-If we boldly assume that path changes on reverse paths cause comparable amount of RTT changes as forwarding paths do, there are still many RTT change unmatched. Some of them might be effectively attributed to congestion.
-Third, RTT change detection can be over-sensitive. We revealed from a macroscopic view in Section~\ref{sec:cpt_trace} and ~\ref{sec:as_match_diff} that \texttt{cpt\_poisson} tend to overestimate the number of changepoints when the RTT trace is noisy, while \texttt{cpt\_np} is capable of detecting delicate RTT changes. Individual traces are given in Figure~\ref{fig:case_sensitivity} to illustrate the sensitivity difference from a microscopic view. In Figure~\ref{fig:case_28002}, \texttt{cpt\_np} detected all the periodic small amplitude congestion. In Figure~\ref{fig:case_26328}, both methods identified the two large `plumbs' near the end of the trace. The difference is that \texttt{cpt\_poisson} marked intermediate level changes as well.
+First, some path changes experienced by RTT measurements are not observed. We were not able to measure the reverse path with RIPE Atlas built-in measurement.
+Therefore, it is impossible to detect the changes on the reverse path. 
+However, these changes could have contributed to RTT changes. 
+Especially in the context of inter-domain routing where paths are likely to be asymmetric.
+This implies that the RTT changes caused by reverse path changes are probably different from those caused by path changes on the forwarding direction.
+
+Second, congestion. 
+Congestion can be independent of path changes and yet is capable of causing significant RTT variations.
+Figure~\ref{fig:case_26328} gives an typical example of RTT changes probably caused by congestion.
+There are three bumps that can be visually noticed in the plotted RTT timeseries.
+We say the latter two are probably congestion.
+First, they do not correspond to any path changes, at least in the forwarding direction.
+Second, these bumps are probably caused by filling queues along the path.
+Because, the RTTs within these bumps are not flat.
+On slightly loaded path, we would expect fairly constant RTT measurements overtime.
+It is because the queues are almost empty, thus no room for delay variation.
+On the other hand, the changing RTTs within the bump are probably a reflection of how the traffic demand on the bottleneck evolves due to end-to-end congestion control mechanism.
+Both bumps/congestion deviate greatly from the baseline and lasted for a long while.
+They thus have significant impact on transmission performance.
+We successfully detected them with the studied changepoint detection methods.
+However, such detection is not possible with the previously proposed method~\cite{Luckie2014}.
+It performs spectral analysis on RTT timeseries to find out periodically repeated congestion.
+Such persistent congestion is normally due to lack or network capacity.
+Meanwhile, transient congestion in Figure~\ref{fig:case_26328} is more likely caused by sudden traffic variations.
+Measurement-based TE aims to avoid both types of congestion when there is alternative paths with available capacity.
+For that purpose, changepoint detection methods are indeed help in notifying the presence of such performance variations. 
+
+Third, over-sensitive detection.
+If we boldly assume that path changes on reverse paths cause comparable amount of RTT changes as forwarding paths do, there are still many RTT change unmatched.
+Some of them might be effectively attributed to congestion, as explained here above.
+The remaining RTT change detection are plainly the result of over-sensitive detection.
+We already revealed from a macroscopic view, in Section~\ref{sec:cpt_trace} and ~\ref{sec:as_match_diff}, that \texttt{cpt\_poisson} tend to overestimate the number of changepoints when the RTT trace is noisy, while \texttt{cpt\_np} is capable of detecting delicate RTT changes. 
+Individual traces are given in Figure~\ref{fig:case_sensitivity} to illustrate the sensitivity difference from a microscopic view. 
+In Figure~\ref{fig:case_28002}, \texttt{cpt\_np} detected all the periodic small amplitude congestion.
+This is actually quite impressing, as these change are only hardly visible for human experts.
+The changepoints marked by \texttt{cpt\_np} indeed highlighted their presence, and made them easier to notice visually.
+In Figure~\ref{fig:case_26328}, both methods identified the two large bumps near the end of the timeseries.
+The difference is that \texttt{cpt\_poisson} marked intermediate level changes as well.
+These intermediate changepoints are clearly not correlated to any path changes.
+On top of that, they are as well redundant in informing the congestion that was happening at that moment.
+The reason for such over-sensitivity was explored and explained in Section~\ref{sec:over_sensitive}.
 
 \section*{Conclusion}
 In this chapter, we proposed an evaluation framework for change detection on RTT time series.
-The framework is robust with human-labelled dataset and weights RTT changes according to their importance in network operation. We further designed a data transformation adapted to RTT measurements to improve the detection sensitivity of some detection methods.
+The framework is robust with human-labeled dataset and weights RTT changes according to their importance in network operation. 
+We further designed a data transformation adapted to RTT measurements to improve the detection sensitivity of some detection methods.
 In detecting path changes, we distinguish those caused by routing changes from those due to load balancing.
 Finally, we correlate the detected RTT and path changes by establishing an one-to-one matching between them. 
 We investigated the sensitivity distinction across different change detection methods. 
 Hidden issues with path changes are as well revealed.
 
-This work is mere a facilitator for measurement-based TE. Further efforts are required in building a working system. To name a few: online detection of RTT changes, route selection logic triggered by change detection  etc.
+This work is mere a facilitator for measurement-based TE. 
+Further efforts are required in building a working system.
