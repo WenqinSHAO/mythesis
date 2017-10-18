@@ -4,18 +4,23 @@
 
 This thesis is developed around a central pursuit of \textit{making better use of various network measurements to improving the transmission performance for stub ASes from the outbound perspective.}
 
-We came up with methods that predictively select destination prefixes associated with large traffic volume through studies on the temporal dynamism of per prefix volume time series.
-These methods allow traffic engineering operations to be focused on only a few important targets while still cover a majority of traffic, hence improving the overall scalability of the system.
+We came up with methods that predictively select destination prefixes with large traffic volumes.
+The study is based on the investigation over temporal dynamism of per prefix volume time series.
+These methods allow traffic engineering operations to be focused on only a few important targets while still cover a majority of traffic.
+The overall scalability of the system can hence be improved.
 
 Later on, we focused on latency measurements. 
 We showcased and diagnosed some data quality issues previously unattended.
 Guidelines to mitigate their impacts on data processing and route selection were discussed.
 
-To better interpret performance measurements, we introduced changepoint analysis to the processing of RTT measurements, so that significant changes in path performance can be systematically detected and trigger route re-selection.
-To enable further work in this direction, we built an evaluation framework quantifying the robustness and sensitivity of detection methods on typical RTT measurements.
+To better interpret performance measurements, we introduced changepoint analysis to the processing of RTT measurements.
+These methods detect significant changes in path performance, and create trigger for route re-selection.
+To enable and encourage future work in this direction, we built an evaluation framework for changepoint methods over Internet RTT measurements.
 
-Further, with the data transformation by changepoint analysis, we grouped together RTT measurements that experienced same RTT changes and inferred the network locations that potentially caused these changes. This visibility enables route optimization for prefixes that we were not able to measure directly.
-To better illustrate the inference process and the identified causes for RTT change, we devised two interactive visualization tools to plot inference metrics and results on a topology graph learned through path measurements.
+Further, with the data transformation enabled by changepoint analysis, we grouped together RTT measurements that experienced same RTT changes.
+Basing on these measurement groups, we inferred the network locations that potentially caused these changes. 
+This visibility enables route optimization for prefixes that we were not able to measure directly.
+To better illustrate the inference process and the identified causes, we devised two interactive visualization tools to plot inference metrics and results on a topology graph.
 
 \section{Contributions}
 

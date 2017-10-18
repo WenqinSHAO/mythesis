@@ -371,6 +371,8 @@ The practical implication of this choice is that handling some $FP$s is less unw
 \subsection{Ground truth dataset}
 \label{sec:label}
 
+\subsubsection{Dataset quality control}
+
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=.96\textwidth]{gfx/chap4/artificial_trace.pdf}
@@ -419,6 +421,7 @@ They represent 8646 hours of RTT measurements with 935 generated changepoints.
 An example of these synthetic RTT trace is shown in Figure~\ref{fig:art_example}.
 The red vertical lines, indicating generated changepoints, are moments when there is a base line RTT change, or a congestion period starts/ends.
 
+\subsubsection{Labeling}
 %Ensured that human labellers are capable of detecting changes, we proceed with real RTT traces.
 As for the real RTT measurements, a great amount of real RTT traces of various characters are selected from RIPE Atlas to construct the ground truth dataset.
 Some are full of fluctuations; some contain periodic congestion, some have many step-wise changes, etc.
@@ -429,6 +432,7 @@ How the labeling is done by humans over a large data set as is crucial to the da
 Looking at all these timeseries and marking changepoint timestamps with a text editor is clearly not a good idea.
 To enable intuitive (what humans are good at) labeling, we fabricated an interactive tool to visualize RTT time series \url{https://github.com/WenqinSHAO/rtt_visual.git}.
 With this tool, the labellers can easily pan, zoom RTT time series and verify the positions of marked changepoints~\footnote{The labellers are researchers/graduate students in networking.}.
+
 1047 changepoints were identified by the labellers for these real RTT timeseries.
 All the labelled RTT traces, synthetic and real, along with the generated changepoints are all available in the main project repository specified in Section~\ref{sec:cpt_data}.
 Only the human-labeled real RTT time series are regarded as ground truth dataset.
@@ -439,13 +443,13 @@ There are moments when the labellers were not quite sure if a changepoint were t
 These suspicious moments all turned out to be within real RTT timeseries.
 The presence of such difficulty is exactly one reason that time shift tolerance is needed in detection performance evaluation.
 
+\subsubsection{Performance of human change detector}
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=.72\textwidth]{gfx/chap4/antoine_eval.pdf}
 \caption{$Presicion$, $Recall_W$ and weighted $F_2$ of human labellers on synthetic dataset.}
 \label{fig:antoine_eval}
 \end{figure}
-Figure~\ref{fig:antoine_eval}
 
 The detection performance of human labellers on the synthetic dataset is shown in Figure~\ref{fig:antoine_eval}. 
 Human labellers have $100\%$ for both $Precision$ and $Recall$ on 14 traces.
