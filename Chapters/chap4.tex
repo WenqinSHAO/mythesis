@@ -791,43 +791,44 @@ IRP change & 38,700 & 36,400 & 244,713\\
 \bottomrule
 \end{tabular}
 \end{table}
-
 Table~\ref{tab:corr_overview} details the number of matches between path and RTT changes.
 Each cell tells the number of matches between the corresponding line (path change type) and column (RTT change detection method).
 The last column contains the total number of path changes of each kind.
 Similarly, the last line provides the total number of of RTT changes detected by the two methods.
 
 The fraction of AS path changes matched to RTT changes by either detection method is much lower than the reported $72.5\%$ in \cite{Rimondini2014}.
-It seems that with our dataset and methods, AS path change have less significant impact on RTT than previous understanding.
-Moreover, the number of AS path change matched \texttt{cpt\_np} RTT change is only about half of that with \texttt{cpt\_possion} RTT changes.
+It seems that AS path changes have less significant impact on RTT than previous understanding.
+Is there something particular with our dataset or methods?
+Moreover, the number of AS path changes match with \texttt{cpt\_np} RTT change is only about half of that with \texttt{cpt\_possion} RTT changes.
 On the contrary, matching numbers for IXP and \ac{IRP} changes are quite close across the two RTT change detection methods.
+Where does this difference come from?
 All of these are very intriguing phenomena.
 We try to explore the underlying reasons in the next section with a close-up look.
 
 \section{Change detection sensitivity and relevance}
 \subsection{\texttt{cpt\_poisson} matches better with AS path change?}
 \label{sec:as_match_diff}
-It seems that there are much more \texttt{cpt\_poisson} RTT changes matched with AS path change, according to Table~\ref{tab:corr_overview}. But really?
-Among the 880 probes ever experienced AS path changes, 293 probes have more AS path changes matched to \texttt{cpt\_poisson} RTT changes, 224 have more AS path changes matched to \texttt{cpt\_np} changes, 
-Among the above mentioned 517 probes, 463 are actually with a difference smaller than 10 AS path changes.
-The rest 363 (among the 880) probes have no difference across the two methods.
-
-Contrary to what we see in Table~\ref{tab:corr_overview}, the numbers of AS path matched are in fact highly consistent across the two methods for the majority of probes.
-The difference is caused by a small fraction of probes identified in Figure~\ref{fig:as_match_diff}.
-In the graph, each dot represents one of the 880 probes that ever experienced AS path changes.
-More the color (of a probe) is on the red side, larger the difference is between \texttt{cpt\_poisson} and \texttt{cpt\_np}.
-We can tell from the graph that those probes plainly in red all experienced a large number of AS path changes (y-axis).
-Moreover, when there is more \texttt{cp\_poisson} RTT changes than \texttt{cpt\_np} ones for a probe (the positive side of the X-axis), it's more likely that more AS path changes are effectively matched to \texttt{cp\_poisson} RTT changes (the left panel).
-And vice verse.
-All together, the difference in matched RTT changes with AS path changes fundamentally lies in the difference of detection sensitivity (number of detected RTT changes) across different probe traces.
-This difference is manifested through extremely frequent AS Path changes of several specific probes.
-
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=.96\textwidth]{gfx/chap4/as_match_diff.pdf}
 \caption{Probe having difference in the number of AS path changes matched to RTT changes detected by \texttt{cpt\_poisson} and \texttt{cpt\_np}. Probes are characterized by its AS path change numbers and RTT change number difference between the two methods. The color of each probe indicates the level of difference in matched change. Left panel shows the probes with more AS path changes matched to \texttt{cpt\_np} RTT changes.}
 \label{fig:as_match_diff}
 \end{figure}
+
+It seems that there are much more \texttt{cpt\_poisson} RTT changes matched with AS path change, according to Table~\ref{tab:corr_overview}. But really?
+Among the 880 probes ever experienced AS path changes, 293 probes have more AS path changes matched to \texttt{cpt\_poisson} RTT changes, 224 have more AS path changes matched to \texttt{cpt\_np} changes, 
+Among the above mentioned 517 probes, 463 are actually with a difference smaller than 10 AS path changes.
+The rest 363 (among the 880) probes have no difference across the two methods.
+
+Contrary to what we see in Table~\ref{tab:corr_overview}, the numbers of AS path matched with RTT changes are in fact highly consistent across the two methods for the majority of probes.
+The difference is caused by a small fraction of probes identified in Figure~\ref{fig:as_match_diff}.
+In the graph, each dot represents one of the 880 probes that ever experienced AS path changes.
+More reddish the dot (probe) is, larger the difference is between \texttt{cpt\_poisson} and \texttt{cpt\_np}.
+We can tell from the graph that those probes plainly in red all experienced a large number of AS path changes (y-axis).
+Moreover, when there is more \texttt{cp\_poisson} RTT changes (the positive side of the X-axis), it's more likely that more AS path changes from that probe are matched to \texttt{cp\_poisson} RTT changes as well(the left panel).
+The reverse is as well true when there is more \texttt{cp\_np} RTT changes.
+All together, the difference in matched RTT changes with AS path changes fundamentally lies in the difference of detection sensitivity (number of detected RTT changes) across different probe traces.
+This difference is manifested through extremely frequent AS Path changes of several specific probes.
 
 
 \subsection{Is \texttt{cpt\_poisson} more sensitive?}
@@ -841,25 +842,27 @@ This difference is manifested through extremely frequent AS Path changes of seve
 
 \texttt{cpt\_poisson} detects in total more RTT changes than \texttt{cpt\_np}, according to Figure~\ref{fig:rtt_ch_count_density_cmp} and Table~\ref{tab:corr_overview}.
 Therefore, \texttt{cpt\_poisson} seems to be more sensitive in change detection. But really?
-With a close-up look, we discovered that the number of RTT changes detected with the two methods is somehow related to the overall variation level of each probe trace.
+
+With a per probe breakdown, we discovered that the number of RTT changes detected with the two methods is somehow related to the overall variation level of each probe trace.
 This relationship is visualized in Figure~\ref{fig:cpt_diff_vs_std}.
 Each dot represents a probe RTT timeseries. 
-The X-axis indicates the standard deviation, while the Y-axis tells the difference in RTT changepoint numbers across the two methods.
+The X-axis indicates the RTT standard deviation in $msec$, while the Y-axis tells the difference in RTT changepoint numbers between the two methods.
 Again, to facilitate the interpretation, we overlapped the graph with a 2-dimensional density estimation for the datapoints on the surface. Inner contours represent dense area.
 
-For most probes traces with small overall RTT variation, \texttt{cpt\_np} is in fact more sensitive and detects more RTT changes, according to Figure~\ref{fig:cpt_diff_vs_std}.
-This observation matches with Figure~\ref{fig:rtt_ch_count_density_cmp} in the sense that \texttt{cpt\_np} detects much more changes of small amplitude.
+For most probes traces with small overall RTT variation, \texttt{cpt\_np} is in fact more sensitive and detects more RTT changes, according to the figure.
+This observation agrees with with Figure~\ref{fig:rtt_ch_count_density_cmp} in the sense that \texttt{cpt\_np} detects much more changes of small amplitude.
 
 For probes with relatively large overall RTT variation, \texttt{cpt\_poisson} tends to be more sensitive and the difference in change number increases with the level of RTT variance.
-With comprehensive manual inspection, we found that those RTT traces with high variance mostly underwent large amplitude RTT oscillations, many of which caused by ping timeouts. As human change detector, we also found very difficult to mark moments of change for these traces.
+With comprehensive manual inspection, we found that those RTT traces with high variance mostly underwent large amplitude RTT oscillations, many of which caused by ping timeouts. 
+As human change detector, we also found very difficult to mark moments of change for these traces.
 
-As a matter of fact, \texttt{cpt\_poisson} is not capable of adjusting detection sensitive according to the variation level of input timeseries.
+As a matter of fact, \texttt{cpt\_poisson} is not very flexible in adjusting detection sensitive according to the variation level of input timeseries.
 For example, for a RTT timeseries that is full of large amplitude variations, 
 we would expect a detection method to restrain a little bit.
 This incapability is because the variation tolerance of a Poisson model is coupled with the the timeseries mean.
 After removing the baseline, different RTT timeseries are actually of similar mean, thus leading to similar sensitivity.
-For an overly noisy RTT timeseries, the `constant' sensitivity turns out to be over-sensitive.
-Meanwhile,  \texttt{cpt\_np} seems to be very elastic in detection sensitivity and less variant in the number of changepoints produced.
+For an overly noisy RTT timeseries, the `constant' sensitivity turns out to be a large number of changepoints.
+Meanwhile, \texttt{cpt\_np} seems to be very elastic in detection sensitivity and less variant in the number of changepoints produced according to Figure~\ref{fig:rtt_ch_count_density_cmp}.
 
 \subsection{How AS path changes match to RTT changes?}
 \begin{figure}[!htb]
@@ -887,29 +890,29 @@ Meanwhile,  \texttt{cpt\_np} seems to be very elastic in detection sensitivity a
 \label{fig:case_12849_rtt}
 \end{figure}
 
-Two `bizarre' phenomena has been so far observed: 1) the match between AS path change and RTT change are much weaker than what reported in previous studies; 2) Certain ASes experienced extremely frequent AS paths changes.
-Are these two somehow related? 
+Two `bizarre' phenomena have been so far observed: 1) the match between AS path change and RTT change are much weaker than what reported in previous studies; 2) Certain ASes experienced extremely frequent AS paths changes.
+Are these two somehow related?
+
 We investigate this issue through a per probe breakdown between AS path change numbers and path change matching precision in Figure~\ref{fig:as_path_ch_precision}.
-In the graph, each red dot represents a probe. The Y-axis tells the fraction of AS path changes that are matched to an RTT change.
+In the graph, each red dot represents a probe. The Y-axis tells the fraction of AS path changes that are matched to an RTT change, i.e. precision.
 Since many probes (red dots) overlap with each other on the surface, we estimated the 2-dimensional distribution density and illustrated it with contour lines.
 Inner contours are area with dense probes.
 
-Figure~\ref{fig:as_path_ch_precision} reveals that probes with extremely frequent AS path changes have in fact very low correlation, in terms of precision, with RTT changes.
+Figure~\ref{fig:as_path_ch_precision} reveals that probes with extremely frequent AS path changes (right side of the graphs) have in fact very low correlation, in terms of precision, with RTT changes.
 After extensive manual inspection, those frequent AS path changes appear to be AS-level LB, i.e. the upstream AS employed in reaching the destination are switched very frequently among a few providers.
 This could be a possible consequence of multipath BGP.
-Such AS changes generally don't have a clear impact on the RTT level. 
-For probes with fewer AS path changes, the chance of having match between AS path change and RTT change is in fact pretty high.
+Such AS path changes generally don't have an obvious impact on RTT. 
+For probes with fewer AS path changes (the left side of the graphs), the chance of having match between AS path change and RTT change is in fact pretty high.
 
-Not all AS-level load balancing is without consequence. For example, probe 12849 in Figure~\ref{fig:case_12849_rtt} experienced 170 AS path changes, among which 169 are matched to RTT changes detected by \texttt{cpt\_poisson} and only 102 are matched to \texttt{cpt\_np}.
+Not all AS-level load balancing is without consequence. For example, probe 12849 in Figure~\ref{fig:case_12849_rtt} experienced 170 AS path changes, among which 169 are matched to RTT changes detected by \texttt{cpt\_poisson} and only 102 are matched to \texttt{cpt\_np} RTT changes.
 These AS path changes are highly periodic and coincide with clear cut RTT changes.
 \texttt{cpt\_np} failed to detect some of the changes with smaller amplitude.
-This presence of such case confirms the need for measurement-based TE.
-Otherwise, unwise routing decisions, performance-wise, can be made without realization.
+The presence of such case confirms the need for measurement-based TE.
+Otherwise, unwise routing decisions can be made without realization.
 
-\subsection{Pitfalls of IXP and IRP change detection}
-Similar to AS path changes, for frequent IXP and IRP changes the correlation with RTT changes is weak.
-In Figure~\ref{fig:path_ch_count_density_cmp}, a group of probes experienced from 100 to 200 IXP changes. 
-Their correlation with RTT changes is fairly low.
+\subsection{Pitfalls of IXP and IRP path change detection}
+Similar to AS path changes, probes with frequent IXP and IRP changes correlates weakly with RTT changes.
+For example, in Figure~\ref{fig:path_ch_count_density_cmp}, there is a group of probes that experienced from 100 to 200 IXP changes. 
 Only around $10\%$ of IXP changes on these probes are matched to an RTT change.
 
 We investigate all the 58 probes in the area. These probe passed by AMS-IX to reach b-root most of the time. There were about 147 times, shared by these probes, where AMS-IX hop was replaced by a timeout hop before arriving at AS6939.
@@ -937,9 +940,10 @@ $5\%$ & $10\%$ & $25\%$ & $50\%$ & $75\%$ & $95\%$ & $100\%$\\
 
 The correlation of IRP changes with RTT changes are much weaker than that of AS and IXP path changes.
 It turned out that most probes experienced much more than 16 end-to-end IP paths, according to Table.~\ref{tab:ip_path_count}.
-In such case, one Paris ID might have been mapped to more than one IP path in reality.
+In such case, one Paris ID might have been mapped to more than one IP paths.
 This might lead to IRP changes without actual routing change.
-Within in each single AS, the number of different IP paths rarely exceeds 16 toward a destination. However a chain of ASes can produce way much richer combinations of end-to-end IP paths.
+Within in each single AS, the number of different IP paths rarely exceeds 16 toward a destination. 
+However a chain of ASes can produce way much richer combinations of end-to-end IP paths.
 
 Moreover, there is a group of probes having around 250 IRP changes according to Figure~\ref{fig:path_ch_count_density_cmp}.
 An IRP change takes place roughly every 16 measurements on these probes. 
@@ -971,11 +975,12 @@ Such change in general doesn't have obvious consequence on RTT level.
 \end{figure}
 
 Several reasons contribute to the large amount and fraction of RTT changes unmatched to any path changes.
-First, some path changes experienced by RTT measurements are not observed. We were not able to measure the reverse path with RIPE Atlas built-in measurement.
+First, changes on the reverse path are not observed. 
+We were not able to measure the reverse path with RIPE Atlas built-in measurement.
 Therefore, it is impossible to detect the changes on the reverse path. 
 However, these changes could have contributed to RTT changes. 
 Especially in the context of inter-domain routing where paths are likely to be asymmetric.
-This implies that the RTT changes caused by reverse path changes are probably different from those caused by path changes on the forwarding direction.
+This implies that the RTT changes caused by the reverse path changes are probably different from those caused by path changes on the forwarding direction.
 
 Second, congestion. 
 Congestion can be independent of path changes and yet is capable of causing significant RTT variations.
@@ -988,30 +993,31 @@ Because, the RTTs within these bumps are not flat.
 On slightly loaded path, we would expect fairly constant RTT measurements overtime.
 It is because the queues are almost empty, thus no room for delay variation.
 On the other hand, the changing RTTs within the bump are probably a reflection of how the traffic demand on the bottleneck evolves due to end-to-end congestion control mechanism.
-Both bumps/congestion deviate greatly from the baseline and lasted for a long while.
+Both bumps/congestion deviate greatly from the baseline and last for a several hours.
 They thus have significant impact on transmission performance.
 We successfully detected them with the studied changepoint detection methods.
 However, such detection is not possible with the previously proposed method~\cite{Luckie2014}.
 It performs spectral analysis on RTT timeseries to find out periodically repeated congestion.
-Such persistent congestion is normally due to lack or network capacity.
+Such persistent congestion is normally due to lack of network capacity.
 Meanwhile, transient congestion in Figure~\ref{fig:case_26328} is more likely caused by sudden traffic variations.
 Measurement-based TE aims to avoid both types of congestion when there is alternative paths with available capacity.
-For that purpose, changepoint detection methods are indeed help in notifying the presence of such performance variations. 
+For that purpose, changepoint detection methods are indeed helpful in notifying the presence of such performance variations. 
 
 Third, over-sensitive detection.
-If we boldly assume that path changes on reverse paths cause comparable amount of RTT changes as forwarding paths do, there are still many RTT change unmatched.
+If we boldly assume that path changes on reverse paths cause a comparable amount of RTT changes as forwarding path changes do, there are still many RTT change unmatched.
 Some of them might be effectively attributed to congestion, as explained here above.
-The remaining RTT change detection are plainly the result of over-sensitive detection.
-We already revealed from a macroscopic view, in Section~\ref{sec:cpt_trace} and ~\ref{sec:as_match_diff}, that \texttt{cpt\_poisson} tend to overestimate the number of changepoints when the RTT trace is noisy, while \texttt{cpt\_np} is capable of detecting delicate RTT changes. 
+The remaining unmatched RTT changes are plainly the result of over-sensitive detection.
+We already revealed from a macroscopic view, in Section~\ref{sec:cpt_trace} and ~\ref{sec:as_match_diff}, that \texttt{cpt\_poisson} tend to overestimate the number of changepoints when the RTT trace is noisy.
+Meanwhile, \texttt{cpt\_np} is capable of detecting delicate RTT changes. 
 Individual traces are given in Figure~\ref{fig:case_sensitivity} to illustrate the sensitivity difference from a microscopic view. 
 In Figure~\ref{fig:case_28002}, \texttt{cpt\_np} detected all the periodic small amplitude congestion.
 This is actually quite impressing, as these change are only hardly visible for human experts.
-The changepoints marked by \texttt{cpt\_np} indeed highlighted their presence, and made them easier to notice visually.
+The changepoints marked by \texttt{cpt\_np} indeed highlighted their presence, and made them easier to be noticed visually.
 In Figure~\ref{fig:case_26328}, both methods identified the two large bumps near the end of the timeseries.
 The difference is that \texttt{cpt\_poisson} marked intermediate level changes as well.
 These intermediate changepoints are clearly not correlated to any path changes.
 On top of that, they are as well redundant in informing the congestion that was happening at that moment.
-The reason for such over-sensitivity was explored and explained in Section~\ref{sec:over_sensitive}.
+The reason for such over-sensitivity was due to its incompetence in adjusting the detection sensitivity according to input variance level. This issue is explored and explained in Section~\ref{sec:over_sensitive}.
 
 \section*{Conclusion}
 In this chapter, we proposed an evaluation framework for change detection on RTT time series.
