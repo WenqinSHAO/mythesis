@@ -20,14 +20,16 @@ Then RTT toward the destination prefix is represented by the measurements toward
 
 %\marginpar{Lack of direct measurement toward certain destination prefixes.}
 However, not all selected destination prefixes have such `measurable' hosts~\footnote{selected prefixes: destination prefixes with important volume thus selected for TE, more detail in Section~\ref{sec:pref_selec}.}.
-Take client SA appeared in Section~\ref{sec:pref_selec} as an example, on average 15\% of its outbound traffic involving $\sim 330$ destination prefixes are without measurements.
+Take client SA appeared in Section~\ref{sec:pref_selec} as an example.
+On average, 15\% of its outbound traffic involving $\sim 330$ destination prefixes are without measurements.
 More than 70\% of the `un-measured' traffic flows toward prefixes owned by mobile operators during peak hours.
 In the foreseeable future, the proportion of such traffic would be even bigger, given the overall tendency of increasing usage on mobile devices.
 At this point, we face the problem of \textit{performing measurement-based TE without direct measurement toward the destination}. 
 
 \subsection{Prefix grouping as a countermeasure}
 %\marginpar{How about group `un-measurable' prefixes' with `measurable' ones?}
-One possible approximation is to group `un-measurable' prefixes with those have measurements based on topological/geographical locality, for example those belonging to a same AS or city. The RTT measurements toward some destination prefixes in the group speak for the rest prefix without measurement. Same best route are chosen for prefixes within the group.
+One possible approximation is to group `un-measurable' prefixes with those have measurements based on topological/geographical locality, for example those belonging to a same AS or city. 
+The RTT measurements toward some destination prefixes in the group speak for the rest prefix without measurement. Same best route are chosen for prefixes within the group.
  
 However, locality dose not necessarily imply similarity in performance variation.
 %\marginpar{geographical locality}
@@ -35,7 +37,9 @@ Assuming geographical locality, it at most provides a rough estimation on the ba
 
 %\marginpar{topological locality}
 Assuming topological locality, say AS-level, is more relevant, but still not good enough.
-As it has been pointed out, AS is not an atomic point~\cite{Muhlbauer2006}. Prefix-based route announcement in BGP might result different paths for prefixes belonging to a same AS. Moreover, such approximation is helpless when the entire AS is not `measurable'.
+As it has been pointed out, AS is not an atomic point~\cite{Muhlbauer2006}. 
+Prefix-based route announcement in BGP might result different paths for prefixes belonging to a same AS. 
+Moreover, such approximation is helpless when the entire AS is not `measurable'.
 
 \iffalse
 %\marginpar{Can the measurable speak for the rest?}
@@ -53,12 +57,12 @@ The results could be potentially biased toward the part of Internet with measure
 \end{figure}
 
 %\marginpar{Treat the cause, not the symptom.}
-Without RTT measurements toward P4 in Fig.~\ref{fig:chap5_cause_infer_te}, we have no clue on when and which of its available paths might undergo changes and thus are helpless in making TE decisions.
-However, if we were able to deduce which part of the Internet responsible for RTT changes using available measurements, we might still stand a chance optimizing for P4.
+Without RTT measurements toward P4 in Figure~\ref{fig:chap5_cause_infer_te}, we have no clue on when and which of its available paths might undergo changes and thus are helpless in making TE decisions.
+However, if we were able to deduce which part of the Internet is responsible for RTT changes using available measurements, we might still stand a chance optimizing for P4.
 Suppose that the link between AS2 and AS3 is inferred (somehow) as the cause for the RTT change underwent by measurements toward P2 and P3. 
 Since, a path toward P4 (the dashed line) flows as well through AS2 and AS3, we can then reasonably assume that the transmission performance toward P4 on that path shall experience a similar change at the same moment as those toward P2 and P3.
 Realizing that, we shall switch to alternative paths that remain unaffected to reach P4.
-That is how RTT change cause inference shed light on performance variations toward destinations without direction measurements and hence enable TE.
+That is how RTT change cause inference shed light on performance variations toward destinations without direct measurements and hence enable TE.
  
 \begin{figure}[!htb]
 \centering
@@ -69,11 +73,15 @@ That is how RTT change cause inference shed light on performance variations towa
 
 %\marginpar{Intuition on how to infer causes.}
 This idea was initially inspired by the case study in Section~\ref{sec:ripe_case_study} on shared RTT changes by multiple RTT time series from different ASes. 
-We realized that some RTT changes are not exclusive to measurements on one specific Internet path, but rather impact several RTT time series simultaneously, as shown in Fig.~\ref{fig:rtt3d_mp_cls2}.
+We realized that some RTT changes are not exclusive to measurements on one specific Internet path, but rather impact several RTT time series simultaneously, as shown in Figure~\ref{fig:rtt3d_mp_cls2}.
 Optimize the interdomain routing against the cause of such RTT changes would then be a more fundamental and effective approach to TE than handling each individual prefixes and paths towards them.
 
 In order to infer the location of causes, one reasonable assumption is that such shared RTT changes are more likely caused by the common parts of these paths, instead of being the consequence of perfect synchronization of multiple issues scattered in various places.
-With that, it is then possible to narrow down the scope of possible causes with measurements having both common parts and divergent parts. A toy example of inference is given in Fig.~\ref{fig:chap5_toy_inference}. With the assumption we can first scope the cause to link 1 and 4, node 2 and 5. Since there is a measurement free of RTT change traversing link 1 and node 2, link 4 and node 5 are then more likely to be the cause. In Section~\ref{sec:inference}, we will more formally describe the assumptions and inference logic for node and link investigation under all possible topology patterns and measurement distributions.
+With that, it is then possible to narrow down the scope of possible causes with measurements having both common parts and divergent parts. 
+A toy example of inference is given in Figure~\ref{fig:chap5_toy_inference}. 
+With the assumption we can first scope the cause to link 1 and 4, node 2 and 5. 
+Since there is a measurement free of RTT change traversing link 1 and node 2, link 4 and node 5 are then more likely to be the cause. 
+In Section~\ref{sec:inference}, we will more formally describe the assumptions and inference logic for node and link investigation under all possible topology patterns and measurement distributions.
 
 \section{Relationship to network delay tomography}
 
@@ -84,21 +92,27 @@ It is not difficult to spot that RTT change cause inference is somewhat similar 
 Many tomography works assume that measurements toward difference destinations experience similar delay on the shared links. As a matter of fact, these works either use multicast~\cite{LoPresti2002} or closely time spaced unicast measurements\cite{Shih2003,Tsang2003} to ensure this assumption. In our case, this intuitive assumption can be naturally extended: multiple RTT measurements shall undergo a same RTT change if caused by the common part on their paths.
 
 The above assumption serves for inference. In delay tomography, since the common links contribute equally to end-to-end delay measurements, then the difference in end-to-end measurements can only come from the divergent part of the path. With carefully designed measurement sets, it is then possible to infer for each internal link its delay properties~\cite{Lawrence2006}.
-The basic inference logic for RTT change cause inference follows the same spirit. It exploits the topological divergence and convergence of a set of measurements to locate possible causes, as illustrated in Fig.~\ref{fig:chap5_toy_inference}.
+The basic inference logic for RTT change cause inference follows the same spirit. It exploits the topological divergence and convergence of a set of measurements to locate possible causes, as illustrated in Figure~\ref{fig:chap5_toy_inference}.
 
 \subsection{Difference in output}
 Despite the similarity between the two problems, the fundamental outcome wanted at the end of inference differs.
 In delay tomography, one wishes to reconstruct the probability distribution of delay on internal links, where the likelihood of each end-to-end delay measurements is parameterized by a convolution of internal links' delay distribution, from source to destination.
 The parameters for internal link delay distribution can then be solved through maximum likelihood estimation of the end-to-end path delay distributions given the end-to-end measurements.
 For that purpose, a series of methods are developed either to accelerate the maximum-likelihood estimation of delay distribution~\cite{Liang2003, Tsang2003}, or to capture the time-varying nature of link delays~\cite{Shih2003,Coates2002a,Tsang2003}.
-If we were to apply these same methods to our RTT measurements after changepoint detection (Section~\ref{sec:cpt_rtt}), we might arrive at a probability distribution on the likelihood of a link causing significant RTT change over the period of measurements. However, it does not tell at what exact moment the link caused a significant RTT change.
+If we were to apply these same methods to our RTT measurements after changepoint detection (Section~\ref{sec:cpt_rtt}), we might arrive at a probability distribution on the likelihood of a link causing significant RTT change over the period of measurements. 
+However, it does not tell at what exact moment the link caused a significant RTT change.
 
 \subsection{Methodological compatibility}
 %\marginpar{Can we employ delay tomography methods to Internet RTT measurements?}
-Further, one might wonder whether it is possible to apply delay tomography methods directly to Internet RTT measurements over a relatively short time range. And then detect whether the delay distribution experiences obvious change over time, or exhibit multimodality for certain links.
+Further, one might wonder whether it is possible to apply delay tomography methods directly to Internet RTT measurements over a relatively short time range. 
+And then detect whether the delay distribution experiences obvious change over time, or exhibit multimodality for certain links.
 
 This approach is however not the most appropriate for various reasons. First, the assumption of
-same delay contribution from same link to different end-to-end measurements no longer holds for Internet RTT measurements for TE uses. It is because the timing of different measurements are not strictly synchronized. Rather, random factors are deliberately added to each individual measurement in building the real system to avoid creating periodic peaks of measurement traffic that might introduce interference among each other and hence harm measurement reliability. Moreover,  RIPE Atlas measurements (Section~\ref{sec:ripe_atlas}) widely employed in this work do not guarantee strict synchronization among different measurements.
+same delay contribution from same link to different end-to-end measurements no longer holds for Internet RTT measurements for TE uses. 
+It is because the timing of different measurements are not strictly synchronized. 
+Rather, random factors are deliberately added to each individual measurement to avoid creating periodic peaks of measurement traffic.
+These peaks might introduce interference among measurements and hence harm measurement reliability. 
+Moreover,  RIPE Atlas measurements (Section~\ref{sec:ripe_atlas}) widely employed in this work do not guarantee strict synchronization among different measurements.
 Those measurements are individually performed by probes loosely coordinated. The timing depends basically on the moment when each probe starts for the first time.
 Second, delay tomography introduces potentially a scalability issue for Internet measurements.
 It is first conceived for intradomain uses and are in most cases validated solely on simulated networks way much smaller than the actually part of the Internet that the traffic of a typical content/hosting/service provider could span.
@@ -121,14 +135,17 @@ Finally, the inference logic is developed based solely on the introduced assumpt
 \end{figure}
 
 %\marginpar{input and output}
-With RTT change cause inference, we are interested in identifying the part of the Internet, as precise as possible, that is responsible for RTT changes detected. What we have as input on client TE platforms are 1) RTT measurements from multiple sources to multiple destinations for TE uses; 2) underlying AS paths for these RTT measurements~\footnote{With the real TE system, the sources of measurements are client platforms and destinations are the prefixes clients send traffic to. The source of measurements could be multiple if we merge measurements from multiple client platforms or the client has multiple sites with different provider options.}. 
+With RTT change cause inference, we are interested in identifying the part of the Internet, as precise as possible, that is responsible for RTT changes detected. 
+What we have as input on client TE platforms are 1) RTT measurements from multiple sources to multiple destinations for TE uses; 2) underlying AS paths for these RTT measurements~\footnote{With the real TE system, the sources of measurements are client platforms and destinations are the prefixes clients send traffic to. 
+The source of measurements could be multiple if we merge measurements from multiple client platforms or the client has multiple sites with different provider options.}. 
 
 %\marginpar{Justify the usage of RIPE Atlas measurements.}
-In this work, we continue to use the same data set collected for RTT change detection in Section~\ref{sec:cpt_data} for the sake of transparency and repoducibility. The major difference with the data available on client TE platform is that, with RIPE Atlas, the underlying path is learnt through traceroute instead of from BGP table~\footnote{It is as well possible to learn paths of RIPE Atlas RTT measurements via RIPE RIS~\cite{ris}and Routeviews~\cite{routeviews}. However, the coverage of those BGP vintage points are probably not enough to reflect how each hosting AS of Atlas probes (many at the edge) route the traffic, since they mainly locate near the core of Internet .}. 
+In this work, we continue to use the same data set collected for RTT change detection in Section~\ref{sec:cpt_data} for the sake of transparency and repoducibility. 
+The major difference with the data available on client TE platform is that, with RIPE Atlas, the underlying path is learnt through traceroute instead of from BGP table~\footnote{It is as well possible to learn paths of RIPE Atlas RTT measurements via RIPE RIS~\cite{ris}and Routeviews~\cite{routeviews}. However, the coverage of those BGP vintage points are probably not enough to reflect how each hosting AS of Atlas probes (many at the edge) route the traffic, since they mainly locate near the core of Internet.}. 
 Such difference calls for additional pre-processing, such as IP-to-AS translation, IXP detection etc, so as to be compatible with data from client TE platform. It however should not have impact on the inference logic. On the other hand, given the worldwide distribution of RIPE Atlas probes and divers destinations they probe, the inference result from RIPE Atlas can complement that from client platform measurements, by offering a larger coverage of the Internet, hence bigger possibility of identifying cause of changes having impact on `un-measurable' destination prefixes.
 
 %\marginpar{building blocks}
-Fig.~\ref{fig:chap5_sys_design} depicts the logical building blocks required for RTT change cause inference. Changepoint detection (Section~\ref{sec:cpt_rtt}) symbolizes the RTT timeseries into sequences of RTT change events.
+Figure~\ref{fig:chap5_sys_design} depicts the logical building blocks required for RTT change cause inference. Changepoint detection (Section~\ref{sec:cpt_rtt}) symbolizes the RTT timeseries into sequences of RTT change events.
 
 Topology construction builds a graph for hops and links traversed by RTT measurements.
 This topology graph is an intermediate step in designing a inference metrics for each node and link present in the topology. As seen in Fig~\ref{fig:chap5_toy_inference}, whether a node/link is the cause for RTT change, depends not only on the measurements that traverse it, but as well those flow around. Identifying such measurement sets for each node/link requires knowledge on the topology. Moreover, the topology graph serves as well in visualizing the location of RTT changes. 
@@ -159,9 +176,9 @@ Hence the question here is rather: \textit{do we have the incentive to perform c
 \end{figure}
 
 %\marginpar{the benefit of fine granularity}
-Theoretically, finer granularity is in general beneficial. Fig.~\ref{fig:chap5_case_pop_topo} illustrates some of these possibilities where a PoP-level cause of RTT change is detected.
-Fig.~\ref{fig:chap5_case_pop_topo}(a) is a case where current in use path is potentially not affected by the potential RTT change, thus no need to change path. While with AS-level inference, one will not be provided with such distinction. 
-Similarly, in Fig.~\ref{fig:chap5_case_pop_topo}(b), with AS-level inference, one could not realize there is actually an alternative path free of potential RTT degradation.
+Theoretically, finer granularity is in general beneficial. Figure~\ref{fig:chap5_case_pop_topo} illustrates some of these possibilities where a PoP-level cause of RTT change is detected.
+Figure~\ref{fig:chap5_case_pop_topo}(a) is a case where current in use path is potentially not affected by the potential RTT change, thus no need to change path. While with AS-level inference, one will not be provided with such distinction. 
+Similarly, in Figure~\ref{fig:chap5_case_pop_topo}(b), with AS-level inference, one could not realize there is actually an alternative path free of potential RTT degradation.
 
 %\marginpar{fine granularity comes with a cost}
 How often such case actually happens is not yet known. However the difficulty in constructing router-level, PoP-level topology and their inaccuracy stemmed from various heuristics used are well studied~\cite{Donnet2007, shavitt2013internet, fressancourt2016}.
@@ -226,7 +243,7 @@ design for it measurement sets (inference metric), within in which the only comm
 More formally, we describe a measurement $m$ by a set of nodes it traverses: $m:\{n1, n2,..\}$. 
 If two measurements $m1, m2$, satisfy $m1 \cap m2 = \{n\}$, we call them \acf{DM} of $n$.
 A $DM$ set of $n$, called $D$, shall have at least two measurements. It contains measurements that are divergent with each other (except for node $n$), i.e. $\forall m1, m2 \in D, m1 \cap m2 = \{n\}$.
-For example, AS0 in Fig.~\ref{fig:chap5_dms} has three \acp{DM} sets. Each covers four divergent links adjacent to AS0.
+For example, AS0 in Figure~\ref{fig:chap5_dms} has three \acp{DM} sets. Each covers four divergent links adjacent to AS0.
 
 \begin{heuristic}{Node}{majority adjacent links}\label{hu:node}
 If there exists one \ac{DM} set $D$ of node $n$ satisfying $count(D, t) > 0.5 \times degree(n)$,  node $n$ is then the cause for shared RTT change at time bin $t$. 
@@ -237,7 +254,7 @@ $count(D,t)$ is the RTT change event count within measurement set $D$ at time bi
 %\marginpar{the origin of the heuristic}
 \paragraph{The lower bar} According to Assumption~\ref{as:1} attributing cause to the common part of the paths, it suffices to have only two measurements solely intersecting at $n$ (which makes the two measurements a \ac{DM} set) and covering only two adjacent edges to $n$, to judge $n$ liable for the synchronized the RTT change witnessed by the two measurements. However, this could happen by chance for a high degree node (AS) with several bad quality links.
 
-\paragraph{The higher bar} If we regard node $n$ as an atomic point, and it causes an RTT change, then measurements following through all of its adjacent edges should be impacted. One thus should expect to find a \ac{DM} set $D$ at time bin $t$ satisfying $count(D, t) = degree(n)$. Such a strict criterion is somehow not realistic from two aspects. First, a node (AS) is not an atomic point. A real issue could be only PoP-wide instead of AS-wide, as showcased in Section~\ref{sec:chap5_spatial}, where only a fraction of links would be impact. Second, due to topology constraints not all the adjacent edges of node $n$ can be covered by any single \ac{DM} set, for example AS0 in Fig.~\ref{fig:chap5_dms}.
+\paragraph{The higher bar} If we regard node $n$ as an atomic point, and it causes an RTT change, then measurements following through all of its adjacent edges should be impacted. One thus should expect to find a \ac{DM} set $D$ at time bin $t$ satisfying $count(D, t) = degree(n)$. Such a strict criterion is somehow not realistic from two aspects. First, a node (AS) is not an atomic point. A real issue could be only PoP-wide instead of AS-wide, as showcased in Section~\ref{sec:chap5_spatial}, where only a fraction of links would be impact. Second, due to topology constraints not all the adjacent edges of node $n$ can be covered by any single \ac{DM} set, for example AS0 in Figure~\ref{fig:chap5_dms}.
 
 %\marginpar{further justification of the heuristic}
 Heuristic~\ref{hu:node} is not perfect. It might still give rise to both false positive and false negative inference results. Hopefully, false positive more likely occurs to low degree nodes, for which the heuristic requirement is relatively easier to meet. Meantime, high degree nodes are prone to false negative inference. Yet, these RTT change events are not ignored, as they will reflect on some of the adjacent links to concerned nodes, and shall eventually be captured in link inference.
@@ -283,7 +300,7 @@ The number of \acp{iEXT} in $EXT(n1_1, l)$ at time bin $t$ is denoted as $\langl
 \label{fig:chap5_two_open_ends}
 \end{figure}
 
-This is the case where link $l$ has multiple extension links at both ends, as shown in Fig.~\ref{fig:chap5_two_open_ends}. 
+This is the case where link $l$ has multiple extension links at both ends, as shown in Figure~\ref{fig:chap5_two_open_ends}. 
 If at both ends/nodes, there are more than one \ac{iEXT}, link $l$ as the only common part besides its two nodes (previously not judged liable) can be inferred as the cause of the RTT changes experienced by $l$ itself and all its \acp{iEXT}, according to Assumption~\ref{as:1}.
 Otherwise, we don't have enough evidence to do so. Here below the inference logic in pseudo code.
 
@@ -305,7 +322,7 @@ Otherwise, we don't have enough evidence to do so. Here below the inference logi
 \label{fig:chap5_fork_shape}
 \end{figure}
 
-This is the case where link $l$ has one \ac{EXT} at one end, and multiple at the other end, as the link $l$ in Fig.~\ref{fig:chap5_fork_shape}. If the end with multiple \acp{EXT} doesn't have multiple \acp{iEXT} at a given moment, there is just no enough evidence to judge the link responsible for the RTT changes. Otherwise, the liability lies on the link $l$ and its single \ac{EXT} at the other end, since they are the common parts of multiple measurement under RTT change, according to Assumption~\ref{as:1}.
+This is the case where link $l$ has one \ac{EXT} at one end, and multiple at the other end, as the link $l$ in Figure~\ref{fig:chap5_fork_shape}. If the end with multiple \acp{EXT} doesn't have multiple \acp{iEXT} at a given moment, there is just no enough evidence to judge the link responsible for the RTT changes. Otherwise, the liability lies on the link $l$ and its single \ac{EXT} at the other end, since they are the common parts of multiple measurement under RTT change, according to Assumption~\ref{as:1}.
 
 If the single \ac{EXT} is inferred as cause, we then know that link $l$ can not be the cause at the same moment, according to Assumption~\ref{as:2}. If we don't have enough evidence to attribute the cause to the single \ac{EXT}, we are actually not sure whether link $l$ is the cause or not. It is because, the true cause can be up in the further upstream of the single \ac{EXT}. In order to avoid passing inference results of all the upstream links of the single \ac{EXT} through stacks of recursive call of inference logic, we flag $l$ as a \textsc{likely} cause.
 If no other established cause of RTT change sit on the paths traversed by $FMS(l)$ at time bin $t$, then link $l$ is the cause. Otherwise, according to Assumption~\ref{as:2}, link $l$ is judged free of responsibility.
@@ -371,7 +388,7 @@ This case doesn't necessary mean link $l$ is disconnected from the rest of topol
 
 
 \paragraph{Closed end fork} \textbf{else if } $|EXT(n1_1,l)| = 0$ and $|EXT(n2_1,l)| > 1$.
-This is a simplified case of fork shape illustrated in Fig.~\ref{fig:chap5_fork_shape}.
+This is a simplified case of fork shape illustrated in Figure~\ref{fig:chap5_fork_shape}.
 With one end completely closed, we are free of inference dependency on other links.
 Here below the inference logic in pseudo code. The case with $|EXT(n1_2,l)| = 0$ and $|EXT(n1_1,l)| > 1$ is symmetric to the case under discussion, thus not repeated.
 
@@ -417,7 +434,7 @@ Till now, we have discussed all possible topology layouts formed by $FMS(l)$. We
 \end{figure}
 
 We implemented an interactive visualization tool to inspect the normalized event count and inference result of each link on the AS-level topology revealed by RIPE Atlas traceroute measurements.
-Fig.~\ref{fig:case_event_count} is a snapshot of the tool under normalized event count view.
+Figure~\ref{fig:case_event_count} is a snapshot of the tool under normalized event count view.
 Each circle in the figure represents an AS or IXP learnt from traceroute measurements. Violet ones host RIPE Atlas probes, orange ones are IXPs, while green ones are transit ASes. More \acp{FM} a link has, thicker the corresponding line is. At a given 10 min time bin (indicated in the left top corner of the graph), larger the normalized change event count is, deeper the red color over the link.
 
 \begin{figure}[!htb]
@@ -435,9 +452,9 @@ Each circle in the figure represents an AS or IXP learnt from traceroute measure
 \end{figure}
 
 %\marginpar{a typical link inference case}
-In Fig.~\ref{fig:case_event_count}, from 2016-12-01 08:40 to 08:50 UTC time, almost all the measurements (72 out of 76) traversing the link between France-IX and Hurricane (AS6939) experienced significant RTT changes.
-The time series of these RTT measurements are given in Fig.~\ref{fig:case_multi_rtt}, visualized with another tool we developed for the inspection of multiple time-series, \url{https://github.com/WenqinSHAO/rtt_visual_multi.git}. Many \acp{EXT} of (France-IX, Hurricane) are as well coated in deep red, sign of commonly shared RTT changes on these links. As all the measurements are toward one single destination DNS b-root, 
-(France-IX, Hurricane) fits in the case of fork shape topology, with it's Hurricane end having only one single \ac{EXT}. As expected, the proposed inference logic inferred (France-IX, Hurricane) as the single cause for this massively spanned RTT change according to Fig.~\ref{fig:case_infer_res}. In the figure, links inferred as cause are colored in deep violet, while orange is for \textsc{likely} causes, green for links free of liability within the time bin.
+In Figure~\ref{fig:case_event_count}, from 2016-12-01 08:40 to 08:50 UTC time, almost all the measurements (72 out of 76) traversing the link between France-IX and Hurricane (AS6939) experienced significant RTT changes.
+The time series of these RTT measurements are given in Figure~\ref{fig:case_multi_rtt}, visualized with another tool we developed for the inspection of multiple time-series, \url{https://github.com/WenqinSHAO/rtt_visual_multi.git}. Many \acp{EXT} of (France-IX, Hurricane) are as well coated in deep red, sign of commonly shared RTT changes on these links. As all the measurements are toward one single destination DNS b-root, 
+(France-IX, Hurricane) fits in the case of fork shape topology, with it's Hurricane end having only one single \ac{EXT}. As expected, the proposed inference logic inferred (France-IX, Hurricane) as the single cause for this massively spanned RTT change according to Figure~\ref{fig:case_infer_res}. In the figure, links inferred as cause are colored in deep violet, while orange is for \textsc{likely} causes, green for links free of liability within the time bin.
 
 As a matter of fact, node France-IX may as well be the cause, given that all its adjacent links have a near to 1 normalized event count at that moment. However, the topology condition around France-IX, formed by all the measurements passing through it, doesn't allow a \ac{DM} set covering half of its adjacent link so as to satisfy Heuristic~\ref{hu:node}, as all these measurements converges on (France-IX, Hurricane).
 
@@ -450,7 +467,7 @@ As a matter of fact, node France-IX may as well be the cause, given that all its
 \end{figure}
 
 %\marginpar{limitation of current inference functionality: a probable PoP-issue}
-Fig.~\ref{fig:case_pop_issue} offers a probable PoP-level issue. The node surrounded by multiple violet links is 
+Figure~\ref{fig:case_pop_issue} offers a probable PoP-level issue. The node surrounded by multiple violet links is 
 Géant (AS21320). 
 Similar to Franc-IX, it is not possible to find a \ac{DM} set that covers enough of its adjacent links to make it liable. Moreover, the number of these violet links doesn't surpass half of the node degree as required by Heuristic~\ref{hu:node}. The node is thus not judged liable for the shared RTT changes. 
 However, link (Géant, Internet2-AS11537), labeled in the figure, is neither the cause of RTT change, since its normalized event count is only around 0.3, far below 0.5 required by Heuristic~\ref{hu:link}, thus judged clean in early exemption.

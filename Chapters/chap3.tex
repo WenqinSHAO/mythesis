@@ -353,8 +353,8 @@ Before clustering, each feature is z-normalized (zero mean and unit variance).
 Following features are used in this work:
 \begin{description}
 \item[Power spectral density] is calculated using PyEgg~\cite{Bao2011} and cut into three bins relative to sampling/measurement frequency, $(0, 1/12], (1/12, 1/6]$ and $(1/6, 1/2]$. Each of the bins individually functions as a feature.
-\item[Sampling Entropy] proposed by Richman and Moorman~\cite{Richman2000} quantifies the regularity or predictability of a time series. In calculation~\cite{Bao2011}, we used an embed dimension of 2 and a tolerance of 15 msec.
-\item[Number of changes] counts the number of times where the difference between two consecutive RTT measurements is greater than 15 msec. %We did not use change detection methods that adapt to mean and deviation level of a window in the past, e.g. those based on z-score, for we assert that an absolute RTT change more than 15msec is significant, regardless of the mean and $std$ of an RTT trace. 
+\item[Sampling Entropy] proposed by Richman and Moorman~\cite{Richman2000} quantifies the regularity or predictability of a time series. In calculation~\cite{Bao2011}, we used an embed dimension of 2 and a tolerance of $15msec$.
+\item[Number of changes] counts the number of times where the difference between two consecutive RTT measurements is greater than $15msec$. %We did not use change detection methods that adapt to mean and deviation level of a window in the past, e.g. those based on z-score, for we assert that an absolute RTT change more than 15msec is significant, regardless of the mean and $std$ of an RTT trace. 
 \item[Range] is the difference between the maximum and the minimum values of an RTT series.
 \item[Mode] is the value most frequently present in a time-series.
 \item[Mean] the first-order moment, describes the overall RTT level.
