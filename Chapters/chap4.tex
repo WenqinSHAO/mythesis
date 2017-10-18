@@ -458,33 +458,35 @@ of high quality labeling.
 \label{sec:method}
 With the evaluation framework ready, it opens the door to the exploration of best performing changepoint detection method for RTT measurements.
 For the detection family presented in Section~\ref{sec:cpt}, there are two major parameters to be set: penalty and cost function/distribution.
-We discuss the combination of these parameters, while leaving the examination of other methods for future work.
+We discuss in detail these parameters in this section, while leaving the examination of other methods for future work.
 
-We consider the combination of all the information criterion introduced (AIC, BIC, MBIC and Hannan-Quinn), and all the supported distribution types, including the non-parametric approach based on empirical distribution.
+We consider the combination between all the information criterion introduced (AIC, BIC, MBIC and Hannan-Quinn), and all the supported distribution types, including the non-parametric approach based on empirical distribution.
 
 With some preliminary tests, we quickly realized that detection with Normal distribution tend to be over-sensitive, under all the penalty settings.
-It is because the mean and variance of Normal distribution are independently controlled by two parameters, which increases the chance of fitting subtle changes either in level or volatility.
+Many short living and insignificant noises are marked as changepoints.
+It is because the mean and variance of Normal distribution are independently controlled by two separate parameters, which increases the chance of fitting subtle changes either in level or volatility.
 On the other hand, Exponential, Gamma and Poisson distribution are too numb.
 The mean and variance of Poisson and Exponential distribution are coupled by one parameter,
 which restrains their freedom of adjustment~\footnote{Poisson, mean=variance=$\lambda$; Exponential, mean/variance=$\lambda$, mean=$1/\lambda$.}.
 Gamma distribution faces the same issue, but with a more complicated story.
 A Gamma distribution can be describe by two parameters $\alpha$ and $\beta$: mean=$\frac{\alpha}{\beta}$, variance=$\frac{mean}{\beta}$.
-\cite{Killick2013a} requires an \textit{a priori} input for $\alpha$, which actually decides the overall sensitivity. 
-Only $\beta$ is fitted in finding changepoints.
-With a larger $\alpha$, a larger $\beta$ is needed to maintain the same mean estimation given a segment.
-Fixed mean with larger $\beta$, a smaller variation is imposed, thus leading to a more sensitive detection.
+\cite{Killick2013a}, the implementation we use, requires an \textit{a priori} input for $\alpha$, which actually decides the overall sensitivity. 
+Only $\beta$ is adjusted in detecting changepoints.
+With a larger $\alpha$, a larger $\beta$ is needed to maintain the same mean estimation for given a segment.
+Fixed mean with larger $\beta$ imposes a smaller variation tolerance, thus more likely to split the given segment due to smaller variance changes.
+In short, larger $\alpha$ leads to more sensitive detection.
 The default option sets $\alpha$ set to 1, which degenerates Gamma distribution to Exponential distribution. 
-We further tried $\alpha$ from 1 to 100. 
-None of them outperforms the best setting shown later on. 
-Due to space limit, we no longer consider Gamma distributions.
+We further tried $\alpha$ from 1 to 100, at unit step. 
+None of them outperforms the best settings shown later on. 
+We therefore no longer consider Gamma distributions.
 
-Through above analysis, we can see that the average level of an RTT time series some how dictated the tolerance for variation, when assuming Exponential and Poisson distribution.
-For instance, for a path including trans-Pacific links, we shall expect a minimum RTT above 80ms.
-In this case the corresponding Poisson distribution could easily tolerate several RTT deviations of 20ms, which is already non-negligible.
+When assuming Exponential and Poisson distribution, we notice that the average level of an RTT time series somehow dictate the variation tolerance.
+For instance, for a path including trans-Pacific links, we shall expect a minimum RTT above $80msec$.
+In this case the corresponding Poisson distribution could easily tolerate several RTT deviations of $20msec$, which is already non-negligible.
 However, having coupled mean and variance can as well be a desired feature. 
-We observed during labeling that the level of RTT and its variance are often somehow positively related, particularly during congestion periods. 
+We observed during labeling that the level of an RTT segment and its variance are often positively related during congestion periods. 
 
-To leverage the above described feature and as well boost the detection senstivity, we propose for Exponential and Poisson distribution a \textit{data transformation}: subtracting the RTT time series by its minimum value (baseline) to lower down its overall RTT level~\footnote{Note that timeout measurements are set to 1000ms. 
+To leverage the above described feature and as well as boost the detection senstivity, we propose for Exponential and Poisson distribution a \textit{data transformation}: subtracting the RTT time series by its minimum value (baseline) to lower down its overall RTT level~\footnote{Note that timeout measurements are set to 1000ms. 
 For Poisson distributions, RTT values are rounded to the closest integer.}. 
 Changes are then detected for the baseline-removed RTT time series when assuming Poisson and Exponential distribution.
 Such setting is denoted as \texttt{cpt\_poisson} and \texttt{cpt\_exp} respectively.
@@ -499,23 +501,29 @@ They are denoted as \texttt{cpt\_normal} and \texttt{cpt\_np} accordingly.
 \subsection{Evaluation of candidate methods}
 \label{sec:eval}
 
-Before evaluating the methods presented above, one might wonder whether the RTT segments in the ground truth dataset follow principally a specific distribution, and whether that distribution assumption leads to the best detection performance.
+Before evaluating the methods presented above, one might wonder 1) whether the RTT segments in the ground truth dataset follow principally a specific distribution, and 2) whether that distribution assumption leads to the best detection performance.
 
-We performed distribution test for 813 RTT segments longer than 20 datapoints against each of the discussed distribution types.
-71 follow Normal distribution, 13 follow Poisson distribution, 11 follow Exponential distribution~\footnote{We require a significance level of 0.05. Shapiro-Wilk test is used for Normality test; %for Normal distribution
-Chi-squared test for Poisson; Kolmogorov-Smirnov test for Exponential. Distribution parameters are estimated through Maximum Likelihood Estimation.}. 
-None of these distributions seems to to have dominant popularity among the labeled RTT segments.
+We performed distribution test for 813 RTT segments longer than 20 datapoints against each of the discussed distribution types. 
+We require a significance level of 0.05 in distribution test. 
+Shapiro-Wilk test is used for Normality test;
+Chi-squared test for Poisson; 
+Kolmogorov-Smirnov test for Exponential. 
+Distribution parameters are estimated through Maximum Likelihood Estimation.
+71 follow Normal distribution, 13 follow Poisson distribution, 11 follow Exponential distribution~\footnote{It is possible that a segments passes the test for multiple distributions. Thus there are overlaps in the numbers.}. 
+None of these distributions seems to have a dominant popularity among the labeled RTT segments.
+Still, Normal distribution seems to be the most compatible.
 
-All combinations between distribution types and penalty choices are applied on the ground truth dataset.
+All combinations between distribution types and penalty choices are employed to detect changepoints ins the ground truth dataset.
 For each distribution type, we only plot its best performing penalty setting in terms of weighted $F_2$ score in Figure~\ref{fig:real_eval}.
-In later discussion, when we mention a specific distribution type say \texttt{cpt\_poisson}, we actually refer to a configuration including the distribution itself, the corresponding data transformation plus its best performing penalty choice. 
-More than $75\%$ of changes, in terms of weight, can be detected for more than half of the traces with any of these distributions.
-All distribution types have better weighted $F_2$ than classic $F_2$, indicating some changepoints missed out are indeed of little operational importance.
-However, it seems to have a big space for future improvements.
+In later discussion, when we mention a specific distribution type say \texttt{cpt\_poisson}, we actually refer to a configuration including the distribution itself, the corresponding data transformation plus its best performing penalty choice.
+
+More than $75\%$ of changes, in terms of weight, can be detected for more than half of the timeseries with any of these distributions.
+All these distribution types have better weighted $F_2$ than classic $F_2$, indicating some changepoints missed out are indeed of little operational importance.
+However, it seems to have a big space for improvements.
 Efforts are especially needed to raise the precision of the detection results.
 
 The precision of \texttt{cpt\_normal} is particularly poor.
-This confirms that \texttt{cpt\_normal} is indeed over-sensitive for RTT type of data~\footnote{Note that \texttt{cpt\_normal}'s best penalty is MBIC, the largest adaptive penalty setting. This means that the detection sensitive is already suppressed to maximum.}.
+This confirms that \texttt{cpt\_normal} is indeed over-sensitive for RTT type of data~\footnote{Note that \texttt{cpt\_normal}'s best penalty is MBIC, the largest adaptive penalty setting. This means that the detection sensitive is already suppressed to its maximum.}.
 On the contrary, the recall of \texttt{cpt\_normal} is outstanding among all the candidates.
 However, its $F_2$ scores are the poorest~\footnote{With $F_2$, recall is already weighted twice as important as precision.}.
 The poor overall detection performance highlights the importance of striking a proper balance between sensitivity and relevance.
@@ -540,7 +548,7 @@ These are all evidences that the proposed data transformation improves the detec
 \texttt{cpt\_poisson} and \texttt{cpt\_np} with MBIC are used to detected RTT changes for all the 6029 collected ping timeseries spanning over three months.
 Please refer to Section~\ref{sec:cpt_data} for more details concerning the collected data.
 We consider \texttt{cpt\_poisson} as it is the best performing one, though by a small margin.
-\texttt{cpt\_np} is included as it performs well and its cost function follows a different construction.
+\texttt{cpt\_np} is included as it performs well and its cost function follows a different construction principal.
 %%% Well... It has also good performance right. Other wise you would not consider it...
 %%% Yes, but rather close with the rest. Actually except normal, all the rest are rather close... so the reason choosing it instead of exponential is because the construction of cost function is fundamentally different.
 
@@ -565,7 +573,7 @@ We consider \texttt{cpt\_poisson} as it is the best performing one, though by a 
 \end{figure}
 
 Figure~\ref{fig:rtt_ch_count_cmp} shows the distribution of RTT change numbers per probe trace. 
-4844 probe traces each containing more than 30,000 ping measurements are considered in the figure.
+4,844 probe traces each containing more than 30,000 ping measurements are considered in the figure.
 854,626 RTT changepoints are detected by \texttt{cpt\_np}.
 \texttt{cpt\_poisson} almost doubled this number with 1,638,858 RTT changes.
 Interestingly, the median change numbers for both methods is the same, 122.
@@ -582,10 +590,10 @@ This is probably because the cost function of \texttt{cpt\_np} bases on the esti
 We describe a detected changepoint from two aspects: 1) the difference of median RTT across the changepoint, and 2) the difference of RTT variance level across the changepoint.
 More specifically, they are $M$ and $\Delta$ defined from ground truth changepoint weighting in Section~\ref{sec:score}.
 Figure~\ref{fig:rtt_chara_cmp} visualizes the two features of RTT changepoints detected by the two methods.
-Since there is a huge amount of changepoints detected that overlaps each other on the $M$ and $\Delta$ surface,
+Since there is a huge amount of changepoints that overlaps each other on the $M$ and $\Delta$ surface,
 it becomes impossible to interpret if we were to explicitly plot each one of them.
 Therefore, we summarize all the changepoints using a 2-dimensional density estimation (with MASS:kde2d package in R).
-A same practice has been applied in Section~\ref{sec:miss_atlas} to Figure~\ref{fig:all}.
+A same practice has been conducted in Section~\ref{sec:miss_atlas} for Figure~\ref{fig:all}.
 A contour line represents a trajectory on which the changepoint density is the same on the $M$ and $\Delta$ surface.
 Inside a contour, the density becomes higher.
 
@@ -594,7 +602,7 @@ Both methods result a pretty high changepoint concentration in this area.
 This suggests that there were indeed significant performance changes on the measured path over the three-month time.
 \texttt{cpt\_poisson} and \texttt{cpt\_np} both succeed in identifying some of these changes.
 What seems to be weird is that there is a cluster of changepoints detected by \texttt{cpt\_poisson} on the top left panel of the the $M$ and $\Delta$ surface.
-These changepoints, more precisely 319,541 in number ($19.49\%$) with $M<5msec, \Delta>50msec$, imply big variance change yet small level changes.
+These changepoints, more precisely 319,541 in number ($19.49\%$) with $M<5msec, \Delta>50msec$, imply big variance yet small level changes.
 They are almost absent in the detection results of \texttt{cpt\_np}.
 After investigation over these chagnepoints, we discovered that they are mostly caused by frequent timeouts, and are associated with short RTT segment length. For example, probe 20854 had 2308 timeout measurements dispersed in the entire trace.
 Meanwhile, \texttt{cpt\_np} handled these timeouts gracefully without emitting all the time change alarms.
@@ -602,9 +610,9 @@ Meanwhile, \texttt{cpt\_np} handled these timeouts gracefully without emitting a
 
 Changepoints in the down left corner are relatively subtler.
 They in general won't lead to significant network performance issues and can thus be safely ignored in TE practices.
-Reasonably, a small fraction of changepoints by \texttt{cpt\_poisson}, 87,021 ($5.31\%$), are with $M$ and $\Delta$ both smaller than $5msec$.
+Reasonably, a small fraction of changepoints detected by \texttt{cpt\_poisson}, 87,021 ($5.31\%$), are with $M$ and $\Delta$ both smaller than $5msec$.
 Correspondingly, most part of this area in the figure is already outside the most outer contour.
-This suggests \texttt{cpt\_poisson} is tolerates well these small changes.
+This suggests \texttt{cpt\_poisson} tolerates well these small changes.
 One the other hand, \texttt{cpt\_np} appears to be quite reactive in such case.
 As a matter of fact, 331,062 ($38.71\%$) such changes are detected by \texttt{cpt\_np}.
 
@@ -618,7 +626,7 @@ In this section, we detect path changes experienced by the collected RTT measure
 Both AS and IP level path changes are attended.
 They are known to have potential impact on RTT.
 RIPE Atlas built-in path measurement uses a rotating Paris ID setting.
-This brought confusion between IP path changes caused by load balancing and those due to intradomain routing changes.
+This brings confusion between IP path changes caused by load balancing and those due to intradomain routing changes.
 We address this issue in this section.
 %in order to explore in depth the detection sensitivity difference with different parameters and the detection relevance compared to path changes, network events known to have consequence on RTT.
 The purpose of path change detection is not to repeat some of the studies sumeraized in~\ref{sec:rtt_path}, 
@@ -633,13 +641,13 @@ However, there are two kinds of transitions among ``parallel paths'' that need t
 They are 1) IP path changes caused by intradomian routing protocol dynamics, such as route recalculation after link failure or configuration update, 
 and 2) those caused by LB mechanisms. 
 Intradomain path changes before the era of LB haven been shown to be responsible for important RTT changes~\cite{Pucha2007}. 
-On the other hand, LB paths are of equal/close administrative cost, hence similar characteristics~\cite{Augustin2011}.
+On the other hand, LB paths are of equal/close administrative cost, hence similar performance characteristics~\cite{Augustin2011}.
+This suggests that these two kinds of IP route changes could have very different impact on RTT, and thus need to be distinguished.
  
 Trivial as it may sound, detecting IP path changes is challenging for RIPE Atlas built-in traceroute measurements.
 The difficulties come from two aspects: 1) the wide deployment of IP-level LB; 2) RIPE Atlas uses Paris traceroute with different Paris IDs every other measurement (incremented by 1, recycling between 0 and 15)~\cite{Augustin2006, Pelsser2013}.
-
-IP paths taken by two neighbouring measurements can naturally differ -- 
-load-balanced on different available paths.  
+IP paths taken by two neighboring measurements can thus naturally differ -- 
+load-balanced on different available paths with different Paris IDs.  
 From this angle, plain IP path changes doesn't mean that there were topological or configuration changes that lead to any real routing change. 
 On the other hand, having different Paris IDs every time can also be helpful in this context.  If traceroute were locked on a single Paris ID, it would then be unlikely to detect routing changes that only affect paths corresponding to other Paris IDs.
 
@@ -715,7 +723,6 @@ IXP change happens when the difference starts from a position involving at least
 IRP changes are detected with \textit{backward extension}. 
 Those overlap with any AS path/IXP changes are excluded, since they are potentially caused by intradomain routing changes.
 
-%%was here
 The distribution of the number of path changes per probe trace is illustrated in Figure~\ref{fig:path_ch_count_cmp}.
 One probe with the most complete traceroute measurements is selected for each of the 2050 source ASes.
 1170 ($57.07\%$) of them experienced no AS path changes over the period of three months, indicating that the AS paths are in general very stable over time.
@@ -733,14 +740,17 @@ If a pair of RTT and path change on a same Internet path is close in time, chanc
 %This is a demonstration of relevance between detected RTT change and underlying routing activities.
 %We are interested in knowing the fraction/quantity of RTT and path changes that
 However, there is no straightforward way matching the two types of change, as the measurement intervals are different: $30min$ for traceroute while $4min$ for ping. 
+
 Again, \textit{minimum cost maximum-cardinality matching} appears to be a reasonable formulation of the correlation between RTT and path changes.
 We therefore borrow the concept of optimal matching in changepoint evaluation (Section~\ref{sec:score}).
-The shift tolerance window is set to the interval of traceroute measurement, as causal relationship between the RTT and path change is possible (though not necessary) within that range.
+The shift tolerance window is set to the interval of traceroute measurement.
+It is because causal relationship between the RTT and path change is possible (though not necessary) within that range.
 A pair of RTT and path changes are correlated/matched if they are within in the so produced optimal matching.
 The notion precision, introduced in section~\ref{sec:score}, is now interpreted as the fraction of path changes that are matched to an RTT change.
 Recall now means the fraction of RTT changes that can be explained/matched to a certain type of path change.
+
 We compare separately AS, IXP and \ac{IRP} path changes to RTT changes detected with \texttt{cpt\_np} and \texttt{cpt\_poisson}.
-The matching is calculated for the 2050 probes each from a distinct AS, mentioned in the previous section.
+The matching is calculated for the 2050 probes mentioned in Figure~\ref{fig:path_ch_count_cmp}, each from a distinct AS.
 
 
 \subsection{Forward or backward?}
@@ -751,15 +761,15 @@ The matching is calculated for the 2050 probes each from a distinct AS, mentione
 \label{fig:IRP_bck_ch_precision_gain_cdf}
 \end{figure}
 
-In Section~\ref{sec:path}, we methods were described to detect \ac{IRP} changes: \textit{backward extension} and \textit{forward inclusion}.
+In Section~\ref{sec:path}, two methods were presented to detect \ac{IRP} changes: \textit{backward extension} and \textit{forward inclusion}.
 Do the \ac{IRP} changes detected with these two methods have any difference in terms of matching with RTT changes?
 To answer this question, we compare for each probe the matching precision of these two methods.
-The result of this comparison is plotted in Figure~\ref{fig:IRP_bck_ch_precision_gain_cdf}, in the form of CDF (over probes) of the precision ratio.
-\textit{backward extension} produces the same number of \ac{IRP} changes as \textit{forward inclusion} does for each probe trace.
+The precision ratio between the two methods is given in Figure~\ref{fig:IRP_bck_ch_precision_gain_cdf}, in the form of CDF over probes.
+\textit{backward extension} produces the same number of \ac{IRP} changes as \textit{forward inclusion} does.
 However, \ac{IRP} changes by \textit{backward extension} are more likely to have a match with RTT changes for $75\%$ probes.
 These probes are on the right side of the graph where the precision ration is bigger than 1.	
 The significant increase in precision implies that the path changes detected by \textit{backward extension} are more accurate and are thus is a necessary improvement to the basic approach.
-Later on, we refer always to changes detected by \textit{backward extension} when talking about \ac{IRP} change.
+Later on, we refer always to changes detected by \textit{backward extension} when talking about \ac{IRP} changes.
 
 \subsection{Summary of matching between path change and RTT change}
 
