@@ -201,13 +201,13 @@ We further explore and address the challenges of comparing two set of timestamps
 
 \subsubsection{True/False positive for changepoint detection}
 
-A natural way to assess the difference/similarity of two set of moments in time is to classify each detected moment of change into two categories: true positive, if the moment is as well a ground truth changepoint; or false positive otherwise.
+A natural way to assess the difference/similarity of two set of moments in time is to classify each detected moment of change into two categories: true positive, if the moment is as well a ground truth changepoint; or false positive if otherwise.
 
 The ratio between true positive and the total number of detected changepoints is called precision.
 It is a measure of the relevance of the detection results with regard to ground truth.
 The ratio between the true positive and total number of ground truth changepoints is called recall.
 It is a measure of the coverage of the actual changes that are successfully identified by the detection method.
-Precision and recall, both metrics are important to describe the performance of a detection method, since there is often a trade-off between them when tuning the detection sensitivity of the concerned method.
+Precision and recall, both metrics are important to describe the performance of a detection method, since there is often a trade-off between them when tuning the detection sensitivity of a certain method.
 If a method is over-sensitive (extreme case: all the moments in a time series are marked as change), it might achieve a good recall,  however the precision must be fairly poor.
 On the other hand, if the detection method is too prudent, the precision could be satisfying, meanwhile it probably leaves a lot of actual changes go undetected, thus poor recall.
 A good detection method thus shall excel in both metrics.
@@ -216,7 +216,7 @@ Above is the basic idea of true/positive scoring method.
 It is often used in classification problems.
 Changepoint detection can as well be regarded as one.
 The ground truth data set labels each timestamps of a given time series as a changepoint or not.
-Meabwhile, a changepoint detection method classifies each timestamps into the same two categories: change or not.
+Meanwhile, a changepoint detection method classifies each timestamps into the same two categories: change or not.
 And the evaluation by true/false positive compares the labels, the ground truth one and the detected one, for each timestamps. 
 Therefore, the described scoring method naturally fits in and is indeed expressive.
 
@@ -229,7 +229,7 @@ If the marked moment is just a few datapoints away from a certain ground truth c
 Such tolerance in time comes from two aspects.
 From a practical point of view, a shifted detection within a reasonable time range is still useful for TE.
 It is still more relevant than a false alarm far away from any true changes, as well as more informative than a miss alarm saying nothing about the occurring change.
-From a methodological point of view, slightly shifted detection just happens when  the exact moment of change are blurred by noises.
+From a methodological point of view, slightly shifted detection just happens when  the exact moment of changes are blurred by noises.
 Plus, when generating ground truth labels, we will see in Section~\ref{sec:label}, it is very hard to completely avoid slight errors, such as shift by several datapoints when putting the labels, due to human factors.
 This suggests that even the ground truth dateset is not extremely strict or certain about the position of change moments.
 Therefore, a certain level of time shift tolerance is actually required in evaluation, avoiding underestimate potential meaningful detection.
@@ -243,7 +243,7 @@ We assume ground truth $T_{1:k}$ containing $k$ positions in $y_{1:n}$ indicatin
 A classic True Positive ($TP$) is a $\tau_j, \exists T_i \in T_{1:k}, T_i = \tau_j$.
 If we were to introduce a window of size $w$, we have to modify the definition of $TP$. But how?
 
-One possibility is to apply the window to each ground truth changepoints.
+One possibility is to apply the window to each ground truth changepoint.
 That is for each $T_j$, all the detected moments of change $\{\tau_i | T_j - w \leq \tau_i \leq T_j + w \}$ shall be considered $TP$ for providing useful information (help detecting $T_j$) according to the definition of tolerance window.
 However the definition of recall becomes confusing when there are multiple detected changepoints classified as $TP$ for a single ground truth changepoint.
 It is because the total number of timestamps in all the $TP$ sets no longer strictly represents (is actually equal or larger than) the total number of ground truth changepoints that are successfully detected.
@@ -399,7 +399,7 @@ To that end, we rely on an artificial dataset.
 The idea is to generate some synthetic RTT timeseries with known changepoints.
 These artificial timeseries are then mixed up with real RTT timeseries during human labeling.
 Once the labeling is done, we compare the human-labeled changepoints over the artificial dataset with its the generated changepoints, using the scoring method presented in Section~\ref{sec:score}.
-That is to evaluate the detection performance of human labellers using generated model as ground truth.
+That is to evaluate the detection performance of human labellers using generated changes as ground truth.
 
 Synthetic RTT timeseries are after all not real RTT measurements.
 Human labellers performing perfectly over generated traces doesn't necessary indicate that they would do as well on real RTT measurements.
@@ -410,7 +410,7 @@ First, we randomly generate several phases/segments of different delay baselines
 Different RTT baselines corresponds to the different physical lengths on different Internet paths.
 For each phase of RTT baseline, we add noises representing micro queue length changes, waiting time due to router load and scheduling policies etc.
 Finally for each phase of RTT baseline, we generate relatively long during congestion with its own Markov process.
-Random parameters appropriate to each baseline segment decide the chance of get into and get out of a congestion period.
+Random parameters appropriate to each baseline segment decide the chance of getting into and out of a congestion period.
 The generated changepoints are moments when there are baseline delay changes and congestion entrance/exit.
 Short living spikes (length $\leq 2$ datapoints) are considered noises rather than real changes.
 For the detailed generative models and model parameters of each step, please refer to the documentation in the code space available at \url{https://github.com/WenqinSHAO/rtt_gen.git}.
@@ -1015,7 +1015,7 @@ We already revealed from a macroscopic view, in Section~\ref{sec:cpt_trace} and 
 Meanwhile, \texttt{cpt\_np} is capable of detecting delicate RTT changes. 
 Individual traces are given in Figure~\ref{fig:case_sensitivity} to illustrate the sensitivity difference from a microscopic view. 
 In Figure~\ref{fig:case_28002}, \texttt{cpt\_np} detected all the periodic small amplitude congestion.
-This is actually quite impressing, as these change are only hardly visible for human experts.
+This is actually quite impressive, as these change are only hardly visible for human experts.
 The changepoints marked by \texttt{cpt\_np} indeed highlighted their presence, and made them easier to be noticed visually.
 In Figure~\ref{fig:case_26328}, both methods identified the two large bumps near the end of the timeseries.
 The difference is that \texttt{cpt\_poisson} marked intermediate level changes as well.

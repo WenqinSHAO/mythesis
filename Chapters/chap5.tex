@@ -4,7 +4,7 @@
 We set out to infer the network locations of previously detected RTT changes.
 Knowing which AS or inter-AS link causes an RTT change at a certain moment shed light on TE decisions for destination prefixes to which measurements are not available.
 We start by grouping RTT time series that share a same RTT change with the help of changepoint analysis.
-Based on the assumption that changes are more likely to happen on common parts of these measured paths, we then develop inference procedures for AS and inter-AS link.
+Basing on the assumption that changes are more likely to happen on common parts of these measured paths, we then develop inference procedures for AS and inter-AS link.
 Finally, we present two visualization tools for the inspection of shared RTT changes across multiple RTT measurements and inferred causes of change on a topology map.
 \clearpage
 
@@ -227,8 +227,7 @@ If measurements over multiple paths experience a shared RTT change, the common p
 It describes one possible way to satisfy Assumption~\ref{as:2} when multiple RTT measurements with intersecting paths are considered.
 It is simply a more probably case than having multiple scattered parts of Internet simultaneously cause a significant change. We use this assumption to design special sets of measurements (inference metric) for each node and link in topology graphs to test their liability at each 10 min time bin for RTT change events.
 
-\subsection{Inference metric and logic}
-\subsubsection{Node}
+\subsection{Inference for Node}
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=1\textwidth]{gfx/chap5/dms.pdf}
@@ -238,7 +237,7 @@ It is simply a more probably case than having multiple scattered parts of Intern
 
 %\marginpar{intuition on node inference}
 To verify whether a node (AS) $n$ is the exclusive cause for shared RTT changes, we
-design for it measurement sets (inference metric), within in which the only common element is the node itself. If a majority measurements in such set experience at the same time an RTT change, we can then pinpoint it to the node under investigation, according to Assumption~\ref{as:1}.
+design for it measurement sets (inference metric), within which the only common element is the node itself. If a majority measurements in such set experience at the same time an RTT change, we can then pinpoint it to the node under investigation, according to Assumption~\ref{as:1}.
 
 More formally, we describe a measurement $m$ by a set of nodes it traverses: $m:\{n1, n2,..\}$. 
 If two measurements $m1, m2$, satisfy $m1 \cap m2 = \{n\}$, we call them \acf{DM} of $n$.
@@ -257,9 +256,9 @@ $count(D,t)$ is the RTT change event count within measurement set $D$ at time bi
 \paragraph{The higher bar} If we regard node $n$ as an atomic point, and it causes an RTT change, then measurements following through all of its adjacent edges should be impacted. One thus should expect to find a \ac{DM} set $D$ at time bin $t$ satisfying $count(D, t) = degree(n)$. Such a strict criterion is somehow not realistic from two aspects. First, a node (AS) is not an atomic point. A real issue could be only PoP-wide instead of AS-wide, as showcased in Section~\ref{sec:chap5_spatial}, where only a fraction of links would be impact. Second, due to topology constraints not all the adjacent edges of node $n$ can be covered by any single \ac{DM} set, for example AS0 in Figure~\ref{fig:chap5_dms}.
 
 %\marginpar{further justification of the heuristic}
-Heuristic~\ref{hu:node} is not perfect. It might still give rise to both false positive and false negative inference results. Hopefully, false positive more likely occurs to low degree nodes, for which the heuristic requirement is relatively easier to meet. Meantime, high degree nodes are prone to false negative inference. Yet, these RTT change events are not ignored, as they will reflect on some of the adjacent links to concerned nodes, and shall eventually be captured in link inference.
+Heuristic~\ref{hu:node} is not perfect. It might still give rise to both false positive and false negative inference results. Hopefully, false positive more likely occurs on low degree nodes, for which the heuristic requirement is relatively easier to meet. Meantime, high degree nodes are prone to false negative inference. Yet, these RTT change events are not ignored, as they will reflect on some of the adjacent links to concerned nodes, and shall eventually be captured in link inference.
 
-\subsection{Link}
+\subsection{Inference for Link}
 
 \subsubsection{Early exemption}
 
@@ -472,7 +471,7 @@ Géant (AS21320).
 Similar to Franc-IX, it is not possible to find a \ac{DM} set that covers enough of its adjacent links to make it liable. Moreover, the number of these violet links doesn't surpass half of the node degree as required by Heuristic~\ref{hu:node}. The node is thus not judged liable for the shared RTT changes. 
 However, link (Géant, Internet2-AS11537), labeled in the figure, is neither the cause of RTT change, since its normalized event count is only around 0.3, far below 0.5 required by Heuristic~\ref{hu:link}, thus judged clean in early exemption.
 Since there is no further suspects of cause along the path toward the destination, Géant is the only possible location where the shared RTT change could originate according to Assumption~\ref{as:1}. However, with current topology granularity and Heuristic~\ref{hu:node} setting, such inference can not be straightforwardly reached.
-Hopefully, with the help of this visual inspection, such case can be rather easily assessed by a network engineering.
+Hopefully, with the help of this visual inspection, such case can be rather easily assessed by a network engineer.
 
 \section*{Conclusion}
 In this chapter, we developed a series of inference procedures to identify the location of RTT changes seen in end-to-end measurements.
