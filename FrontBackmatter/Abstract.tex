@@ -55,7 +55,50 @@ In this dissertation, we tackled some of the most pronounced challenges in measu
 \begin{otherlanguage}{french}
 \pdfbookmark[1]{Résumé}{Résumé}
 \chapter*{Résumé}
-Le résume en français...
+Avec la baisse du prix de transit, multihoming a maintenant devenu une pratique courante parmi les réseaux de moyenne même petite taille.
+Toutefois, il reste difficile de réellement améliorer la performance de transmission via ces multiple chemin désormais disponibles.
+Une des difficultés est d’originaire du protocole de routage employé dans ce contexte : \acf{BGP}.
+Le protocole ne prend pas en compte les éléments de performance lors de la sélection et la propagation des routes.
+De plus, ce protocole va probablement continuer à dominer les routages d’Internet.
+
+Pour pouvoir contourner les contraints du \ac{BGP}, des études dans la passé et des solutions industrielles suggèrent de mesurer régulièrement les multiples chemin Internet.
+Puis, la meilleur route à chaque destination est sélectionner selon les données de ces mesures. C’est ce que nous appelons l’ingénierie du trafic (TE) alimenté par la mesure.
+En réalisant cette idée et satisfaisant les requis des vrais réseaux, pleine de problèmes sont laissés ouverts.
+
+D’abord, un system comme tel doit pouvoir gérer énorme de destinations.
+Cela pesse lourdement sur la fonctionnalité de mesure.
+En plus, cette charge est multipliée par le nombre de chemins disponibles.
+Au lieu de couvrir la totalité des destinations, il est clairement plus sage de se focaliser sur certains unes les plus importantes.
+Afin de vérifier que ce soit faisable, nous avons étudié des vrais trafics sur les vrais réseaux à profils variés.
+Le résultat montre qu’effectivement une grande partie de trafic se concentre sur une petite collection de destinations.
+De plus, les trafics associés aux ces destinations sont relativement plus facile à prédire que le reste.
+S’appuyant sur ces découverts, nous avons identifié des moyens simples mais efficaces à capter ces destinations d’importance.
+
+Deuxièmement, les données récoltées par le system de mesure restent à être interpréter.
+Dans cette thèse, nous nous occupons principalement la latence d’aller-retour comme l’indicateur de performance d’un chemin.
+Nous avons commencé par identifier et analyser certains problèmes liés à la qualité de données.
+Nous avons également discuté comment atténuer ces impacts.
+En outre, nous avons essayé de grouper ensemble des séries temporelles de latence qui partage des traits similaires, par exemple vécus un changement au même moment.
+
+En donnant des sens pratiques aux groups résulté, nous avons rencontré des difficultés.
+Ils nous ont dirigé vers la détection de changement pour des séries temporelles de latence.
+Les moments de changement significatif se peuvent être regardés comme un représentation compacte pour les données de performance. 
+Ils nous facilitent ainsi l’opération de regroupage plus tard. 
+Finalement, ces changements servent également comment déclencheur à la réévaluation des routes sélectionnées.
+Car quand un changement de performance est survenu sur l’un des chemins mesurés, il indique soit une dégradation potentielle soit des espaces à l’amélioration. 
+S’en rendant compte, nous avons mis en pratique des méthodes de \textit{changepoint analysis} sur des séries temporelles de latence.
+Nous avons même conçu un mécanisme d’évaluation de la qualité de détection pour données de type latence Internet.
+Les implémentations de cet outils et données labélisées sont rendu publique, dans l’objectif d’encourager les efforts à venir sur la méthodologie de détection.
+
+Finalement, nous avons essayé d’inférer les endroits dans l’Internet qui sont susceptibles d’être la cause des changements de performance détectés.
+Cette visibilité permet de réagir aux accidents pour certain destinations que nous n’arrivions pas à mesurer directement.
+Quand certains chemins vers ces destinations traversent une cause de changement, il est probable que ces chemins non mesurés ont vécu le même changement que les autres mesurés.
+Basant sur cette hypothèse, nous avons développé une sérié de logique qui attribue la cause de chaque changement de performance à un réseau sur le chemin ou un bout de lien entre deux réseaux.
+Les méthodes de changpoint analysis étudiées plutôt nous aident d’abord à identifier les changements de performance sur chaque chemin mesuré, et puis à regrouper les chemins par les changements qu’ils ont vécu.
+Pour mieux illustrer le processus et les résultats de l’inférence, nous avons développé des outils interactifs projetant les outputs de chaque étape sur une graphe de topologie.
+
+Dans cette thèse, nous avons entrepris des défis les plus remarqués concernant l’ingénierie du trafic alimenté par la mesure dans routage Internet. Nous avons apporté des contributions sur la scalabilité, l’interprétation des données et la visibilité sur la cause de variation de performance.
+
 \end{otherlanguage}
 \fi
 
