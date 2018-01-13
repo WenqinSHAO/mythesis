@@ -26,7 +26,7 @@ On certain networks, the algorithm achieved a $20\%$ performance gain compared t
 A client network in need of measurement-based interdomain \acf{TE} are often of type \acf{ISP}, \acf{HP}, \acf{CP}.
 It sends out traffic to a wide range of destinations, from several 10k to 100k BGP prefixes.
 The measurement and route decision sub-system illustrated in Figure~\ref{fig:archi} thus faces a scalability issue tracking and optimizing in real time the transmission performance to these destinations.
-However, it is well-known that most traffic volume-wide is generally concentrate on only a fraction of the BGP prefixes~\cite{Fang1999, Feamster2003, Papagiannaki2005, Sarrar2012}.
+However, it is well-known that most traffic volume-wide is generally concentrated on only a fraction of the BGP prefixes~\cite{Fang1999, Feamster2003, Papagiannaki2005, Sarrar2012}.
 It is thus possible and reasonable to focus only on those important destination prefixes in measurement and route re-selection. 
 
 %\marginpar{the proposition}
@@ -47,7 +47,7 @@ These models are not only computationally heavy, but also require data pre-proce
 These overheads make those methods less applicable in the context of inter-domain TE that involves upto some 100k prefixes. Therefore, less complex prediction methods are needed. 
 
 %\marginpar{contributions}
-The rest of this chapter is organized as following:
+The rest of this chapter is organized as follows:
 \begin{itemize}
 \item Section~\ref{sec:chp2_related_work} reviews some related works on Internet traffic dynamism, \ac{FIB} caching and the performance gain of interdomain TE.
 \item Section~\ref{sec:chp2_chara} mainly studies the temporal dynamism of Internet traffic at BGP prefix scale with working traffic traces from networks of diverse profiles (\ac{ISP}, \ac{HP} and \ac{CP}) located in different countries (France, Germany, Poland, Spain, UK and USA).
@@ -106,7 +106,7 @@ We evaluated this gain by performing delay measurements from real client network
 We base our study on working traffic traces collected from 9 client networks of very different profiles listed in Table~\ref{tab:network_type}. 
 They are either \ac{CP}, \ac{HP} or \ac{ISP}. 
 Traffic traces covers a time period of two entire weeks, from May 25th, 2015 to June 8th, 2015, from all networks except SB and SD.
-On SB and SD, the data only cover the second week (starting from June 1st, 2015).
+On SB and SD, the data only covers the second week (starting from June 1st, 2015).
 These traces were sampled from real traffic, similarly to previous works concerning FIB caching \cite{Kim2009, Zhang2012}.
 It has been shown that the bias introduced by sampling is negligible, especially when we focus on large volume prefixes.
 
@@ -152,9 +152,9 @@ This figure shows that Internet traffic (within our dataset) is indeed highly co
 
 
 
-Figure~\ref{fig:sa_cdf_multi_time} compares the traffic distribution (in CDF) of SA at different time resolutions: prefix volumes within one hour time (at 2AM and 10AM), traffic accumulated over 24 hours (on June 3rd) and that throughout the full week.
+Figure~\ref{fig:sa_cdf_multi_time} compares the traffic distribution (in CDF) of SA at different time resolutions: prefix volumes within one hour time (at 2AM and 10AM), traffic accumulated over 24 hours (on June 3rd) and the traffic throughout the full week.
 The uneven traffic distribution is not unique on week time scales (Figure~\ref{fig:week_zipf}), but as well demonstrates over shorter time ranges.
-Moreover, the level of traffic concentration over BGP prefixes actually varies within in a day.
+Moreover, the level of traffic concentration over BGP prefixes actually varies within a day.
 The $1^{st}$ ranking prefix at 2AM represents almost $20\%$ of all traffic, while at other time or time spans, this ratio is much lower. This observation leads to the study in the following section.
 This change in time leads to the study in the following section.
 
@@ -196,7 +196,7 @@ To compact the visual representation, we further group all the prefix into six b
 These bins can be identified with the X-axis labels.
 They are $[10^{-4}, 10^{-3})$, $[10^{-3}, 10^{-2})$, all the way to $[10,100)$.
 For all the prefixes within in same bin, we summarize their $c_v$ using a vertical boxplot.
-The two ends of the box represent $25^th$ and $75^th$ percentile $c_v$ values of prefixes within the bin.
+The two ends of the box represent $25^th$ and $75^th$ percentile of $c_v$ values of prefixes within the bin.
 The thin line in the middle stands for median, while the thick one for mean.
 The whiskers are min and max separately.
 In order to outline the relationship between $c_v$ and prefix volume importance, the mean value of the six bins are connected with a thick line.
@@ -207,7 +207,7 @@ It allows us to capture a significant part of the overall traffic (represented b
 
 \subsubsection{\textit{Core} presence intensity}
 We continue to explore traffic dynamism from another perspective:
-for each hour $h$, we define the $core_h$ as the set containing top ranking prefixes that represent $95\%$ of total traffic. 
+for each hour $h$, we define the $core_h$ as the prefix set containing top ranking prefixes that represent $95\%$ of total traffic. 
 Imagine that we were to identify prefixes representing that much traffic, then $core_h$ will be the smallest set that we could arrive at.
 One essential feature of the \textit{core} set is its size.
 It gives a rough picture on how many prefixes that a network might want to consider in measurement-based TE.
@@ -394,7 +394,7 @@ In order to describe burstiness in a quantitative manner, we define the index $\
 \end{equation*}
 where $vp(P)_h$ is the hour volume percentage (among all active prefixes) of prefix $P$ at hour $h$.
 The logarithmic term applied on $I_{cp}$ aims at amplifying the volume contribution of prefixes with rare \textit{core} presence, and attenuating the influence of prefixes being intensively in the \textit{core}.
-A large $\beta$ value indicates that it is hard to predict the volume associated with this prefix while representing a significant hour volume.
+A large $\beta$ value indicates that it is harder to predict the volume associated with this prefix while representing a significant hour volume.
 
 In order to estimate the overall burstiness of all prefixes at hour $h$ for a network, we sum up the $\beta(P)_h$ for each $P$ inside the \textit{core} of that hour: more formally, 
 %Wenqin: notation for $\beta(P)_i$ is not right
@@ -446,7 +446,7 @@ In short, we found this simple metric capable of describing the traffic burstine
 %\marginpar{prediction metrics inspired by traffic temporal dynamism studies}
 Based on the previous observations, several approaches naturally emerges for the prediction of traffic volume ``importance'' of a prefix.
 \paragraph*{Mean Volume}
-With this metric, we predict that at hour $h+1$, the volume importance of prefix $P$ is indicated by it's mean hourly volume over the last $L$ hours, $MV(P,L)_{h+1} = 1/L \times \sum_{i = h-L+1}^{h} v(P)_i$.
+With this metric, we predict that at hour $h+1$, the volume importance of prefix $P$ is indicated by its mean hourly volume over the last $L$ hours, $MV(P,L)_{h+1} = 1/L \times \sum_{i = h-L+1}^{h} v(P)_i$.
 It is based on the observations from Figure~\ref{fig:cv}, that top prefixes over the week tend to have smaller hourly volume variation around their mean volume.
 
 \paragraph*{Core Presence Intensity}
@@ -459,10 +459,10 @@ $CV$ has the potential to be more resource thrifty compared to $MV$, as it is ca
 \subsection{Grey model as reference method}
 %\marginpar{computation complexity}
 In previous work by Zhange et al.\ \cite{Zhang2012} on FIB caching, a grey differential model $GM(1,1)$ \cite{Julong1989} is employed to predict which BGP prefixes will represent the biggest packet counts. 
-It is by far more computationally efficient ($O(L)$), compared to \ac{TSF} methos such as \ac{ANN} ($O(L*M)$) and \ac{ARIMA} ($O(L^2)$), where L is the length of the time series, M is the number of hidden nodes in the neural network.
+It is by far more computationally efficient ($O(L)$), compared to \ac{TSF} methods such as \ac{ANN} ($O(L*M)$) and \ac{ARIMA} ($O(L^2)$), where L is the length of the time series, M is the number of hidden nodes in the neural network.
 For the sake of comparison, we implemented the $GM(1,1)$ model to predict big volume BGP prefixes. 
 
-A brief introduction to this model and how we apply it in our context is given below. Mathematical details of this model can be find in the work by Deng \cite{Julong1989}.
+A brief introduction to this model and how we apply it in our context is given below. Mathematical details of this model can be found in the work by Deng \cite{Julong1989}.
 Instead of hour volume, $GM(1,1)$ predicts the cumulative hour volume $v^1$ :
 \begin{equation*}
 v^1(P,L)_{i} = \displaystyle \sum_{j=i-L+1}^{i} v(P)_j,
@@ -568,7 +568,7 @@ Among proposed metrics, we find that the $CV$ is very close to $MV$ in terms of 
 Basing solely on the last 1 hour records, all methods yield already a mean volume coverage $>80\%$ on SA, SB, SE and SH, which implies a strong continuity in prefix volumes between two consecutive hours. 
 On SC and SG, however, using records of last 168 hours, i.e. a week, offers much better minimum volume coverage than shorter records. This is due to the fact that at certain hour, SC and SG undergo a great amount of bursty traffic (as observed previously, e.g. in Table~\ref{tab:bi} and Figure~\ref{fig:cv_cp}). By increasing the historical length, the selection metrics are able to have better visibility into the past and capture some of these bursty prefixes --- finally improving the minimum coverage.
 The gain in minimum volume coverage by using long historical records can actually be observed on all networks, between 1 hour and 12 hours, also between 12 hour and 24 hour. 
-However from 24 hour to 168, this gain doesn't necessary happen on all sites, which is due to the fact that the total volume brought by some highly bursty prefix is diluted by the long time span using $MV$ and $CV$ metrics. In order to capture them, a larger selection set size is need, which inevitably includes more prefixes of few significance.
+However from 24 hour to 168, this gain doesn't necessary happen on all sites, which is due to the fact that the total volume brought by some highly bursty prefix is diluted by the long time span using $MV$ and $CV$ metrics. In order to capture them, a larger selection set size is needed, which inevitably includes more prefixes of few significance.
 
 
 \begin{figure}
@@ -624,18 +624,18 @@ However from 24 hour to 168, this gain doesn't necessary happen on all sites, wh
 \end{figure}
 
 %\marginpar{Why grey model performs poorly?}
-On the other hand, the hour volume coverage by grey model drops as we increase the historical records length and is in general much worse than the metrics proposed in this work. 
+On the other hand, the hour volume coverage by grey model drops as we increase the historical records length and is in general worse than the metrics proposed in this work. 
 In order to understand the underlying reason, we used $GM(1,1)$ model described above to dynamically predict the total hour volume of all prefixes, which is normally much more regular and smoother than the volume series of individual prefixes, Figure~\ref{fig:grey}.
 
 %\marginpar{overreact to sudden value change.}
 For site SB and SD, we miss the hour volume data for the week starting from May 25th. 
-$GM(1,1)$ model using records of last $168$ suffer a lot from  data missing and converge extremely slow to actual traffic volume. 
-However, such sudden change in value is not unexpected, since bursty prefixes can bring huge amount of traffic within in a short duration and then remain silent over days. Such prefixes are commonly seen on SC, SF, SG judging from their burstiness index in Table~\ref{tab:bi}.
+$GM(1,1)$ model using records of last $168$ suffers a lot from  data missing and converges extremely slowly to actual traffic volume. 
+However, such sudden change in value is not unexpected, since bursty prefixes can bring huge amount of traffic within a short duration and then remain silent over days. Such prefixes are commonly seen on SC, SF, SG judging from their burstiness index in Table~\ref{tab:bi}.
 This explains why grey model leads to fairly low volume coverage in Figure~\ref{fig:cvg_sc}. 
 
 %\marginpar{delayed response to value change}
 Furthermore, in Figure~\ref{fig:grey_sb}, Figure~\ref{fig:grey_sc} and as well in others, we can see that grey model reacts to volume variations in an obviously delayed manner. 
-Longer the historical records length is, longer grey model delays the variations of actual trace.  
+Longer the historical records length, longer grey model delays the variations of actual trace.  
 This behavior could be fatal in the presence of bursty prefixes.
 We can observe considerably large pikes in both directions several hours after the volume burst in Figure~\ref{fig:grey_sc}, which might greatly disturb the prefix selection during those periods and consequently cause low volume coverage.
 
@@ -844,8 +844,7 @@ On the other hand, a large $NP$ value indicates that the overall transmission pe
 
 %\marginpar{dynamic route selection as a virtual transit provider}
 If the egress transit provider for real traffic is chosen dynamically for each individual destination prefix, the route selection mechanism can be regarded as a virtual transit provider. 
-At each probe round, the virtual transit provider corresponds to a set of physical transit provider for each destination prefix. 
-The set of physical provides taht are actually employed can change over time, i.e. dynamic.
+At each probe round, the virtual transit provider corresponds to the choice physical transit providers for each destination prefix. 
 
 We implemented a virtual transit provider, denoted as $l1/r$, first appeared in~\cite{Akella2008} for the sake of comparison. 
 $l1/r$ selects the transit provider that provides the smallest RTT in last probe round for each destination prefix ($l1$ in $l1/r$). 
@@ -879,7 +878,7 @@ One of the challenges in addressing this problem was to select in a scalable man
 
 %GgX: IMO We talk about a property of traffic, hence "volume" has to be singular.
 We analyzed real traffic measurements from nine different networks located in five different countries to understand the distribution of traffic volume associated with BGP prefixes, as well as its variation in time.   
-We observed that the most important prefixes (representing largest volume over a week) are generally stable in time, with small hourly variations around their mean of hour volume. 
+We observed that the most important prefixes (representing the largest volume over a week) are generally stable in time, with small hourly variations around their mean of hour volume. 
 Based on this observation, we proposed three simple 
 %and resource-economical   % GgX: How can a metric demand ressources? Its computation does but not the metric tiself 
 metrics (also easy to compute) to proactively select prefixes with important foreseeable traffic volume.
