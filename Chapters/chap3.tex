@@ -32,7 +32,7 @@ The other side of coin is that such private dataset hinder the reproducibility, 
 
 %%\marginpar{What does reproducibility imply?}
 The \acf{ACM} offers definitions for various terms referring to different degrees of research repoducibility~\cite{acm}.
-The degree ranges from repeating the same result by the same teamd to reproducing the same result with independent implementation of proposed methods or measurement system.
+The degree ranges from repeating the same result by the same team to reproducing the same result with independent implementation of proposed methods or measurement system.
 The way the measurement data is generated, stored and accessed is one key element for all these degrees of reproducibility.
 
 %%\marginpar{data generation}
@@ -60,7 +60,7 @@ Realizing above limitations using private data, we looked for public measurement
 \section{RIPE Atlas}
 RIPE Atlas is not the only Internet measurement platform that provides open data access~\cite{Bajpai2015}.
 We justify this choice by first introducing RIPE Atlas. 
-We then summarize and highlight its features that qualify it as an plausible option for our research,  along with comparison to alternative measurement platforms.
+We then summarize and highlight its features that qualify it as a plausible option for our research, along with comparison to alternative measurement platforms.
 This introduction as well saves repetitive efforts on how measurements are conducted and collected in later studies.
 
 \subsection{Overview of RIPE Atlas}
@@ -117,7 +117,7 @@ Increasing number of commercial networks host RIPE Atlas probes, providing a muc
 \section{Missing measurements on RIPE Atlas}
 \label{sec:miss_atlas}
 Data quality is another key issue to metrology researches besides reproducibility.
-Through previous studies~\cite{Holterbach2015a, Bajpai2015}, it is now known that load have obvious impacts on measurement precision and scheduling.
+Through previous studies~\cite{Holterbach2015a, Bajpai2015}, it is now known that load has obvious impacts on measurement precision and scheduling.
 We focus on data completeness, another aspect of measurement quality that received less attention so far. Missing measurements can cause various undesired consequences. 
 Apart from widening confidence interval of inference~\cite{Fontugne2016}, it requires in general methodological adaptations, e.g. in spectrum analysis~\cite{Babu2010, Luckie2014, shao2016}, otherwise biased estimation would be expected~\cite{Baraldi2010}.
 %Therefore it is of relevance to question the nature of missing measurements.
@@ -286,7 +286,7 @@ However, the remaining $2/3$ of missing segments occurred while probes are conne
 Half of them are no more than 2 measurements in length, and are thus likely to be caused by scheduling issues. However, around $25\%$ of this category lasts long($\geq 1h$). 
 
 We reported the discovery to RIPE engineering team along with a specific case that they could look into.
-The last reply from RIPE team confirmed that the probe we mentioned in the report had ``time synchronization issues''. To help advance the investigation, we shared with RIPE team all the long missing segments identified along with corresponding probe IDs. These exchanges can be found on the RIPE Atlas forum at \url{https://www.ripe.net/participate/mail/forum/ripe-atlas}, with tile ``Actual measurement interval much larger than planned''.
+The last reply from RIPE team confirmed that the probe we mentioned in the report had ``time synchronization issues''. To help advance the investigation, we shared with RIPE team all the long missing segments identified along with corresponding probe IDs. These exchanges can be found on the RIPE Atlas forum at \url{https://www.ripe.net/participate/mail/forum/ripe-atlas}, with title ``Actual measurement interval much larger than planned''.
 
 Though the final result is not conclusive nor revealing in terms of the underlying mechanism, this study did help realize a data completeness issue and treated it seriously.
 This issue can be mostly avoided or largely alleviated, if the probes are properly chosen as source of measurement data.
@@ -299,15 +299,15 @@ A specific data quality concern in measurement-based interdomain TE is \textit{w
 Route selection function in Figure~\ref{fig:archi} relies on path performance measurements as input (more details in Chapter~\ref{sec:cpt_rtt}).
 However, RTT measurements might be `polluted' either by non-network factors, say host-local issues such as CPU overload, or non-representative sub-AS level network issues, say local congestion within the destination prefix.
 Avoiding these issues is not the main objective of interdomain TE, since it is mostly unfeasible with interdomain routing alone.
-However, none of these previous works on measurement based inter-domian TE~\cite{Goldenberg2004, Akella2008} has realized the importance of this problem.
+However, none of these previous works on measurement based inter-domain TE~\cite{Goldenberg2004, Akella2008} has realized the importance of this problem.
 
 This data quality issue gives rise to a series of questions: \textit{if we measure a same AS path with different hosts in the destination prefix, what will these RTT time series look like? Will they have similar characters? If not, how can we pick out the ones that fit best for interdomain TE purposes?}
-We try to answer to these questions by performing clustering over a such set of RTT time series.
+We try to answer these questions by performing clustering over a such set of RTT time series.
 Without prior knowledge or assumption, the study aims at automatically revealing the inherent structures of these RTT time series.
 
 \subsection{Data collection}
 We emulated a typical RTT measurements between two ASes, i.e. one local client AS (one host) and one destination AS (multiple hosts), with RIPE Atlas built-in measurements $\#1006$ and $\#5006$.
-They are respectively IPv4 ping and traceroute measurements from all Atals probes to m.root-servers.net (202.12.27.33). 
+They are respectively IPv4 ping and traceroute measurements from all Atlas probes to m.root-servers.net (202.12.27.33). 
 Ping measurement is scheduled at 240 seconds interval, while traceroute at 1800 seconds.
 120 RIPE Atlas probes within AS3215 are selected to construct our database~\footnote{The 120 probes are the same ones in user-defined measurement \#2427397. The metadata of the that measurement are accessible to everyone.}.
 These probes hit the same DNS root server clusters via a same AS path: AS3215, AS5511, (PARIX), AS7500~\footnote{Some of these probes are now moved to a different network. For example, probe 2036 is now within AS35540, probe 877 is hosted in AS12322, etc. Therefore, if the same tracerouts are repeated now or afterward, it will be normal to expect some probe to employ a different AS path.}. 
@@ -334,8 +334,8 @@ To sum up, we fabricated four RTT time series data sets, each with 100 RTT time 
 \subsection{Clustering RTT series in feature space}
 \label{sec:cls_ft}
 Generally speaking, a time series clustering approach can be decomposed into three parts: data representation, distance measure and clustering algorithm~\cite{Aghabozorgi2015}. 
-Due to its high dimension, time series is seldom used in its raw form~\footnote{The curse of dimensionality:\url{https://en.wikipedia.org/wiki/Curse_of_dimensionality}.}.
-Therefore, a time series needs to be transformed and represented with fewer datapoints that still captures its essence.
+Due to its high dimension, time series is seldom used in its raw form~\footnote{The curse of dimensionality:~\url{https://en.wikipedia.org/wiki/Curse_of_dimensionality}.}.
+Therefore, a time series needs to be transformed and represented with fewer datapoint that still captures its essence.
 Common approaches include dimension reduction~\cite{Elhamifar2013}, pattern extraction~\cite{Ulanova2015}, etc.
 Distance measure quantifies the similarity/dissimilarity of two time series with their new data representation.
 A well known practice is Euclidean distance that we usually apply on a Cartesian coordination system.
