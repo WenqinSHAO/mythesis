@@ -48,7 +48,7 @@ However, this approach falls short in handling transient RTT augmentation during
 
 \paragraph{RTT threshold} One can react to transit RTT increase by comparing the instant RTT measurements to a hard-coded threshold. 
 Once the RTT surpasses the threshold value, route re-selection can be triggered to look for a better performance path at that specific moment.
-The drawback of this method is that the an appropriate threshold value depends on each individual destination, and are thus not trivial to configure.
+The drawback of this method is that the appropriate threshold value depends on each individual destination, and are thus not trivial to configure.
 
 \paragraph{Threshold of RTT change amplitude} In order to bypass the RTT threshold configuration that may vary among destinations, one can instead apply a single global threshold for the amplitude of RTT changes.
 This change amplitude threshold could be absolute values such as 30 msec or proportional to the RTT level, say $30\%$ of previous measurement.
@@ -63,7 +63,7 @@ Their presence might lead to unnecessarily frequent route re-selection.
 
 \section{RTT change, network events and TE}
 \label{sec:rtt_path}
-In this section, we summarize previous studies on RTT variations and the  their relation to network events.
+In this section, we summarize previous studies on RTT variations and their relation to network events.
 We explain why certain RTT analysis method adopted in the mentioned works is not a good fit for TE uses.
 
 %Path changes and congestion are known to be the major reasons of RTT changes.
@@ -90,12 +90,12 @@ RTT measurements are first grouped by underlying paths;
 impact of path changes are then estimated through comparison of associated RTT statistics, e.g. percentiles.
 However, in a practical TE system sketched in Figure~\ref{fig:archi}, RTT are measured with higher frequency than paths.
 The underlying reasons are threefold.
-First, RTT measurement are in general less costly. 
+First, RTT measurements are in general less costly. 
 Considering the potential number of destination to be monitored (see Section~\ref{sec:pref_selec}), path measurements are better limited.
 Second, smaller RTT is the objective of TE, we thus have the incentive to follow its evolution closely. Meanwhile, path is just a result of optimization.
 Third, RTT changes generally happen more frequently than path changes.
 One important reason is congestion.
-Grouping RTT measurements by path changes can not really help learn the presence of
+Grouping RTT measurements by path changes can not shed light on the presence of
 such events.
 Therefore, we need to explore methods that can identify inherent RTT changes, instead of relying on external measures such as path changes to describe the variation of transmission performance.
 
@@ -165,7 +165,7 @@ We have MBIC $>$ BIC $>$ Hannan Quinn. Note that larger penalty value leads to l
 %RTT traces, like many other time series, may undergo sudden changes in level or volatility, generally caused by path change or congestion.
 Among the extensive studies on change detection methods and their applications in various domains~\cite{Zhang2007,Reeves2007, Yu2008},
 Rimondini et al.~\cite{Rimondini2014} are among the first to employ change detection in network RTT measurement analysis.
-However, they tuned the detection sensitivity in a way that the detected changes correlate best to the BGP route changes of toward the measured destination prefix among other randomly selected prefixes.
+However, they tuned the detection sensitivity in a way that the detected changes correlate best to the BGP route changes toward the measured destination prefix among other randomly selected prefixes.
 This approach risks ignoring the RTT changes due to intra-domain changes and congestion.
 Plus, such tuning is potentially required for each individual destination, thus hard to scale.
 To achieve more general approach decoupled from path measurements, we propose in next section an evaluation framework for the selection and the calibration of change detection methods over RTT measurements.
@@ -191,7 +191,7 @@ We explain in Section~\ref{sec:label} how we construct a ground truth dataset wi
 
 As for the scoring method, it quantifies the similarity/difference between the ``ground truth'' and the detected changepoints.
 We explain in Section~\ref{sec:score} that classic true/false positive classification is too rigid for both manual labeling and changepoint detection.
-We further explore and address the challenges of comparing two set of timestamps with time shift tolerance.
+We further explore and address the challenges of comparing two sets of timestamps with time shift tolerance.
 %We argue that a slight shift in time could be tolerated.
 % Numenta proposed an evaluation method (for anomaly detection) with window option~\cite{Lavin2016}. However, they attribute equal weight to each ground truth events of anomaly (wich are homologous to RTT changes in our case). 
 %We propose weighting each actual RTT changes according to their operational importance. 
@@ -473,7 +473,7 @@ On the other hand, Exponential, Gamma and Poisson distribution are too numb.
 The mean and variance of Poisson and Exponential distribution are coupled by one parameter,
 which restrains their freedom of adjustment~\footnote{Poisson, mean=variance=$\lambda$; Exponential, mean/variance=$\lambda$, mean=$1/\lambda$.}.
 Gamma distribution faces the same issue, but with a more complicated story.
-A Gamma distribution can be describe by two parameters $\alpha$ and $\beta$: mean=$\frac{\alpha}{\beta}$, variance=$\frac{mean}{\beta}$.
+A Gamma distribution can be described by two parameters $\alpha$ and $\beta$: mean=$\frac{\alpha}{\beta}$, variance=$\frac{mean}{\beta}$.
 \cite{Killick2013a}, the implementation we use, requires an \textit{a priori} input for $\alpha$, which actually decides the overall sensitivity. 
 Only $\beta$ is adjusted in detecting changepoints.
 With a larger $\alpha$, a larger $\beta$ is needed to maintain the same mean estimation for given a segment.
@@ -517,7 +517,7 @@ Distribution parameters are estimated through Maximum Likelihood Estimation.
 None of these distributions seems to have a dominant popularity among the labeled RTT segments.
 Still, Normal distribution seems to be the most compatible.
 
-All combinations between distribution types and penalty choices are employed to detect changepoints ins the ground truth dataset.
+All combinations between distribution types and penalty choices are employed to detect changepoints in the ground truth dataset.
 For each distribution type, we only plot its best performing penalty setting in terms of weighted $F_2$ score in Figure~\ref{fig:real_eval}.
 In later discussion, when we mention a specific distribution type say \texttt{cpt\_poisson}, we actually refer to a configuration including the distribution itself, the corresponding data transformation plus its best performing penalty choice.
 
@@ -617,10 +617,10 @@ They in general won't lead to significant network performance issues and can thu
 Reasonably, a small fraction of changepoints detected by \texttt{cpt\_poisson}, 87,021 ($5.31\%$), are with $M$ and $\Delta$ both smaller than $5msec$.
 Correspondingly, most part of this area in the figure is already outside the most outer contour.
 This suggests \texttt{cpt\_poisson} tolerates well these small changes.
-One the other hand, \texttt{cpt\_np} appears to be quite reactive in such case.
+On the other hand, \texttt{cpt\_np} appears to be quite reactive in such case.
 As a matter of fact, 331,062 ($38.71\%$) such changes are detected by \texttt{cpt\_np}.
 
-We later on cross the detected RTT changes with path changes.
+We later on relate the detected RTT changes to path changes.
 With that, we further discuss the detection sensitive and relevance of these two methods with regard to network events.
 
 \section{Detecting path changes}
@@ -749,7 +749,7 @@ Again, \textit{minimum cost maximum-cardinality matching} appears to be a reason
 We therefore borrow the concept of optimal matching in changepoint evaluation (Section~\ref{sec:score}).
 The shift tolerance window is set to the interval of traceroute measurement.
 It is because causal relationship between the RTT and path change is possible (though not necessary) within that range.
-A pair of RTT and path changes are correlated/matched if they are within in the so produced optimal matching.
+A pair of RTT and path changes are correlated/matched if they are within the so produced optimal matching.
 The notion precision, introduced in section~\ref{sec:score}, is now interpreted as the fraction of path changes that are matched to an RTT change.
 Recall now means the fraction of RTT changes that can be explained/matched to a certain type of path change.
 
@@ -772,7 +772,7 @@ The precision ratio between the two methods is given in Figure~\ref{fig:IRP_bck_
 \textit{backward extension} produces the same number of \ac{IRP} changes as \textit{forward inclusion} does.
 However, \ac{IRP} changes by \textit{backward extension} are more likely to have a match with RTT changes for $75\%$ probes.
 These probes are on the right side of the graph where the precision ration is bigger than 1.	
-The significant increase in precision implies that the path changes detected by \textit{backward extension} are more accurate and are thus is a necessary improvement to the basic approach.
+The significant increase in precision implies that the path changes detected by \textit{backward extension} are more accurate and are thus a necessary improvement to the basic approach.
 Later on, we refer always to changes detected by \textit{backward extension} when talking about \ac{IRP} changes.
 
 \subsection{Summary of matching between path change and RTT change}
@@ -829,7 +829,7 @@ The difference is caused by a small fraction of probes identified in Figure~\ref
 In the graph, each dot represents one of the 880 probes that ever experienced AS path changes.
 More reddish the dot (probe) is, larger the difference is between \texttt{cpt\_poisson} and \texttt{cpt\_np}.
 We can tell from the graph that those probes plainly in red all experienced a large number of AS path changes (y-axis).
-Moreover, when there is more \texttt{cp\_poisson} RTT changes (the positive side of the X-axis), it's more likely that more AS path changes from that probe are matched to \texttt{cp\_poisson} RTT changes as well(the left panel).
+Moreover, when there is more \texttt{cp\_poisson} RTT changes (the positive side of the X-axis), it's more likely that more AS path changes from that probe are matched to \texttt{cp\_poisson} RTT changes as well (the left panel).
 The reverse is as well true when there is more \texttt{cp\_np} RTT changes.
 All together, the difference in matched RTT changes with AS path changes fundamentally lies in the difference of detection sensitivity (number of detected RTT changes) across different probe traces.
 This difference is manifested through extremely frequent AS Path changes of several specific probes.
@@ -854,7 +854,7 @@ The X-axis indicates the RTT standard deviation in $msec$, while the Y-axis tell
 Again, to facilitate the interpretation, we overlapped the graph with a 2-dimensional density estimation for the datapoints on the surface. Inner contours represent dense area.
 
 For most probes traces with small overall RTT variation, \texttt{cpt\_np} is in fact more sensitive and detects more RTT changes, according to the figure.
-This observation agrees with with Figure~\ref{fig:rtt_ch_count_density_cmp} in the sense that \texttt{cpt\_np} detects much more changes of small amplitude.
+This observation agrees with Figure~\ref{fig:rtt_ch_count_density_cmp} in the sense that \texttt{cpt\_np} detects much more changes of small amplitude.
 
 For probes with relatively large overall RTT variation, \texttt{cpt\_poisson} tends to be more sensitive and the difference in change number increases with the level of RTT variance.
 With comprehensive manual inspection, we found that those RTT traces with high variance mostly underwent large amplitude RTT oscillations, many of which caused by ping timeouts. 
@@ -1032,5 +1032,5 @@ Finally, we correlate the detected RTT and path changes by establishing an one-t
 We investigated the sensitivity distinction across different change detection methods. 
 Hidden issues with path changes are as well revealed.
 
-This work is mere a facilitator for measurement-based TE. 
+This work is a facilitator for measurement-based TE. 
 Further efforts are required in building a working system.

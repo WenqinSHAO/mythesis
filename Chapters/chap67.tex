@@ -64,7 +64,7 @@ We built two interactive visualization tools to enable the demonstration of shar
 
 \chapter{Future works}
 We attacked various topics regarding different measurements and methods in this thesis.
-What we arrived at most of time is merely a beginning or an enabling step to those directions.
+What we achieved so far is merely a beginning or an enabling step to those directions.
 There is still a long journey ahead.
 % to fully address these issues so that some of the methodological propositions in this work become exploitable in real network operation.
 We sketch the most important issues left open and discuss possible approaches to them when possible.
@@ -82,8 +82,8 @@ As articulated in Chapter~\ref{sec:chap5_precision}, it is in general beneficial
 However, such benefit comes with a cost. Intuitively, one first has to explore the sub-prefix structure seen from a certain client network, which is apparently not trivial.
 \citet{Lee2016} explored such sub-prefix route difference. Their work can serve as starting point for further inspection.
 
-Second, \textit{do we measure the traffic in the right way?} ICMP ping is known to have different queuing priority during forwarding compared to other traffic, thus might not represent the real traffic performance. However, latency measurement via TCP SYN stealth is not perfect either. Increasing web traffic nowadays is transported in QUIC which is UDP based. Its queuing delay could thus differ from competing TCP connections on the same path.
-The deployment of Active Queue Management (AQM) will reflect the load change rather in packet drop instead of latency.
+Second, \textit{do we measure the traffic in the right way?} ICMP ping is known to have a different queuing priority in forwarding compared to other traffic, thus might not represent the real traffic performance. However, latency measurement via TCP SYN stealth is not perfect either. Increasing web traffic nowadays is transported in QUIC which is UDP based. Its queuing delay could thus differ from competing TCP connections on the same path.
+The deployment of Active Queue Management (AQM) will signal the load change rather in packet drop instead of latency.
 Passive measurements are more faithful and could thus complement active probing. However, how to strike the balance between sampling rating and time resolution is tricky.
 Application specific instrumentation can as well help. The key challenge consists in well defined and commonly accepted telemetry interface between various applications and the network operation system.
 
@@ -110,7 +110,7 @@ To further narrow down the scope, we reinitialize the window once a changepoint 
 
 The disadvantage of the above approach is three-fold. First, the window size needs to be properly tuned. We believe that the evaluation framework introduced in this thesis can help in this process. 
 Second, the method tends to be oversensitive. Since it ignores all the datapoints before previous change, the next potential changepoint could be only locally significant. Finally, the computation of changepoints is not incremental, which leaves room for further performance improvements. Being incremental in calculation means that the detection method can learn from the result of previous run and update it with only the new incoming datapoint to obtain the detection result of current run. 
-It is important to note that the calculation on previous datapoints is not thrown away, which allows incremental update have the potential to overcome the second issue.
+It is important to note that the calculation on previous datapoints is not thrown away, which allows incremental update to have the potential to overcome the second issue.
 Various methods~\cite{Caron2012,Turner2009a,Sharkey2014,Ho2014,Adams2007,Conditions2015} have been proposed. We can again employ the proposed evaluation framework to quantify the detection sensitivity and relevance an on RTT measurements with these methods.
 
 Further, the scoring method used in the evaluation frameworks needs as well adaptation.
@@ -136,7 +136,7 @@ On the other hand, we need online change detection to capture in real time the c
 
 
 \section{RTT change cause inference}
-In Chapter~\ref{sec:infer}, we tried to infer the locations causing RTT changes seen in the end-to-end measurements, through correlation of RTT changes at about  same moments.
+In Chapter~\ref{sec:infer}, we tried to infer the locations causing RTT changes seen in the end-to-end measurements, through correlation of RTT changes at about same moments.
 Online change detection will help to enable such functionality in a real time mode.
 RTT change cause inference is a difficult quest in which we see great utility for interdomain TE and beyond. 
 Both the main inference logic and the demo tools need to be further improved, so that the output is more reliable and hence useful to the community.
@@ -173,7 +173,7 @@ To achieve finer inference granularity, a more precise topology graph, e.g. \ac{
 \paragraph*{Measurement scoping} Several improvements regarding measurements scoping are as well possible. All the available Atlas probes were considered in the previous case study. It is not hard to notice that some of them were redundant.
 The inference efficiency could be improved if we can devise a minimum set of measurements in achieving a specified topology coverage of inference.
 
-Another application of such technique would be the calculation of the additional measurements required for node and links currently can not be (surely) inferred. Combined with previously mentioned API and Web application, this would allow individual networks to better engineer their own measurements to achieve a better monitoring visibility. 
+Another application of such technique would be the calculation of the additional measurements required for node and links currently that can not be (surely) inferred. Combined with previously mentioned API and Web application, this would allow individual networks to better engineer their own measurements to achieve a better monitoring visibility. 
 
 On the other hand, the presence of redundant measurements actually increases the statistical significance of inference results. When redundant measurements do not harm to exist, it would be informative to express as well the statistical confidence nuance across inference results.
 
