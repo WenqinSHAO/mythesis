@@ -221,61 +221,72 @@ De plus, nous avons évalué les performances de transmission pour les préfixes
 Nous avons également simulé un algorithme de décision d'itinéraire dynamique.
 Les résultats ont montré que même avec un mécanisme assez basique, la performance RTT globale pourrait être améliorée de 20\% par rapport au meilleur fournisseur de transit disponible dans certains réseaux étudiés.
 
-\section{RIPE Atlas et reproductibilité}
+\section{La qaulité des mesures}
 
 À partir d'ici, notre étude se concentre sur les mesures de latence et de trajectoires.
-Ces mesures sont facilement disponibles sur les platesformes TE chez les clients, de même que les données de volume étudiées dans le chapitre~\ref{sec: pref_selec}.
-Cependant, dans un souci de reproductibilité, nous avons décidé de passer aux mesures effectuées par RIPE Atlas, une plateforme de mesure mondiale offrant un accès ouvert aux données. Nous justifions ce choix en introduisant succinctement sa philosophie de conception et en la comparant à des plateformes alternatives.
+Ces mesures sont disponibles sur les platesformes TE chez les clients, de même que les données de volume étudiées dans le chapitre~\ref{sec: pref_selec}.
+Cependant, dans un souci de reproductibilité, nous avons décidé de passer aux mesures effectuées par RIPE Atlas, une plateforme de mesure mondiale offrant un accès ouvert aux données. 
 
-Cette décision est justifiée par une brève analyse sur les éléments de reproductibilité et comment RIPE Atlas les satisfait dans la conception.
-Pour faciliter la discussion dans le chapitre suivant concernant la collecte des mesures, nous introduisons succinctement les éléments constitutifs de RIPE Atlas, ses méthodes de mesure et comment une mesure particulière peut être identifiée et récupérée.
+\subsection{La complétude des données}
 
-Data completeness
-
-La qualité des données est une autre question clé pour les recherches en métrologie en plus de la reproductibilité.
-Grâce à des études antérieures ~ \ cite {Holterbach2015a, Bajpai2015}, il est maintenant connu que la charge a des impacts évidents sur la précision et l'ordonnancement des mesures.
-Nous nous concentrons sur la complétude des données, un autre aspect de la qualité des mesures qui a reçu moins d'attention jusqu'ici. Des mesures manquantes peuvent entraîner diverses conséquences indésirables.
-En dehors de l'élargissement de l'intervalle de confiance de l'inférence ~ \ cite {Fontugne2016}, il nécessite en général des adaptations méthodologiques, par ex. dans l'analyse spectrale ~ \ cite {Babu2010, Luckie2014, shao2016}, sinon une estimation biaisée serait attendue ~ \ cite {Baraldi2010}.
+En plus de la reproductibilité, la qualité des données est un autre aspect clé pour les recherches en métrologie.
+Grâce à des études antérieures~\cite{Holterbach2015a, Bajpai2015}, il est maintenant connu que en case de RIPE Atlas, la charge a des impacts évidents sur la précision et l'ordonnancement des mesures.
+Nous nous concentrons sur la complétude des données, un autre aspect de la qualité des mesures qui a reçu moins d'attention jusqu'ici. 
+Des mesures manquantes peuvent entraîner diverses conséquences indésirables.
+En dehors de l'élargissement de l'intervalle de confiance de l'inférence~\cite{Fontugne2016}, 
+il nécessite en général des adaptations méthodologiques, par ex. dans l'analyse spectrale~\cite{Babu2010, Luckie2014, shao2016}, 
+sinon l'estimation serait biaisée~\cite {Baraldi2010}.
 % Il est donc important de s'interroger sur la nature des mesures manquantes.
 
-Une raison évidente de l'absence de mesures est que la sonde ne fonctionne pas (correctement), par ex. éteindre ~ \ cite {schedule}.
-Tant qu'une sonde est alimentée, elle essaie de maintenir une connexion à un contrôleur pour rapporter les mesures et recevoir les affectations comme indiqué sur la figure ~ \ ref {fig: ripe_atlas_archi}.
-Par conséquent, l'activité de connexion de la sonde fournit une bonne indication de la disponibilité de la sonde et est utilisée dans les investigations menées par RIPE sur la stabilité du système d'exploitation de la sonde ~ \ cite {1look, 2look, 3look}.
+Une raison évidente de l'absence de données est que la sonde RIPE Atlas ne fonctionne pas (ou pas correctement), par ex. éteinte~\cite{schedule}.
+Tant qu'une sonde est alimentée, elle essaie de maintenir une connexion à un contrôleur pour soumettre les mesures et recevoir les allocations des tâches comme indiqué sur la figure~\ref{fig: ripe_atlas_archi}.
+Par conséquent, l'activité de connexion de la sonde fournit une bonne indication de la disponibilité de la sonde et est utilisée dans les investigations menées par RIPE sur la stabilité du système d'exploitation de la sonde~\cite{1look, 2look, 3look}.
 
-Afin de déduire l'existence possible d'autres causes, nous avons comparé les horodatages de mesure avec les moments sonde se connecte et se déconnecte du système de contrôleur Atlas.
-Si la mesure manquante coïncide avec la déconnexion de la sonde, il y a de fortes chances que la sonde soit dysfonctionnelle, par ex. éteindre, pendant les disparus.
+Afin de déduire l'existence possible d'autres causes, nous avons comparé les horodatages de mesure avec les moments sonde se connecte et se déconnecte du système de contrôleur d'Atlas.
+Si les mesures manquantes coïncident avec la déconnexion de la sonde, il y a de fortes chances que la raison de cette manque est que la sonde soit dysfonctionnelle, par ex. éteinte.
 Cependant, si les mesures sont perdues alors que la sonde est bien connectée, il faut s'attendre à quelque chose d'anormal, au-delà du problème connu du système d'exploitation de la sonde.
 
-Dans notre analyse couvrant un grand nombre de sondes sur un mois, seulement 60% des sondes v3 Atlas ont des mesures complètes. Des segments manquants d'environ 1/3 $ semblent étroitement liés à la période déconnectée. Le problème de stabilité du système d'exploitation de la sonde pourrait avoir contribué à de tels manques, comme le suggère la queue lourde des longueurs manquantes.
+Dans notre analyse couvrant un grand nombre de sondes sur un mois, seulement $60\%$ des sondes v3 Atlas ont des mesures complètes. 
+D'environ $1/3$ des segments de manques semblent étroitement liés à la période déconnectée. 
+Le problème de stabilité du système d'exploitation de la sonde pourrait avoir contribué à de tels manques, 
+comme le suggère la distribution à queue lourde de la longueur des segments manques.
 
-Cependant, les segments manquants $ 2/3 $ restants se sont produits pendant que les sondes sont connectées.
-La moitié d'entre eux ne mesurent pas plus de 2 mesures et sont donc susceptibles d'être causés par des problèmes d'ordonnancement. Cependant, environ 25 $ \% $ de cette catégorie dure longtemps ($ \ geq 1h $).
+Cependant, $2/3$ des segments de manques restants se sont produits pendant que les sondes sont connectées.
+La moitié d'entre eux ne durent pas plus de 2 datapoint et sont donc susceptibles d'être causés par des problèmes d'ordonnancement. 
+Cependant, environ $25\%$ de cette catégorie dure longtemps ($\geq 1h$).
 
-Nous avons signalé la découverte à l'équipe d'ingénierie RIPE avec un cas spécifique qu'ils pourraient examiner.
-La dernière réponse de l'équipe RIPE a confirmé que l'enquête que nous avons mentionnée dans le rapport avait des "problèmes de synchronisation de l'heure". Pour aider à faire avancer l'enquête, nous avons partagé avec l'équipe RIPE tous les longs segments manquants identifiés avec les identifiants de sonde correspondants. Ces échanges peuvent être trouvés sur le forum RIPE Atlas à \ url {https://www.ripe.net/participate/mail/forum/ripe-atlas}, avec le titre "Intervalle de mesure réel beaucoup plus grand que prévu".
+Nous avons signalé la découverte à l'équipe d'ingénierie de RIPE avec un cas spécifique qu'ils pourraient examiner.
+La dernière réponse de l'équipe RIPE a confirmé que la cas que nous avons cité dans le rapport avait des problèmes de synchronisation de l'heure. 
+Pour aider à faire avancer l'enquête, nous avons partagé avec l'équipe RIPE tous les segments de manque de données de longue durée que nous avons identifiés. 
+Ces échanges peuvent être trouvés sur le forum RIPE Atlas à \url{https://www.ripe.net/participate/mail/forum/ripe-atlas}, avec le titre ``Actual measurement interval much larger than planned''.
 
-Bien que le résultat final ne soit pas concluant ni révélateur en termes de mécanisme sous-jacent, cette étude a aidé à réaliser un problème d'exhaustivité des données et à le traiter sérieusement.
+Bien que le résultat final ne soit pas concluant ni révélateur en termes de mécanisme sous-jacent, cette étude a aidé à réaliser un problème concernant la complétude des données et à le traiter sérieusement.
 Ce problème peut être évité ou largement atténué, si les sondes sont correctement choisies comme source de données de mesure.
 Avec des données complètes et relativement complètes au fil du temps, de nombreuses étapes de nettoyage de données peu justifiables peuvent être évitées.
 
-Extra variation
+\subsection{La variation supplémentaire dans les mésures de latence}
 
-Un problème spécifique de qualité des données dans l'interdomaine basé sur les mesures TE est \ textit {si la mesure RTT reflète principalement les caractéristiques des chemins AS qui pourraient être utilisés par le trafic réel}.
+Un problème de qualité des données spécifique dans TE de l'interdomaine est \textit{si la mesure RTT reflète principalement les caractéristiques des chemins AS}.
 
-La fonction de sélection d'itinéraire dans la figure ~ \ ref {fig: archi} repose sur les mesures de performance de chemin en entrée (plus de détails dans le chapitre ~ \ ref {sec: cpt_rtt}).
-Toutefois, les mesures RTT peuvent être "polluées" par des facteurs non liés au réseau, par exemple des problèmes locaux tels que la surcharge du processeur ou des problèmes de réseau de niveau sub-AS non représentatifs, par exemple la congestion locale du préfixe de destination.
-Éviter ces problèmes n'est pas l'objectif principal de l'interdomaine TE, car il est pour la plupart irréalisable avec le routage interdomaine seul.
-Cependant, aucun de ces travaux antérieurs sur la mesure inter-domaine TE ~ \ cite {Goldenberg2004, Akella2008} n'a réalisé l'importance de ce problème.
+La fonction de sélection d'itinéraire dans la figure~\ref{fig: archi} repose sur les mesures de performance de chemin (plus de détails dans le chapitre~\ref{sec: cpt_rtt}).
+Toutefois, les mesures RTT peuvent être ``polluées'' par des facteurs non liés au réseau, par exemple des problèmes locaux tels que la surcharge du processeur,
+ ou des problèmes de réseau de niveau sub-AS non représentatifs, par exemple la congestion locale du réseau de la destination.
+Éviter ces problèmes n'est pas l'objectif principal de TE dans l'interdomaine, car ce dernier tout seul ne se suiffit pas.
+Cependant, aucun de ces travaux antérieurs~\cite{Goldenberg2004, Akella2008} n'a réalisé l'importance de ce problème.
 
-Ce problème de qualité des données soulève une série de questions: \ textit {si nous mesurons un même chemin AS avec différents hôtes dans le préfixe de destination, à quoi ressembleront ces séries temporelles RTT? Auront-ils des personnages similaires? Si non, comment pouvons-nous choisir celles qui conviennent le mieux aux fins de l'interdomaine TE?
-Nous essayons de répondre à ces questions en effectuant des regroupements sur un tel ensemble de séries temporelles RTT.
-Sans connaissance préalable ou hypothèse, l'étude vise à révéler automatiquement les structures inhérentes de ces séries temporelles RTT.
+Ce problème de qualité des données soulève une série de questions:\textit{si nous mesurons un même chemin AS avec différents hôtes dans le préfixe de la destination, 
+à quoi ressembleront ces différentes éries temporelles RTT? 
+Auront-ils des traits similaires? 
+Si non, comment pouvons-nous choisir celles qui conviennent le mieux aux fins de TE dans l'interdomaine?}
+Nous essayons de répondre à ces questions en effectuant des regroupements sur un tel ensemble de séries temporelles de RTT.
+Sans connaissance préalable ou hypothèse, l'étude vise à révéler automatiquement les structures inhérentes de ces séries temporelles de RTT.
 
-Dans cette étude, nous avons daté des séries temporelles RTT entre deux AS.
-Nous avons découvert que les séries temporelles de RTT recueillies dans cette étude démontrent diverses formes de variation, bien qu'une voie commune AS soit mesurée.
-Il a confirmé que les mesures RTT doivent être "nettoyées".
-Nous avons regroupé ces séries temporelles RTT en extrayant% un couple de
-plusieurs fonctionnalités comme leur représentation des données.
+Dans cette étude, nous avons analysé des séries temporelles RTT entre deux AS.
+Nous avons découvert que les séries temporelles de RTT recueillies dans cette étude démontrent diverses formes de variation, 
+bien qu'un chemin d'AS en commun soit mesurée.
+Il a confirmé que les mesures RTT doivent être ``nettoyée''.
+Nous avons regroupé ces séries temporelles RTT en extrayant
+plusieurs caractéristiques comme leur représentation.
 Les clusters résultants ont réussi à séparer les traces bruyantes des traces lisses selon l'intuition humaine et l'expertise.
 De plus, nous avons localisé l'emplacement de la plupart des variations dans les mesures RTT de bout en bout en appliquant les méthodes de regroupement aux premiers sauts des mesures traceroute.
 Nos résultats ont confirmé le bon sens que la plupart des variations proviennent du réseau d'accès.
