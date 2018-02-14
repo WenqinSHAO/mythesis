@@ -102,6 +102,7 @@ Dans cette thèse, nous avons entrepris des défis les plus remarqués concernan
 
 \end{otherlanguage}
 
+\newpage
 
 \begin{otherlanguage}{french}
 \pdfbookmark[1]{Condensé du Manuscrit}{Condensé du Manuscrit}
@@ -221,13 +222,13 @@ De plus, nous avons évalué les performances de transmission pour les préfixes
 Nous avons également simulé un algorithme de décision d'itinéraire dynamique.
 Les résultats ont montré que même avec un mécanisme assez basique, la performance RTT globale pourrait être améliorée de 20\% par rapport au meilleur fournisseur de transit disponible dans certains réseaux étudiés.
 
-\section{La qaulité des mesures}
+\section*{La qaulité des mesures}
 
 À partir d'ici, notre étude se concentre sur les mesures de latence et de trajectoires.
 Ces mesures sont disponibles sur les platesformes TE chez les clients, de même que les données de volume étudiées dans le chapitre~\ref{sec:pref_selec}.
 Cependant, dans un souci de reproductibilité, nous avons décidé de passer aux mesures effectuées par RIPE Atlas, une plateforme de mesure mondiale offrant un accès ouvert aux données. 
 
-\subsection{La complétude des données}
+\subsection*{La complétude des données}
 
 En plus de la reproductibilité, la qualité des données est un autre aspect clé pour les recherches en métrologie.
 Grâce à des études antérieures~\cite{Holterbach2015a, Bajpai2015}, il est maintenant connu que en case de RIPE Atlas, la charge a des impacts évidents sur la précision et l'ordonnancement des mesures.
@@ -264,7 +265,7 @@ Bien que le résultat final ne soit pas concluant ni révélateur en termes de m
 Ce problème peut être évité ou largement atténué, si les sondes sont correctement choisies comme source de données de mesure.
 Avec des données complètes et relativement complètes au fil du temps, de nombreuses étapes de nettoyage de données peu justifiables peuvent être évitées.
 
-\subsection{La variation supplémentaire dans les mésures de latence}
+\subsection*{La variation supplémentaire dans les mésures de latence}
 
 Un problème de qualité des données spécifique dans TE de l'interdomaine est \textit{si la mesure RTT reflète principalement les caractéristiques des chemins AS}.
 
@@ -292,7 +293,7 @@ De plus, nous avons localisé l'emplacement de la plupart des variations dans le
 Nos résultats ont confirmé le bon sens que la plupart des variations proviennent du réseau d'accès.
 
 
-\section{Détecter les changements dans les séries temporelles de RTT}
+\section*{Détecter les changements dans les séries temporelles de RTT}
 
 Les mesures RTT interviennent dans TE d'interdomaine basé sur la mesure à deux phases.
 Premièrement, les mesures RTT révèlent les moments où la resélection de l'itinéraire est nécessaire. % sinon la performance de transmission peut subir une dégradation évitable.
@@ -507,7 +508,8 @@ Dans la figure~\ref{fig:case_26328}, les deux méthodes ont identifié les deux 
 La différence est que\texttt{cpt\_poisson} a également marqué les changements de niveau intermédiaire.
 Ces changement intermédiaires ne sont pas corrélés aux changements de chemin.
 En plus de cela, ils sont également redondants en informant la congestion qui se produisait à ce moment-là.
-La raison d'une telle sur-sensibilité était due à son incompétence dans l'ajustement de la sensibilité de détection en fonction du niveau de variance d'entrée. Ce problème est exploré et expliqué dans la section ~ \ ref {sec:over_sensitive}.
+La raison d'une telle sur-sensibilité était due à son incompétence dans l'ajustement de la sensibilité de détection en fonction du niveau de variance d'entrée. 
+Ce problème est exploré et expliqué dans la section~\ref{sec:over_sensitive}.
 
 Pour résumer le travail de cette section, nous avons proposé un cadre d'évaluation pour la détection des changements sur les séries temporelles RTT.
 Le cadre est robuste avec l'ensemble de données étiqueté manuellement et pondère les changements RTT en fonction de leur importance dans le fonctionnement du réseau.
@@ -516,7 +518,7 @@ En détectant les changements de chemin, nous distinguons ceux causés par les c
 Enfin, nous corrélons les changements RTT et path détectés en établissant une correspondance entre eux.
 Nous avons étudié la distinction de sensibilité entre différentes méthodes de détection des changements.
 
-\section{Déduire l'emplacement responsable de changements RTT}
+\section*{Déduire l'emplacement responsable de changements RTT}
 Cette idée a d'abord été inspirée par l'étude de cas dans la section~\ref{sec:ripe_case_study} sur les changements RTT partagés par plusieurs séries temporelles RTT provenant de différents AS.
 Nous avons réalisé que ces changements RTT ne sont pas exclusifs aux mesures sur un chemin Internet spécifique, 
 mais impactent plutôt plusieurs séries temporelles RTT simultanément, comme le montre la figure~\ref {fig:rtt3d_mp_cls2}.
@@ -552,16 +554,16 @@ Ensuite, l'inférence de cause est effectuée pour chaque nœud et chaque lien e
 La sortie de l'ensemble du système indique les liens et les noeuds responsables des changements RTT à un moment donné.
 
 Afin d'initier l'inférence, nous avons fait deux hypothèses.
-\begin{supposition}{1}{unique cause}
+\begin{assumption}{1}{cause unique}
 Pour chaque changement RTT détecté, il n'y a qu'une seule cause, nœud ou lien, sur le chemin mesuré.
-\end{hypothèse}
+\end{assumption}
 C'est une hypothèse courante faite dans les études de congestion de TCP~\cite{mathis1997macroscopic, Cardwell2016}. 
 S'il y a une congest le long du chemin, il se stabilisera finalement sur le lien avec la bande passante la plus faible.
 Nous étendons cette hypothèse aux liens inter-AS et AS pour s'adapter à la granularité d'inférence.
 
-\begin{supposition}{2}{parties communes}
+\begin{assumption}{2}{parties communes}
 Si les mesures sur plusieurs chemins subissent un changement RTT partagé, les parties communes de ce chemin mesuré sont plus susceptibles d'être la cause.
-\end{hypothèse}
+\end{assumption}
 Il décrit une façon possible de satisfaire l'hypothèse précédente lorsque plusieurs mesures RTT avec des intersections sur leur chemins sont considérées.
 C'est simplement un cas plus probable que d'avoir simultanément plusieurs parties éloignées dans l'Internet provoquent un changement significatif à la même instant. 
 Nous utilisons cette hypothèse pour concevoir des ensembles de mesures spécifiques (métrique d'inférence) pour chaque nœud et chaque lien dans les graph de topologie.
@@ -585,7 +587,7 @@ Nous avons implémenté un outil de visualisation interactif pour inspecter le n
 et le résultat d'inférence de chaque lien sur la topologie au niveau AS.
 La figure~\ref{fig:case_event_count} est un capture d'écran de l'outil qui montre l'intensité de changement RTT sur chaque lien.
 
-\section{Conclusion}
+\section*{Conclusion}
 
 Cette thèse est développée autour d'une poursuite de 
 \textit{mieux utiliser les diverses mesures de réseau dans l'ingénierie du trafic sortant en interdomaine pour les AS stub}.
