@@ -428,7 +428,7 @@ Tous ces types de distribution ont une meilleure pondération $F_2$ que le class
 Cependant, il semble avoir un grand espace pour des améliorations.
 Des efforts sont particulièrement nécessaires pour augmenter la précision des résultats de la détection.
 
-La précision de \texttt {cpt\_normal} est particulièrement mauvaise.
+La précision de \texttt{cpt\_normal} est particulièrement mauvaise.
 Cela confirme que \texttt{cpt\_normal} est en effet sur-sensible pour le type de données RTT.
 Au contraire, le rappel de \texttt{cpt\_normal} est remarquable parmi tous les candidats.
 Cependant, ses scores $F_2$ sont les plus faibles.
@@ -461,147 +461,153 @@ De plus, le nombre de changements de chemin d'AS correspondant à un changement 
 n'est que d'une moitié de celui par \texttt{cpt\_possion}. Pourquoi?
 Tous ces phénomènes sont très intrigants.
 Nous explorons les raisons sous-jacentes dans la section~\ref{sec:corr}.
+Dans ce condensé, nous expliquons uniquement une de ces observations: pourquoi il y a une grande partie de changement RTT correspondent à aucun changements de chemin.
 
-Plusieurs raisons contribuent à la grande quantité et à la fraction des changements de RTT inégalés à tous les changements de chemin.
-D'abord, les changements sur le chemin inverse ne sont pas observés.
-Nous n'avons pas été en mesure de mesurer le chemin inverse avec la mesure intégrée RIPE Atlas.
-Par conséquent, il est impossible de détecter les changements sur le chemin inverse.
-Cependant, ces changements pourraient avoir contribué aux changements RTT.
-Notamment dans le contexte du routage inter-domaines où les chemins risquent d'être asymétriques.
-Cela implique que les changements RTT provoqués par les changements de chemin inverse sont probablement différents de ceux provoqués par les changements de chemin dans la direction d'acheminement.
+D'abord, nous n'avons pas été en mesure de mesurer le chemin de reoutr avec RIPE Atlas.
+Par conséquent, il est impossible de détecter les changements de chemin sur cette partie-là.
+Cependant, ces changements de chemin pourraient avoir contribué aux changements de RTT.
+Notamment dans le contexte du routage inter-domaines où les chemins dans les deux sens risquent d'être asymétriques.
+Cela implique que les changements RTT provoqués par les changements de chemin de retour sont probablement différents de ceux provoqués par les changements de chemin d'aller.
 
 Deuxièmement, la congestion.
-La congestion peut être indépendante des changements de chemin et pourtant elle peut causer des variations RTT significatives.
-La figure ~ \ ref {fig:case_26328} donne un exemple typique de changements RTT probablement causés par la congestion.
-Il y a trois bosses qui peuvent être visuellement remarquées dans les temps RTT tracés.
+La congestion peut être indépendante des changements de chemin et pourtant elle peut causer des variations significatives sur RTT.
+La figure~\ref{fig:case_26328} donne un exemple typique de changements RTT probablement causés par la congestion.
+Il y a trois augmentations transitoires de RTT qui peuvent être visuellement remarquées dans les séries temporelles RTT illustrées.
 Nous disons que les deux derniers sont probablement de la congestion.
-Premièrement, ils ne correspondent à aucun changement de chemin, au moins dans la direction d'acheminement.
-Deuxièmement, ces bosses sont probablement causées par le remplissage des files d'attente le long du chemin.
-Parce que, les RTT dans ces bosses ne sont pas plates.
+Premièrement, ils ne correspondent à aucun changement de chemin, au moins dans la direction aller.
+Deuxièmement, ces augmentations sont probablement causées par le remplissage des files d'attente le long du chemin.
+Parce que, les RTT ne sont pas ``plates''.
 Sur un chemin légèrement chargé, nous nous attendons à des mesures RTT relativement constantes.
 C'est parce que les files d'attente sont presque vides, donc pas de place pour la variation de délai.
-D'un autre côté, la modification des RTT à l'intérieur de la bosse est probablement le reflet de l'évolution de la demande de trafic sur le goulot d'étranglement due au mécanisme de contrôle de congestion de bout en bout.
-Les deux bosses / congestion s'écartent grandement de la ligne de base et durent plusieurs heures.
+La valeur de RTT est dominée par la latence de propagation.
+D'un autre côté, les variations de RTT à l'intérieur de la bosse est probablement une manifestation de l'évolution de la demande de trafic, et comment il change la longueur des files d'atteinte.
+Les deux bosses/congestion s'écartent de la value de base (la latence de propagation) et durent plusieurs heures.
 Ils ont donc un impact significatif sur les performances de transmission.
-Nous les avons détectés avec succès avec les méthodes de détection des points de changement étudiés.
-Cependant, une telle détection n'est pas possible avec la méthode précédemment proposée ~ \ cite {Luckie2014}.
-Il effectue une analyse spectrale sur RTT timeseries pour trouver périodiquement congestion répétée.
+Nous les avons détectés avec succès avec les méthodes de détection de changement étudiés dans cette thèse.
+Cependant, une telle détection n'est pas possible avec la méthode précédemment proposée~\cite{Luckie2014}.
+Il effectue une analyse spectrale sur les séries temporelles de RTT pour trouver des congestion périodique.
 Une telle congestion persistante est normalement due au manque de capacité du réseau.
-Pendant ce temps, la congestion transitoire dans la figure ~ \ ref {fig:case_26328} est plus probablement causée par des variations de trafic soudaines.
-L'ET basé sur la mesure vise à éviter les deux types de congestion lorsqu'il existe des chemins alternatifs avec la capacité disponible.
-A cet effet, les méthodes de détection des points de changement sont en effet utiles pour notifier la présence de telles variations de performance.
+Pendant ce temps, la congestion transitoire dans la figure~\ref {fig:case_26328} est plus probablement causée par des variations de trafic soudaines.
+La TE basé sur la mesure vise à éviter les deux types de congestion lorsqu'il existe des chemins alternatifs avec la capacité disponible.
+A cet effet, les méthodes de détection de changement sont utiles pour notifier la présence de telles variations de performance.
 
 Troisièmement, la détection sur-sensible.
-Si nous supposons hardiment que les changements de chemin sur les chemins de retour provoquent une quantité comparable de changements de RTT comme le font les changements de chemin d'acheminement, il y a encore de nombreux changements de RTT non appariés.
+Si nous supposons hardiment que les changements de chemin sur les chemins de retour provoquent une quantité comparable de changements de RTT comme le font les changements de chemin d'aller, il y a encore de nombreux changements de RTT non appariés.
 Certains d'entre eux pourraient être effectivement attribués à la congestion, comme expliqué ci-dessus.
 Les modifications RTT non appariées restantes sont manifestement le résultat d'une détection trop sensible.
-Nous avons déjà révélé à partir d'une vue macroscopique, dans Section ~ \ ref {sec:cpt_trace} et ~ \ ref {sec:as_match_diff}, que \ texttt {cpt \ _poisson} a tendance à surestimer le nombre de points de changement lorsque la trace RTT est bruyante.
-Pendant ce temps, \ texttt {cpt \ _np} est capable de détecter les changements délicats de RTT.
-Des traces individuelles sont données sur la figure ~ \ ref {fig:case_sensitivity} pour illustrer la différence de sensibilité à partir d'une vue microscopique.
-Dans la figure ~ \ ref {fig:case_28002}, \ texttt {cpt \ _np} a détecté toute la congestion périodique de petite amplitude.
+Nous relevons à partir d'une vue macroscopique, dans la section~\ref{sec:cpt_trace} et la section~\ref {sec:as_match_diff}, 
+que \texttt{cpt\_poisson} a tendance à surestimer le nombre de changement lorsque la série temporelle de RTT est bruyante.
+Alors, \texttt{cpt\_np} est capable de détecter les changements délicats.
+Des exemples individuels sont données dans la figure~\ref{fig:case_sensitivity} pour illustrer 
+la nuance de sensibilité à partir d'une vue microscopique.
+Dans la figure~\ref{fig:case_28002}, \texttt{cpt\_np} a détecté toute la congestion périodique de petite amplitude.
 C'est en fait assez impressionnant, car ces changements sont à peine visibles pour les experts humains.
-Les points de changement marqués par \ texttt {cpt \ _np} ont en effet mis en évidence leur présence, et les ont rendus plus faciles à remarquer visuellement.
-Dans la figure ~ \ ref {fig:case_26328}, les deux méthodes ont identifié les deux grandes bosses près de la fin de la série temporelle.
-La différence est que \ texttt {cpt \ _poisson} a également marqué les changements de niveau intermédiaire.
-Ces points de changement intermédiaires ne sont clairement corrélés à aucun changement de chemin.
+Les changements marqués par \texttt{cpt\_np} ont en effet mis en évidence leur présence, et les ont rendus plus faciles à remarquer visuellement.
+Dans la figure~\ref{fig:case_26328}, les deux méthodes ont identifié les deux grandes bosses près de la fin de la série temporelle.
+La différence est que\texttt{cpt\_poisson} a également marqué les changements de niveau intermédiaire.
+Ces changement intermédiaires ne sont pas corrélés aux changements de chemin.
 En plus de cela, ils sont également redondants en informant la congestion qui se produisait à ce moment-là.
 La raison d'une telle sur-sensibilité était due à son incompétence dans l'ajustement de la sensibilité de détection en fonction du niveau de variance d'entrée. Ce problème est exploré et expliqué dans la section ~ \ ref {sec:over_sensitive}.
 
-Cause inference
+Pour résumer le travail de cette section, nous avons proposé un cadre d'évaluation pour la détection des changements sur les séries temporelles RTT.
+Le cadre est robuste avec l'ensemble de données étiqueté manuellement et pondère les changements RTT en fonction de leur importance dans le fonctionnement du réseau.
+Nous avons en outre conçu une transformation de données adaptée aux mesures RTT pour améliorer la sensibilité de détection de certaines méthodes de détection.
+En détectant les changements de chemin, nous distinguons ceux causés par les changements de routage de ceux dus à l'équilibrage de charge.
+Enfin, nous corrélons les changements RTT et path détectés en établissant une correspondance entre eux.
+Nous avons étudié la distinction de sensibilité entre différentes méthodes de détection des changements.
 
-Comme expliqué dans le chapitre ~ \ ref {sec:intro}, afin de mesurer la performance du chemin vers un préfixe de destination, nous devons, en premier lieu, identifier certains hôtes dans ce préfixe qui répondent à nos mesures.
-Une approche possible les identifiant est de rechercher des hôtes écoutant sur certains ports TCP communs, par ex. 80, 443, etc., dans le trafic échangé avec ce préfixe de destination ou via un balayage de port.
-Puis RTT vers le préfixe de destination est représenté par les mesures vers les hôtes identifiés ~ \ footnote {Il existe plusieurs façons de mesurer activement le RTT via TCP. Les méthodes avec peu d'encombrement et un faible coût de mesure sont utilisées dans le balayage des ports ~ \ cite {nmap}, comme SYN (également connu sous le nom de semi-ouvert) ou furtif FIN.}.
-
-% \ marginpar {Manque de mesure directe vers certains préfixes de destination.}
-Cependant, tous les préfixes de destination sélectionnés n'ont pas ces hôtes `mesurables '~ \ footnote {préfixes sélectionnés: préfixes de destination avec un volume important ainsi sélectionné pour TE, plus de détails dans Section ~ \ ref {sec:pref_selec}.}.
-Take client SA est apparu dans la section ~ \ ref {sec:pref_selec} à titre d'exemple.
-En moyenne, 15% de son trafic sortant impliquant des préfixes de destination $ \ sim 330 $ sont sans mesures.
-Plus de 70% du trafic "non mesuré" s'écoule vers des préfixes appartenant aux opérateurs mobiles pendant les heures de pointe.
-Dans un avenir prévisible, la proportion d'un tel trafic serait encore plus importante, compte tenu de la tendance générale à l'augmentation de l'utilisation des appareils mobiles.
-À ce stade, nous sommes confrontés au problème de \ textit {effectuant un TE basé sur des mesures sans mesure directe vers la destination}.
-
-Sans les mesures RTT vers P4 dans la figure ~ \ ref {fig:chap5_cause_infer_te}, nous n'avons aucune idée sur quand et lequel de ses chemins disponibles pourraient subir des changements et sont donc incapables de prendre des décisions TE.
-Cependant, si nous étions en mesure de déduire quelle partie de l'Internet est responsable des changements RTT en utilisant les mesures disponibles, nous pourrions encore avoir une chance d'optimiser pour P4.
-Supposons que le lien entre AS2 et AS3 soit déduit (d'une certaine manière) comme étant la cause du changement RTT subi par des mesures vers P2 et P3.
-Comme un chemin vers P4 (la ligne pointillée) circule aussi par AS2 et AS3, nous pouvons alors raisonnablement supposer que la performance de transmission vers P4 sur ce chemin connaîtra un changement similaire au même moment que ceux vers P2 et P3.
-En réalisant cela, nous allons passer à des chemins alternatifs qui restent inchangés pour atteindre P4.
-C'est ainsi que la RTT change parce que l'inférence éclaire les variations de performance vers des destinations sans mesures directes et donc permet à TE.
-
-Cette idée a d'abord été inspirée par l'étude de cas dans Section ~ \ ref {sec:ripe_case_study} sur les changements RTT partagés par plusieurs séries temporelles RTT provenant de différents AS.
-Nous avons réalisé que certains changements RTT ne sont pas exclusifs aux mesures sur un chemin Internet spécifique, mais impactent plutôt plusieurs séries temporelles RTT simultanément, comme le montre la figure ~ \ ref {fig:rtt3d_mp_cls2}.
+\section{Déduire l'emplacement responsable de changements RTT}
+Cette idée a d'abord été inspirée par l'étude de cas dans la section~\ref{sec:ripe_case_study} sur les changements RTT partagés par plusieurs séries temporelles RTT provenant de différents AS.
+Nous avons réalisé que ces changements RTT ne sont pas exclusifs aux mesures sur un chemin Internet spécifique, 
+mais impactent plutôt plusieurs séries temporelles RTT simultanément, comme le montre la figure~\ref {fig:rtt3d_mp_cls2}.
 Optimiser le routage interdomaine contre la cause de tels changements de RTT serait alors une approche plus fondamentale et plus efficace de TE que de traiter chaque préfixe individuel et chaque chemin vers eux.
 
-Afin de déduire l'emplacement des causes, une hypothèse raisonnable est que de tels changements RTT partagés sont plus probablement causés par les parties communes de ces chemins, au lieu d'être la conséquence de la synchronisation parfaite de plusieurs problèmes dispersés dans divers endroits.
+Afin de déduire l'emplacement des causes, une hypothèse raisonnable est que de tels changements RTT partagés sont plus probablement causés par les parties communes de ces chemins, 
+au lieu d'être la conséquence de la synchronisation parfaite de plusieurs problèmes dispersés dans divers endroits.
 Avec cela, il est alors possible d'affiner la portée des causes possibles avec des mesures ayant à la fois des parties communes et des parties divergentes.
-Un exemple de jeu d'inférence est donné dans la figure ~ \ ref {fig:chap5_toy_inference}.
+Un exemple de jeu d'inférence est donné dans la figure~\ref{fig:chap5_toy_inference}.
 Avec l'hypothèse, nous pouvons d'abord étendre la cause aux liens 1 et 4, aux nœuds 2 et 5.
-Comme il y a une mesure sans changement de RTT, le lien traversant 1 et le nœud 2, le lien 4 et le nœud 5 sont alors plus susceptibles d'être la cause.
-Dans la section ~ \ ref {sec:inference}, nous décrirons plus formellement les hypothèses et la logique d'inférence pour l'investigation des nœuds et des liens sous tous les modèles de topologie et distributions de mesures possibles.
+Comme il y a une mesure sans changement de RTT, celui traversant lien 1 et le nœud 2.
+lien 1 et le nœud 2 sont ainsi moins probable d'être la cause.
+En consequence, le lien 4 et le nœud 5 sont alors plus susceptibles d'être la cause.
+%Dans la section~\ref{sec:inference}, nous décrirons plus formellement les hypothèses et la logique d'inférence pour l'investigation des nœuds et des liens sous tous les modèles de topologie et distributions de mesures possibles.
 
-Avec le changement RTT cause l'inférence, nous sommes intéressés à identifier la partie de l'Internet, aussi précise que possible, qui est responsable des changements RTT détectés.
-Ce que nous avons en entrée sur les plates-formes TE client est 1) les mesures RTT provenant de sources multiples vers des destinations multiples pour les utilisations TE; 2) les chemins AS sous-jacents pour ces mesures RTT ~ \ footnote {Avec le système TE réel, les sources de mesures sont les plates-formes clientes et les destinations sont les préfixes auxquels les clients envoient du trafic.
-La source des mesures peut être multiple si nous fusionnons des mesures à partir de plusieurs plates-formes clientes ou si le client a plusieurs sites avec différentes options de fournisseur.}.
+Nous sommes intéressés à identifier la partie de l'Internet, aussi précise que possible, qui est responsable des changements RTT détectés.
+Ceux que nous avons en entrée sur la plates-formes TE chez les clients sont 1) les mesures RTT provenant de sources multiples vers des destinations multiples pour les utilisations TE; 
+2) les chemins AS sous-jacents pour ces mesures RTT.
+Les sources de mesures sont les plates-formes clientes et les destinations sont les préfixes auxquels les clients envoient du trafic.
+La source des mesures peut être multiple si nous fusionnons des mesures à partir de plusieurs plates-formes clientes ou si le client a plusieurs sites avec différentes options de fournisseur.
 
-La figure ~ \ ref {fig:chap5_sys_design} décrit les blocs de construction logiques requis pour l'inférence du changement de RTT. La détection de point de virage (section ~ \ ref {sec:cpt_rtt}) symbolise les temporisations RTT en séquences d'événements de changement RTT.
-
-La construction de la topologie construit un graphique pour les sauts et les liaisons traversés par les mesures RTT.
-Ce graphe de topologie est une étape intermédiaire dans la conception d'une métrique d'inférence pour chaque noeud et chaque lien présents dans la topologie. Comme on le voit sur la figure ~ \ ref {fig:chap5_toy_inference}, si un nœud / lien est la cause du changement RTT, dépend non seulement des mesures qui le traversent, mais aussi de celles qui circulent. L'identification de tels ensembles de mesures pour chaque nœud / lien nécessite des connaissances sur la topologie. De plus, le graphe de topologie sert aussi à visualiser l'emplacement des changements RTT.
-
-La valeur exacte de ces métriques d'inférence à chaque instant est calculée à partir de séquences d'événements de changement RTT. Ensuite, l'inférence de cause est effectuée pour chaque noeud et chaque lien en fonction de la valeur de leurs métriques d'inférence.
+La figure~\ref{fig:chap5_sys_design} décrit les blocs de fonction pour l'inférence du changement de RTT. 
+La détection de changement (section~\ref {sec:cpt_rtt}) transforme les séries temporelles de RTT en séquences d'evènement de change.
+La construction de la topologie construit un graph pour les AS et les liaisons traversés par les mesures RTT.
+Ce graphe de topologie est une étape intermédiaire dans la conception d'une métrique d'inférence pour chaque nœud et chaque lien présents dans la topologie. 
+Comme on le voit sur la figure~\ref {fig:chap5_toy_inference}, si un nœud/lien est la cause du changement RTT, 
+dépend non seulement des mesures qui le traversent, mais aussi de celles à coté. 
+L'identification de tels ensembles de mesures pour chaque nœud/lien nécessite des connaissances sur la topologie. 
+De plus, le graphe de topologie sert aussi à visualiser l'emplacement des changements RTT.
+La valeur exacte de ces métriques d'inférence à chaque instant est calculée à partir de séquences d'événements de changement RTT. 
+Ensuite, l'inférence de cause est effectuée pour chaque nœud et chaque lien en fonction de la valeur de leurs métriques d'inférence.
 % Les séquences d'événements de modification RTT instancient les métriques d'inférence sur lesquelles l'inférence de cause est effectuée.
-La sortie de l'ensemble du système indique les liens et les noeuds responsables des changements RTT dans le temps.
+La sortie de l'ensemble du système indique les liens et les noeuds responsables des changements RTT à un moment donné.
 
 Afin d'initier l'inférence, nous avons fait deux hypothèses.
-
-\ begin {supposition} {1} {unique cause} \ label {as: 2}
+\begin{supposition}{1}{unique cause}
 Pour chaque changement RTT détecté, il n'y a qu'une seule cause, nœud ou lien, sur le chemin mesuré.
-\ end {hypothèse}
-C'est une hypothèse courante faite dans les études de congestion de TCP ~ \ cite {mathis1997macroscopic, Cardwell2016}. S'il y a un encombrement le long du chemin, il se stabilisera finalement sur le lien avec la bande passante du goulot d'étranglement.
-Nous étendons cette hypothèse aux liens inter-AS et AS pour s'adapter à la granularité d'inférence précédemment discutée.
+\end{hypothèse}
+C'est une hypothèse courante faite dans les études de congestion de TCP~\cite{mathis1997macroscopic, Cardwell2016}. 
+S'il y a une congest le long du chemin, il se stabilisera finalement sur le lien avec la bande passante la plus faible.
+Nous étendons cette hypothèse aux liens inter-AS et AS pour s'adapter à la granularité d'inférence.
 
-\ begin {supposition} {2} {parties communes} \ label {as: 1}
-Si les mesures sur plusieurs trajets subissent un changement RTT partagé, les parties communes de ce chemin mesuré sont plus susceptibles d'être la cause.
-\ end {hypothèse}
-Il décrit une façon possible de satisfaire l'hypothèse ~ \ ref {as: 2} lorsque plusieurs mesures RTT avec des chemins d'intersection sont considérées.
-C'est simplement un cas plus probable que d'avoir simultanément plusieurs parties éparses d'Internet provoquent un changement significatif. Nous utilisons cette hypothèse pour concevoir des ensembles spéciaux de mesures (métrique d'inférence) pour chaque nœud et un lien dans les graphiques de topologie pour tester leur responsabilité à chaque intervalle de temps de 10 minutes pour les événements de changement RTT.
+\begin{supposition}{2}{parties communes}
+Si les mesures sur plusieurs chemins subissent un changement RTT partagé, les parties communes de ce chemin mesuré sont plus susceptibles d'être la cause.
+\end{hypothèse}
+Il décrit une façon possible de satisfaire l'hypothèse précédente lorsque plusieurs mesures RTT avec des intersections sur leur chemins sont considérées.
+C'est simplement un cas plus probable que d'avoir simultanément plusieurs parties éloignées dans l'Internet provoquent un changement significatif à la même instant. 
+Nous utilisons cette hypothèse pour concevoir des ensembles de mesures spécifiques (métrique d'inférence) pour chaque nœud et chaque lien dans les graph de topologie.
+Ensuit, nous examinons leur responsabilité de changement RTT à chaque intervalle de temps de 10 minutes.
 
-Pour vérifier si un nœud (AS) $ n $ est la cause exclusive des modifications RTT partagées, nous
-concevoir pour elle des ensembles de mesures (métrique d'inférence), dans lesquels le seul élément commun est le nœud lui-même. Si une majorité des mesures dans un tel ensemble expérimentent en même temps un changement de RTT, nous pouvons alors le localiser au nœud à l'étude, selon l'hypothèse ~ \ ref {as: 1}.
+Pour vérifier si un nœud (AS) $n$ est la cause exclusive d'un changement RTT partagées, nous
+concevoir pour elle des ensembles de mesures (métrique d'inférence), dans lesquels le seul élément commun est le nœud lui-même. 
+Si une majorité des mesures dans un tel ensemble expérimentent en même temps un changement de RTT, nous pouvons alors le localiser au nœud à l'étude, selon l'hypothèse~\ref{as:1}.
 
-Après inférence de cause pour chaque nœud, nous pouvons exclure tous les liens avec l'un de ses deux nœuds inférés comme cause d'une enquête plus poussée, selon l'hypothèse ~ \ ref {as: 2}.
+Après inférence de cause pour chaque nœud, nous pouvons exclure tous les liens avec l'un de ses deux nœuds inférés comme cause, selon l'hypothèse~\ref{as:2}.
+Ensuite, si un lien provoque effectivement un changement de RTT, nous nous attendons à ce qu'une majorité de mesures traversant ce lien subissent simultanément (dans un même intervalle de temps) un changement de RTT, 
+condition nécessaire mais non suffisante pour la responsabilité de lien. 
+En d'autres termes, en violant cette condition, le lien peut être exempté d'être cause du changement RTT.
 
-Ensuite, si un lien provoque effectivement un changement de RTT, nous nous attendons à ce qu'une majorité de mesures traversant ce lien subissent simultanément (dans un même intervalle de temps) le changement de RTT, condition nécessaire mais non suffisante pour la responsabilité de lien. En d'autres termes, en violant cette condition, le lien peut être exempté d'être cause du changement RTT.
-
-Pour les liens restants après une exemption anticipée, leur responsabilité dépend des liens adjacents et non adjacents. Imaginez qu'un incident se produise au cœur d'Internet ou à un grand IXP, un large éventail de mesures traversant des liens périphériques, depuis la prochaine cause jusqu'à la limite de l'Internet, peut être potentiellement impacté. Pourtant, ces liens périphériques ne sont pas responsables du changement RTT.
+Pour les liens restantes, leur responsabilité dépend des liens adjacents et non adjacents. 
+Imaginez qu'un incident se produise au cœur d'Internet ou à un grand IXP, un large éventail de mesures traversant des liens périphériques, depuis la prochaine cause jusqu'à la bordure de l'Internet, peut être potentiellement impacté. 
+Pourtant, ces liens périphériques ne sont pas responsables du changement RTT.
 Pour retracer la véritable cause du changement, différents critères sont nécessaires pour les liens dans différentes configurations topologiques.
 
-Nous avons implémenté un outil de visualisation interactif pour inspecter le nombre normalisé d'événements et le résultat d'inférence de chaque lien sur la topologie au niveau AS révélée par les mesures de traceroute RIPE Atlas.
-La figure ~ \ ref {fig:case_event_count} est un instantané de l'outil dans la vue de comptage d'événements normalisée.
-Chaque cercle de la figure représente un AS ou un IXP appris à partir de mesures traceroute. Les sondes violet hébergent les sondes RIPE Atlas, les oranges sont des IXP, tandis que les vertes sont des AS de transit. Plus \ acp {FM} un lien a, plus la ligne correspondante est épaisse. À un intervalle de temps donné de 10 minutes (indiqué dans le coin supérieur gauche du graphique), plus le nombre d'événements de changement normalisé est grand, plus la couleur rouge sur le lien est profonde.
+Nous avons implémenté un outil de visualisation interactif pour inspecter le nombre normalisé d'événements de changement RTT 
+et le résultat d'inférence de chaque lien sur la topologie au niveau AS.
+La figure~\ref{fig:case_event_count} est un capture d'écran de l'outil qui montre l'intensité de changement RTT sur chaque lien.
 
-Conclusion
+\section{Conclusion}
 
-Cette thèse est développée autour d'une poursuite centralisée de \ textit {faisant un meilleur usage des diverses mesures de réseau dans l'ingénierie du trafic interdomaine sortant pour les AS stub}.
+Cette thèse est développée autour d'une poursuite de 
+\textit{mieux utiliser les diverses mesures de réseau dans l'ingénierie du trafic sortant en interdomaine pour les AS stub}.
 
 Nous avons souligné la nécessité de se concentrer sur les destinations les plus importantes.
 Grâce à l'étude du dynamisme temporel des volumes par préfixe,
-Nous sommes arrivés avec des méthodes simples qui sélectionnent efficacement les préfixes de destination avec des volumes de trafic importants.
-L'évolutivité globale du système de mesure TE peut ainsi être améliorée, sans sacrifier une grande partie de la couverture de trafic.
+nous sommes arrivés avec des méthodes simples qui sélectionnent efficacement les préfixes de destination avec des volumes de trafic importants.
+La scalabilité du système de mesure peut ainsi être améliorée, sans sacrifier beaucoup la couverture de trafic.
 
 Plus tard, nous nous sommes concentrés sur les mesures de latence.
-Nous avons présenté et diagnostiqué certains problèmes de qualité des données précédemment sans surveillance.
+Nous avons présenté et diagnostiqué certains problèmes de qualité des données.
 Des lignes directrices pour atténuer leurs impacts sur le traitement des données et la sélection des routes ont été discutées.
 
-Afin de mieux interpréter les mesures de performance, nous avons introduit l'analyse des points de changement dans le traitement des séries temporelles RTT.
-Ces méthodes détectent des changements significatifs dans la performance du chemin et servent de déclencheur pour la resélection de l'itinéraire.
-Pour permettre et encourager les efforts futurs, nous avons construit un cadre d'évaluation pour la détection de changement sur les mesures RTT Internet.
+Afin de mieux interpréter les mesures de performance, nous avons introduit l'analyse de changement dans le traitement des séries temporelles RTT.
+Ces méthodes détectent des changements significatifs dans la performance du chemin et servent de déclencheur pour la resélection de route.
+Pour permettre et encourager les efforts futurs, nous avons construit un cadre d'évaluation pour la détection de changement sur les mesures RTT dans l'Internet.
 
-Enfin, avec l'aide de l'analyse des points de changement, nous avons été en mesure de qualifier le pourcentage d'un groupe de mesures qui a subi des changements RTT au même moment.
-Nous avons en outre inféré les emplacements de réseau qui ont potentiellement provoqué ces changements.
-Cette visibilité permet d'optimiser les itinéraires pour les préfixes que nous n'avons pas pu mesurer directement.
-Afin de mieux illustrer le processus d'inférence et les causes identifiées, nous avons conçu des outils de visualisation interactifs pour tracer les métriques d'inférence et les résultats sur un graphe de topologie.
-
+Enfin, avec l'aide de l'analyse de changement, nous avons été en mesure de qualifier le pourcentage d'un groupe de mesures qui a subi des changements RTT au même moment.
+Nous avons en outre inféré les emplacements dans l'Internet qui ont potentiellement provoqué ces changements.
+Cette visibilité permet d'optimiser les chemin pour les préfixes que nous n'avons pas pu mesurer directement.
+Afin de mieux illustrer le processus d'inférence et les causes identifiées, 
+nous avons conçu des outils de visualisation interactifs pour tracer les métriques d'inférence et les résultats sur un graphe de topologie.
 
 \end{otherlanguage}
 \endgroup			
