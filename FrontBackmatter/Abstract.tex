@@ -167,7 +167,7 @@ Enfin, nous supposons que l'amélioration des performances de transmission est a
 L'acheminement du trafic sur Internet fait désormais face à moins de contraintes monétaires grâce à la baisse du prix de transit~\cite{transitprice, drpeering} et de la présence des \ac{IXP} de plus en plus dense dans le monde entier~\cite{pchixp}.
 En revanche, en vu de la demande pour la diversité géographique et topologique de connexion~\cite {Chiu2015}, un défi de performance reste à relever.
 
-Afin de réaliser réellement ce gain de performance provenant de multiples chemain d'Internet, une sélection de route dynamique basée sur des mesures de performance est requise, c'est-à-dire \textit{TE basé sur des mesures}.
+Afin de réaliser réellement ce gain de performance provenant de multiples chemin d'Internet, une sélection de route dynamique basée sur des mesures de performance est requise, c'est-à-dire \textit{TE basé sur des mesures}.
 \citet{Akella2008} a montré une demonstration d'un tel system de TE.
 Seulement 100 destinations sont émulées dans ce travail.
 Ce nombre est beaucoup moins par rapport à l'échelle réelle qu'un AS stub peut faire face sur une base quotidienne.
@@ -178,10 +178,10 @@ En outre, traiter Internet comme une boîte noire pour les mesures de latence ne
 Ces événements de réseau, par ex. les changements de chemin et la congestion sont les causes réelles d'une dégradation significative des performances et ainsi les raisons du changement de route.
 
 Afin de répondre aux préoccupations ci-dessus et de réduire l'écart entre le concept et un système de travail~\cite{b6},
-Nous étudions dans cette thèse le volume de trafic, les mesures de latence sur les chemain Internet pour améliorer la scalabilité du system de mésure, l'interprétation des mesures et la visibilité des performances de l'interdomaine TE basé sur les mesures.
+Nous étudions dans cette thèse le volume de trafic, les mesures de latence sur les chemin Internet pour améliorer la scalabilité du system de mésure, l'interprétation des mesures et la visibilité des performances de l'interdomaine TE basé sur les mesures.
 
 Une plate-forme interdomaine TE basée sur la mesure a deux éléments constitutifs essentiels.
-Ils sont illustrés en noir sur la figure~\ref{fig: archi}: (i) mesure de la performance des chemins utilisables et (ii) décision d'itinéraire.
+Ils sont illustrés en noir sur la figure~\ref{fig:archi}: (i) mesure de la performance des chemins utilisables et (ii) décision d'itinéraire.
 La plateforme mesure les performances de bout en bout, plus précisément la latence aller-retour \acf{RTT}, sur toutes les routes disponibles vers un préfixe de destination donné.
 Dans chaque préfixe de destination, quelques hôtes avec des ports ouverts, par ex. 80, 443, sont découverts puis utilisés comme destination de mesure.
 Une fois alimenté par les mesures de performance, le moteur de décision d'itinéraire choisit pour chaque destination les meilleurs itinéraires à chaque instant et les impose sur les routeurs de frontière BGP.
@@ -190,13 +190,13 @@ Une fois alimenté par les mesures de performance, le moteur de décision d'itin
 
 Un réseau client ayant besoin de \acf{TE} interdomain est souvent de type \acf{ISP}, \acf{HP}, \acf{CP}.
 Il envoie du trafic vers un large éventail de destinations, en général entre 10k à 100k de prefixes BGP.
-Le sous-système de mesure et de décision de route illustré sur la figure~\ref{fig: archi} fait donc face à un défi qui est de suivre et d'optimiser en temps réel les performances de transmission vers toutes ces destinations.
+Le sous-système de mesure et de décision de route illustré sur la figure~\ref{fig:archi} fait donc face à un défi qui est de suivre et d'optimiser en temps réel les performances de transmission vers toutes ces destinations.
 Cependant, il est bien connu que la plupart du volume du trafic est généralement concentré sur une petite partie des préfixes BGP~\cite {Fang1999, Feamster2003, Papagiannaki2005, Sarrar2012}.
 Il est donc possible et raisonnable de se concentrer uniquement sur les préfixes de destination les plus importants.
 
 % \ marginpar {la proposition}
 A cette fin, il faut prévoir quels préfixes correspondront aux volumes de trafic les plus importants dans un proche avenir.
-Deux blocs fonctionnels supplémentaires sont ainsi ajoutés à la conception du système dans la figure~\ref {fig: archi}): (iii) la collecte de statistiques sur le volume de trafic; (iv) la sélection de préfixe, qui identifie parmi l'ensemble des destinations celles les plus importantes (c'est-à-dire ceux ayant le volume le plus élevé dans un avenir prévisible) et communique l'ensemble de préfixes sélectionné aux sous-system de mesure et d'itinéraire.
+Deux blocs fonctionnels supplémentaires sont ainsi ajoutés à la conception du système dans la figure~\ref {fig:archi}): (iii) la collecte de statistiques sur le volume de trafic; (iv) la sélection de préfixe, qui identifie parmi l'ensemble des destinations celles les plus importantes (c'est-à-dire ceux ayant le volume le plus élevé dans un avenir prévisible) et communique l'ensemble de préfixes sélectionné aux sous-system de mesure et d'itinéraire.
 
 % \ marginpar {challenges}
 Deux raisons nous obligent à \textit{prédictivement} sélectionner des préfixes de volume important et concevoir des mécanismes spécifiques pour cette tâche.
@@ -224,7 +224,7 @@ Les résultats ont montré que même avec un mécanisme assez basique, la perfor
 \section{La qaulité des mesures}
 
 À partir d'ici, notre étude se concentre sur les mesures de latence et de trajectoires.
-Ces mesures sont disponibles sur les platesformes TE chez les clients, de même que les données de volume étudiées dans le chapitre~\ref{sec: pref_selec}.
+Ces mesures sont disponibles sur les platesformes TE chez les clients, de même que les données de volume étudiées dans le chapitre~\ref{sec:pref_selec}.
 Cependant, dans un souci de reproductibilité, nous avons décidé de passer aux mesures effectuées par RIPE Atlas, une plateforme de mesure mondiale offrant un accès ouvert aux données. 
 
 \subsection{La complétude des données}
@@ -239,7 +239,7 @@ sinon l'estimation serait biaisée~\cite {Baraldi2010}.
 % Il est donc important de s'interroger sur la nature des mesures manquantes.
 
 Une raison évidente de l'absence de données est que la sonde RIPE Atlas ne fonctionne pas (ou pas correctement), par ex. éteinte~\cite{schedule}.
-Tant qu'une sonde est alimentée, elle essaie de maintenir une connexion à un contrôleur pour soumettre les mesures et recevoir les allocations des tâches comme indiqué sur la figure~\ref{fig: ripe_atlas_archi}.
+Tant qu'une sonde est alimentée, elle essaie de maintenir une connexion à un contrôleur pour soumettre les mesures et recevoir les allocations des tâches comme indiqué sur la figure~\ref{fig:ripe_atlas_archi}.
 Par conséquent, l'activité de connexion de la sonde fournit une bonne indication de la disponibilité de la sonde et est utilisée dans les investigations menées par RIPE sur la stabilité du système d'exploitation de la sonde~\cite{1look, 2look, 3look}.
 
 Afin de déduire l'existence possible d'autres causes, nous avons comparé les horodatages de mesure avec les moments sonde se connecte et se déconnecte du système de contrôleur d'Atlas.
@@ -268,7 +268,7 @@ Avec des données complètes et relativement complètes au fil du temps, de nomb
 
 Un problème de qualité des données spécifique dans TE de l'interdomaine est \textit{si la mesure RTT reflète principalement les caractéristiques des chemins AS}.
 
-La fonction de sélection d'itinéraire dans la figure~\ref{fig: archi} repose sur les mesures de performance de chemin (plus de détails dans le chapitre~\ref{sec: cpt_rtt}).
+La fonction de sélection d'itinéraire dans la figure~\ref{fig:archi} repose sur les mesures de performance de chemin (plus de détails dans le chapitre~\ref{sec:cpt_rtt}).
 Toutefois, les mesures RTT peuvent être ``polluées'' par des facteurs non liés au réseau, par exemple des problèmes locaux tels que la surcharge du processeur,
  ou des problèmes de réseau de niveau sub-AS non représentatifs, par exemple la congestion locale du réseau de la destination.
 Éviter ces problèmes n'est pas l'objectif principal de TE dans l'interdomaine, car ce dernier tout seul ne se suiffit pas.
@@ -291,242 +291,176 @@ Les clusters résultants ont réussi à séparer les traces bruyantes des traces
 De plus, nous avons localisé l'emplacement de la plupart des variations dans les mesures RTT de bout en bout en appliquant les méthodes de regroupement aux premiers sauts des mesures traceroute.
 Nos résultats ont confirmé le bon sens que la plupart des variations proviennent du réseau d'accès.
 
-Time series clustering
 
-Un cluster de séries chronologiques RTT, illustré dans la figure ~ \ ref {fig: cls8_k12}, contient plusieurs mesures RTT subissant une variation RTT de forme similaire en même temps.
-Ce changement RTT n'est pas observé sur d'autres mesures RTT dans l'ensemble de données.
-Les implications sont qu'une partie commune exclusive à ces mesures RTT dans la figure ~ \ ref {fig: cls8_k12} aurait pu provoquer ce changement.
-Inférer l'emplacement responsable des changements RTT dans Internet est un sujet intrigant dans son propre droit.
-De plus, il contribue à une meilleure logique de sélection d'itinéraire, si elle est réalisable avec seulement des mesures de temps et de trajet de bout en bout.
+\section{Détecter les changements dans les séries temporelles de RTT}
 
-La mise en grappes dans l'espace caractéristique (section ~ \ ref {sec: cls_ft}) n'est cependant pas la meilleure option pour l'identification de séries temporelles RTT avec des formes similaires.
-C'est parce que les entités extraites, résumant l'ensemble des séries temporelles, n'ont pas l'expressivité sur la structure temporelle.
-Par conséquent, nous étudions les approches de clustering où la représentation des données des séries chronologiques RTT reste une série chronologique.
-
-Le clustering de séries chronologiques avec \ textbf {MP} / \ textbf {Seg} et \ ac {PAM} a offert des résultats très intéressants et nous a aidés à poursuivre un cas spécifique de changement RTT partagé par plusieurs séries temporelles RTT.
-Toutefois, il n'est toujours pas idéal dans le contexte de TE basé sur la mesure pour les raisons suivantes.
-
-Premièrement, il ne sera pas à l'échelle. Afin d'obtenir une matrice de distance parmi les séries de temps $ n $, un calcul de distance de $ O (n ^ 2) $ est nécessaire. Le coût de calcul pour la mise en grappe pourrait donc être prohibitif lorsqu'il existe des milliers de séries chronologiques RTT, une pour chaque préfixe de destination.
-
-Deuxièmement, l'interprétation des résultats de regroupement reste ponctuelle et donc difficile à automatiser.
-\ ac {ASW} de chaque cluster peut servir d'indicateur de la qualité / pertinence du cluster.
-Pourtant, quel niveau de \ ac {ASW} devrait être considéré comme suffisamment important est difficile à justifier.
-Dans les analyses précédentes, nous avons toujours eu recours à des séries RTT brutes pour juger si les grappes sont significatives ou non, avant d'effectuer une analyse plus spécifique.
-En plus de cela, les résultats de la mise en cluster ne précisent pas quand les changements RTT partagés par les membres du cluster se produisent réellement, empêchant ainsi une investigation systématique des événements réseau liés à ces moments.
-
-Troisièmement, il est difficile de transformer le regroupement en un processus en ligne.
-Au fil du temps, différentes parties d'Internet peuvent provoquer des changements RTT et avoir un impact sur différents ensembles de mesures RTT.
-Par conséquent, différentes grappes sont attendues au fil du temps.
-Cela nécessite que les méthodes de mise en cluster mettent à jour les clusters résultants lorsque de nouvelles mesures sont intégrées.
-Les méthodes de regroupement étudiées dans ce chapitre sont clairement inadaptées.
-
-Pour résoudre les problèmes ci-dessus, nous avons trouvé que la simplification des séries temporelles RTT via la détection de points de changement était prometteuse.
-Sa puissance a déjà été démontrée avec la représentation des données \ textbf {Seg}.
-Il produit d'abord les moments où chaque série chronologique RTT connaît des changements importants.
-Sur la base de ce statut binaire de changement ou non, nous pouvons alors facilement former des groupes de séries temporelles partageant le même changement.
-Avec les groupes en évolution, nous pouvons suivre les causes des différents changements RTT au fil du temps sur Internet.
-Nous développons cette idée dans le chapitre ~ \ ref {sec: cpt_rtt} et ~ \ ref {sec: infer}.
-
-RTT change detection
-
-Les mesures RTT interviennent dans l'interdomaine TE basé sur la mesure à deux phases.
+Les mesures RTT interviennent dans TE d'interdomaine basé sur la mesure à deux phases.
 Premièrement, les mesures RTT révèlent les moments où la resélection de l'itinéraire est nécessaire. % sinon la performance de transmission peut subir une dégradation évitable.
-Deuxièmement, les mesures RTT servent de matériel de prise de décision dans la resélection de la route. Nous nous reportons sur le délai mesuré, les coûts de transmission et les politiques de routage, etc., pour décider quel chemin / fournisseur de transit est le meilleur choix pour atteindre chaque destination à un certain moment.
-Nous discutons dans ce chapitre de l'utilisation des mesures RTT pendant la première phase.
+Deuxièmement, les mesures RTT servent de matériel de prise de décision dans la sélection de la route. 
+Nous nous reportons sur le délai mesuré, les coûts de transmission et les politiques de routage, etc., 
+pour décider quel chemin/fournisseur de transit est le meilleur choix pour atteindre chaque destination.
+Nous discutons dans cette partie de l'utilisation des mesures RTT pendant la première phase.
 
 Les moments où la re-sélection de route est nécessaire sont essentiellement lorsque les performances sur certains chemins AS changent.
 Le défi de la détection de changement de performance provient principalement de deux aspects.
 Premièrement, les mesures RTT sont bruyantes.
-De nombreux facteurs le long du trajet mesuré peuvent contribuer aux variations du délai de bout en bout, par ex. fluctuation de la charge de l'hôte final, circulation en rafale, etc.
+De nombreux facteurs le long du trajet mesuré peuvent contribuer aux variations du délai de bout en bout, 
+par ex. fluctuation de la charge sur l'hôte final, circulation en rafale, etc.
 Cela nécessite des méthodes de détection du changement pour tolérer des bruits tels que de courtes pointes de vie, tout en restant sensible aux événements qui comptent vraiment, tels que la congestion persistante.
 Deuxièmement, les caractéristiques de retard sur différents chemins peuvent différer beaucoup.
 Il est donc souhaitable de détecter les changements pour ces séries chronologiques sans paramètres dépendant du chemin / destination.
 Beaucoup de pratiques courantes ne répondent pas aux exigences énumérées ci-dessus.
-
 Dans cette section, nous résumons les études précédentes sur les variations RTT et leur relation avec les événements réseau.
-Nous expliquons pourquoi certaines méthodes d'analyse RTT adoptées dans les travaux mentionnés ne conviennent pas aux utilisations de TE.
 
 % Les changements de chemin et l'encombrement sont connus pour être les principales raisons des changements RTT.
-Il est généralement admis que les changements de routage inter-domaines ont un impact important sur le niveau RTT.
-Pucha et al. ~ \ Cite {Pucha2007} ont montré que les changements de routage inter-domaines entraînent une plus grande variation RTT médiane que les changements intra-domaine.
-Rimondini et al. ~ \ Cite {Rimondini2014} ont confirmé que des changements de route de 72,5% $ BGP dans leur étude sont associés au changement RTT.
+Il est généralement admis que les changements de routage inter-domaines ont un impact important sur le niveau de RTT.
+Pucha et al.~\cite{Pucha2007} ont montré que les changements de routage inter-domaines entraînent une plus grande variation sur le médiane de RTT que les changements intra-domaine.
+Rimondini et al.~\cite{Rimondini2014} ont confirmé que $72.5\%$ des changements de route BGP dans leur étude sont associés aux changements RTT.
 %% Mesure de RIPE Atlas et RIPE RIS en 2013, seulement 55 AS sont considérés.
-Des observations similaires ont été faites dans un grand \ ac {CDN}, où les changements de routage inter-domaine sont responsables de plus de 40 $ \% $ de dégradation de l'expérience utilisateur sévère ~ \ cite {Zhu2012}.
+Des observations similaires ont été faites dans un grand \ac{CDN}, où les changements de routage inter-domaine sont responsables de plus de $40\%$ de dégradation de l'expérience utilisateur sévère~\cite{Zhu2012}.
 
-Les événements intra-domaine ne sont pas moins importants. Pucha et al. ~ \ Cite {Pucha2007} ont découvert que les changements de chemin intra-domaine peuvent provoquer des changements RTT d'amplitude comparable à ceux inter-domaine.
-En outre, ils ont souligné que ce sont les changements de chemin intra-domaine, et non la congestion, qui sont responsables de la majorité (86% $) des changements de RTT. % au lieu de la congestion.
-Une affirmation différente a cependant été faite par Schwartz et al. ~ \ Cite {Schwartz2010}. Ils ont découvert que la plupart des variations RTT se situaient plutôt dans les chemins (c'est-à-dire en raison de l'encombrement) que parmi les chemins (c'est-à-dire en raison des changements de chemin).
+Les événements intra-domaine ne sont pas moins importants. Pucha et al.~\cite{Pucha2007}ont découvert que les changements de chemin intra-domaine peuvent provoquer des changements RTT d'amplitude comparable à ceux d'inter-domaine.
+En outre, ils ont souligné que ce sont les changements de chemin intra-domaine, et non la congestion, qui sont responsables de la majorité ($86\%$) des changements de RTT. % au lieu de la congestion.
+Une découverte différente a cependant été faite par Schwartz et al.~\cite{Schwartz2010}. 
+Ils ont observé que la plupart des variations RTT se situaient plutôt dans les chemins (c'est-à-dire en raison de la congestion) que parmi les chemins (c'est-à-dire en raison des changements de chemin).
 
 Les conflits dans les travaux antérieurs pourraient être causés par la différence des emplacements d'où les mesures ont été lancées.
-Par exemple, Chandrasekaran et al. ~ \ Cite {Chandrasekaran} ont observé que les changements de chemin d'AS n'ont qu'un impact marginal sur RTT dans le noyau d'Internet, alors que les travaux précédents ~ \ cite {Pucha2007, Schwartz2010} incluent aussi des réseaux d'accès.
-Les résultats pourraient aussi changer avec le temps. Par exemple, la topologie Internet "aplatie", la quantité croissante de trafic privé CDN au cours de la dernière décennie ~ \ cite {Labovitz2011, Roughan2011} pourrait avoir modifié les caractéristiques du changement de chemin et de la congestion, et par conséquent, leur impact sur RTT.
+Par exemple, Chandrasekaran et al.~\cite{Chandrasekaran} ont observé que les changements de chemin d'AS n'ont qu'un impact marginal sur RTT dans le noyau d'Internet, 
+alors que les travaux précédents ~\cite {Pucha2007, Schwartz2010} incluent aussi des réseaux d'accès.
+Les résultats pourraient aussi changer avec le temps. 
+Par exemple, la topologie Internet ``aplatie'', la quantité croissante de trafic dans les CDN au cours de la dernière décennie~\cite{Labovitz2011, Roughan2011}
+pourrait avoir modifié les caractéristiques du changement de chemin et de la congestion, et par conséquent, leur impact sur RTT.
 
 En gardant cela à l'esprit, nous aimerions souligner les efforts sur les méthodes et les outils.
-Au-delà de l'observation ou de l'analyse ponctuelle sur un ensemble de données spécifique, ils permettent une analyse itérative dans le temps.
+Au-delà de l'observation ou de l'analyse ponctuelle sur un ensemble de données spécifique, 
+ils permettent une analyse itérative dans le temps.
 
-La discussion et la découverte des travaux précédents sont éclairantes, mais leurs méthodes de traitement de mesure RTT peuvent difficilement être appliquées à l'intra-domaine TE.
-Dans ~ \ cite {Pucha2007, Schwartz2010, Chandrasekaran},
-Les mesures RTT sont d'abord groupées par des chemins sous-jacents;
-l'impact des changements de trajet est ensuite estimé par la comparaison des statistiques RTT associées, par ex. centiles.
-Cependant, dans un système TE pratique esquissé dans la figure ~ \ ref {fig: archi}, les RTT sont mesurés avec une fréquence plus élevée que les chemins.
+La discussion et la découverte des travaux précédents sont éclairantes, 
+mais leurs méthodes de traitement de mesure RTT peuvent difficilement être appliquées à la TE dans intra-domaine.
+Dans~\cite{Pucha2007, Schwartz2010, Chandrasekaran},
+les mesures RTT sont d'abord groupées par des chemins sous-jacents;
+l'impact des changements de route sur RTT est ensuite estimé par la comparaison des statistiques de RTT associées, par ex. des centiles.
+Cependant, dans un système TE pratique esquissé dans la figure~\ref{fig:archi}, les RTT sont mesurés avec une fréquence plus élevée que les chemins.
 Les raisons sous-jacentes sont triples.
 Premièrement, les mesures RTT sont en général moins coûteuses.
-Compte tenu du nombre potentiel de destinations à surveiller (voir section ~ \ ref {sec: pref_selec}), les mesures de chemin sont mieux limitées.
-Deuxièmement, un RTT plus petit est l'objectif de TE, nous avons donc l'incitation à suivre de près son évolution. Pendant ce temps, le chemin est juste le résultat de l'optimisation.
+Compte tenu du nombre potentiel de destinations à surveiller (voir section~\ref {sec:pref_selec}), les mesures de chemin sont mieux limitées.
+Deuxièmement, un RTT plus petit est l'objectif de TE, nous avons donc l'incitation à suivre de près son évolution. 
+Cependant, le chemin est juste le résultat de l'optimisation.
 Troisièmement, les changements RTT se produisent généralement plus fréquemment que les changements de chemin.
 Une raison importante est la congestion.
-Le regroupement des mesures de RTT par des changements de trajectoire ne peut éclairer la présence de
-de tels événements.
-Par conséquent, nous devons explorer des méthodes qui permettent d'identifier les changements RTT inhérents, au lieu de s'appuyer sur des mesures externes telles que les changements de trajectoire pour décrire la variation des performances de transmission.
+Le regroupement des mesures de RTT par des changements de route ne peut éclairer la présence de tels événements.
+Par conséquent, nous devons explorer des méthodes qui permettent d'identifier les changements RTT inhérents, 
+au lieu de s'appuyer sur des mesures externes telles que les changements de chemin pour décrire la variation des performances de transmission.
 
-Parmi les études approfondies sur les méthodes de détection des changements et leurs applications dans divers domaines ~ \ cite {Zhang2007, Reeves2007, Yu2008},
-Rimondini et al. ~ \ Cite {Rimondini2014} sont parmi les premiers à utiliser la détection de changement dans l'analyse de mesure de RTT de réseau.
+Parmi les études approfondies sur les méthodes de détection des changements et leurs applications dans divers domaines~\cite{Zhang2007, Reeves2007, Yu2008},
+Rimondini et al.~\cite{Rimondini2014} sont parmi les premiers à utiliser la détection de changement dans l'analyse de mesure de RTT.
 Cependant, ils ont réglé la sensibilité de détection de telle sorte que les changements détectés correspondent le mieux aux changements de route BGP vers le préfixe de destination mesuré parmi d'autres préfixes choisis au hasard.
-Cette approche risque d'ignorer les changements RTT dus aux changements intra-domaine et à l'encombrement.
+Cette approche risque d'ignorer les changements RTT dus aux changements de chemin dans intra-domaine et à la congestion.
 De plus, un tel réglage est potentiellement nécessaire pour chaque destination individuelle, donc difficile à mettre à l'échelle.
-Pour obtenir une approche plus générale découplée des mesures de trajectoires, nous proposons dans la section suivante un cadre d'évaluation pour la sélection et l'étalonnage des méthodes de détection des changements par rapport aux mesures RTT.
+Pour obtenir une approche plus générale et découplée des mesures de route, 
+nous proposons dans cette partie un cadre d'évaluation pour la sélection et l'étalonnage des méthodes de détection des changements pour les mesures RTT.
 
-Quelle méthode (parmi la grande variété de ceux existants) est la plus appropriée pour les séries temporelles Internet RTT n'est toujours pas indiqué.
-De plus, de nombreuses méthodes de détection de points de changement sont paramétriques.
-Identifier les meilleurs paramètres pour ces méthodes reste aussi difficile.
+Quelle méthode (parmi la grande variété de ceux existants) est la plus appropriée pour les séries temporelles de RTT dans l'Internet n'est toujours pas indiqué.
+De plus, de nombreuses méthodes de détection de changement sont paramétriques.
+Identifier les meilleurs paramètres pour RTT reste aussi difficile.
 L'absence d'un cadre d'évaluation est un problème fondamental pour résoudre les problèmes susmentionnés.
 
 Un cadre d'évaluation quantifie la performance d'une certaine méthode de détection sur un ensemble de données de référence.
 Avec l'évaluation quantifiée, différents paramètres d'une même méthode ou différentes méthodes peuvent être comparés et réglés pour fournir les meilleurs résultats de détection.
-Naturellement, un cadre d'évaluation devrait être composé de deux parties: 1) des ensembles de données de "vérité de terrain", 2) une méthode de notation.
+Naturellement, un cadre d'évaluation devrait être composé de deux parties: 
+1) un ensemble de données de ``vérité terrain'', 2) une méthode de notation.
 
-Le jeu de données de `` vérité de terrain '' n'est pas seulement un ensemble de séries temporelles RTT représentatives des caractères de retard sur Internet.
-Il devrait aussi porter des étiquettes indiquant les moments de changement dans ces séries chronologiques.
+Cet ensemble de données de ``vérité terrain'' n'est pas seulement un ensemble de séries temporelles RTT représentatives des caractères de latence sur Internet.
+Il devrait aussi porter des étiquettes indiquant les moments de changement.
 Nous ne sommes pas au courant d'un tel ensemble de données qui soit publiquement disponible à ce jour.
 % Nous avons étiqueté manuellement 50 séries temporelles réelles RTT de RIPE Atlas contenant 408 087 mesures RTT.
-% Les détails sont donnés dans la section ~ \ ref {sec: label}.
-Nous expliquons dans la section ~ \ ref {sec: label} comment nous construisons un jeu de données de vérité au sol avec beaucoup de soin.
+% Les détails sont donnés dans la section ~ \ ref {sec:label}.
+Nous expliquons dans la section~\ref{sec:label} comment nous le construisons avec beaucoup de soin.
 
-Quant à la méthode de notation, elle quantifie la similarité / différence entre la "vérité de terrain" et les points de changement détectés.
-Nous expliquons dans la section ~ \ ref {sec: score} que la classification classique vrai / faux positif est trop rigide pour l'étiquetage manuel et la détection de point de changement.
-Nous explorons et relevons les défis de la comparaison de deux ensembles d'horodatages avec la tolérance de décalage temporel.
-
-Afin de déterminer quelle méthode de détection fonctionne le mieux sur RTT timeseries,
-un ensemble de données avec \ textit {a priori} moments marqués de changement RTT est nécessaire, servant de vérité terrain.
-C'est la qualité est essentielle à la crédibilité des résultats de l'évaluation.
-
-Il existe deux approches pour fabriquer un jeu de données de vérité au sol étiqueté: 1) des données générées artificiellement; 2) des données réelles avec des étiquettes mises manuellement.
-Évidemment, les données réelles sont plus représentatives du caractère de retard d'Internet.
-C'est donc le choix préféré.
-Cependant, il ne peut être étiqueté que par des humains ayant des connaissances du domaine.
-L'étiquetage manuel est fastidieux et sujet aux erreurs.
-Sans le moindre soin, cela peut nuire à la qualité de l'ensemble de données de la vérité au sol.
-De plus, l'identification de changements significatifs dans les séries temporelles RTT est dépourvue d'une norme opérationnelle.
-
-Par conséquent, il est important de vérifier la qualité de l'étiquetage.
-À cette fin, nous comptons sur un ensemble de données artificiel.
-L'idée est de générer des timeseries synthétiques RTT avec des points de changement connus.
-Ces séries temporelles artificielles sont ensuite mélangées à de véritables séries RTT au cours de l'étiquetage humain.
-Une fois l'étiquetage effectué, nous comparons les points de changement étiquetés par l'homme sur l'ensemble de données artificiel avec les points de changement générés, en utilisant la méthode de notation présentée dans la section ~ \ ref {sec: score}.
-C'est pour évaluer la performance de détection des étiqueteuses humaines en utilisant les changements générés comme vérité au sol.
-
-Les temporisations RTT synthétiques sont après tout des mesures RTT non réelles.
-Les étiqueteuses humaines fonctionnant parfaitement sur des traces générées n'indiquent pas nécessairement qu'elles feraient aussi bien sur de vraies mesures RTT.
-Par conséquent, il est hautement souhaitable que les timeseries artificielles RTT ressemblent autant que possible aux réels.
-Les étapes suivantes sont suivies pour générer une série temporelle RTT synthétique.
-
-Premièrement, nous générons de manière aléatoire plusieurs phases / segments de lignes de base différées différentes.
-Différentes lignes de base RTT correspondent aux différentes longueurs physiques sur différents chemins Internet.
-Pour chaque phase de RTT baseline, nous ajoutons des bruits représentant les changements de longueur de la file d'attente micro, le temps d'attente dû à la charge du routeur et aux politiques de programmation, etc.
-Enfin, pour chaque phase de RTT de base, nous générons relativement longtemps pendant la congestion avec son propre processus de Markov.
-Les paramètres aléatoires appropriés à chaque segment de base déterminent les chances d'entrer et de sortir d'une période de congestion.
-Les points de changement générés sont des moments où il y a des changements de délai de base et d'entrée / sortie de congestion.
-Les pics de vie courts (longueur $ \ leq 2 $ points de données) sont considérés comme des bruits plutôt que de réels changements.
-Pour les modèles génératifs détaillés et les paramètres de modèle de chaque étape, veuillez vous référer à la documentation dans l'espace de code disponible sur \ url {https://github.com/WenqinSHAO/rtt_gen.git}.
-
-20 timeseries synthétiques RTT, avec 6485 points de données chacun en moyenne, sont générés avec l'outil fabriqué.
-L'intervalle de temps entre les points de données est de 4min, conformément à la mesure ping intégrée de RIPE Atlas.
-Ils représentent 8646 heures de mesures RTT avec 935 points de changement générés.
-Un exemple de ces traces RTT synthétiques est représenté sur la figure ~ \ ref {fig: art_example}.
-Les lignes verticales rouges, indiquant les points de changement générés, sont des moments où il y a un changement de RTT de ligne de base, ou une période de congestion commence / finit.
+Quant à la méthode de notation, elle quantifie la similarité/différence entre la ``vérité terrain'' et les points de changement détectés par les méthodes.
+Nous expliquons dans la section~\ref{sec:score} que la classification classique vrai/faux positif est trop rigide pour l'étiquetage manuel et la détection de changement dans les séries temporelles de RTT.
+Nous explorons et relevons les défis de la comparaison entre deux ensembles d'horodatages avec une tolérance de décalage temporel.
 
 Avec le cadre d'évaluation prêt, il ouvre la porte à l'exploration de la méthode de détection des points de changement les plus performants pour les mesures RTT.
-Pour la famille de détection présentée dans la section ~ \ ref {sec: cpt}, deux principaux paramètres doivent être définis: la pénalité et la fonction / distribution des coûts.
-Nous discutons en détail ces paramètres dans cette section, tout en laissant l'examen d'autres méthodes pour les travaux futurs.
+Pour la famille de détection présentée dans la section~\ref{sec:cpt}, deux principaux paramètres doivent être définis: la pénalité et la fonction distribution des coûts (qui depend de l'hypothèse de la distribution).
+Nous considérons la combinaison entre tous les critères d'information introduits (AIC, BIC, MBIC et Hannan-Quinn), 
+et tous les types de distribution supportés (Gaussiane, Poisson, Exponentiel et Gamma), y compris l'approche non-paramétrique basée sur la distribution empirique.
 
-Nous considérons la combinaison entre tous les critères d'information introduits (AIC, BIC, MBIC et Hannan-Quinn), et tous les types de distribution supportés, y compris l'approche non-paramétrique basée sur la distribution empirique.
-
-Avec quelques tests préliminaires, nous avons rapidement réalisé que la détection avec la distribution normale tend à être sur-sensible, sous tous les réglages de pénalité.
-Beaucoup de bruits de vie courts et insignifiants sont marqués comme points de changement.
+Avec quelques tests préliminaires, nous avons rapidement réalisé que la détection avec la distribution normale tend à être sur-sensible, 
+sous tous les configuration possibles de pénalité.
+Beaucoup de bruits de vie courts et insignifiants sont marqués comme des changements.
 C'est parce que la moyenne et la variance de la distribution normale sont indépendamment contrôlées par deux paramètres distincts, ce qui augmente les chances de s'adapter à des changements subtils de niveau ou de volatilité.
-D'un autre côté, les distributions exponentielle, gamma et de Poisson sont trop engourdies.
+D'un autre côté, les distributions exponentielle, Gamma et de Poisson sont trop engourdies.
 La moyenne et la variance de Poisson et de la distribution exponentielle sont couplées par un paramètre,
-qui restreint leur liberté d'ajustement ~ \ footnote {Poisson, mean = variance = $ \ lambda $; Exponentiel, moyenne / variance = $ \ lambda $, moyenne = $ 1 / \ lambda $.}.
+qui restreint leur liberté d'ajustement~\footnote{Poisson, mean = variance = $\lambda$; exponentielle, moyenne / variance = $\lambda$, moyenne = $1/\lambda$.}.
 La distribution gamma est confrontée au même problème, mais avec une histoire plus compliquée.
-Une distribution gamma peut être décrite par deux paramètres $ \ alpha $ et $ \ beta $: mean = $ \ frac {\ alpha} {\ beta} $, variance = $ \ frac {mean} {\ beta} $.
-\ cite {Killick2013a}, l'implémentation que nous utilisons, nécessite une entrée \ textit {a priori} pour $ \ alpha $, qui détermine en fait la sensibilité globale.
-Seul $ \ beta $ est ajusté pour détecter les points de changement.
-Avec un plus grand $ \ alpha $, un $ \ beta $ plus grand est nécessaire pour maintenir la même estimation moyenne pour un segment donné.
-Une moyenne fixe avec un plus grand $ \ beta $ impose une plus petite tolérance de variation, donc plus susceptible de diviser le segment donné en raison de changements de variance plus petits.
-En bref, un plus grand $ \ alpha $ conduit à une détection plus sensible.
-L'option par défaut définit $ \ alpha $ sur 1, ce qui dégénère la distribution Gamma en distribution exponentielle.
-Nous avons également essayé $ \ alpha $ de 1 à 100, à l'étape unitaire.
+Une distribution gamma peut être décrite par deux paramètres $\alpha$ et $\beta$: mean = $\frac{\alpha}{\beta}$, variance = $\frac{mean}{\beta}$.
+\cite{Killick2013a}, l'implémentation que nous utilisons, nécessite une entrée \textit{a priori} pour $\alpha$, qui détermine en fait la sensibilité globale.
+Seul $\beta$ est ajusté pour la détection de changement.
+Avec un plus grand $\alpha$, un $\beta$ plus grand est nécessaire pour maintenir la même estimation moyenne pour un segment donné.
+Une moyenne fixe avec un plus grand $\beta$ impose une plus petite tolérance de variation, donc plus susceptible de diviser le segment donné en raison de changements de variance plus petits.
+En bref, un plus grand $\alpha$ conduit à une détection plus sensible.
+L'option par défaut définit $\alpha$ à 1, ce qui dégénère la distribution Gamma en distribution exponentielle.
+Nous avons également essayé $\alpha$ de 1 à 100, avec l'étape égale à 1.
 Aucun d'entre eux ne surpasse les meilleurs paramètres affichés plus tard.
-Nous ne considérons donc plus les distributions gamma.
+Nous ne considérons donc plus la distribution Gamma.
 
-En supposant une distribution exponentielle et de Poisson, nous remarquons que le niveau moyen d'une série chronologique RTT dicte d'une certaine manière la tolérance de variation.
-Par exemple, pour un chemin incluant des liaisons transpacifiques, nous nous attendons à un RTT minimum supérieur à 80msec $.
-Dans ce cas, la distribution de Poisson correspondante pourrait facilement tolérer plusieurs déviations RTT de 20 msec $, ce qui est déjà non négligeable.
+En supposant une distribution exponentielle et de Poisson, 
+nous remarquons que le niveau moyen d'une série temporelles de RTT dicte d'une certaine manière la tolérance de variation.
+Par exemple, pour un chemin incluant des liaisons transpacifiques, nous nous attendons à un RTT minimum supérieur à $80msec$.
+Dans ce cas, la distribution de Poisson correspondante pourrait facilement tolérer plusieurs déviations RTT de $20msec$, ce qui est déjà non négligeable.
 Cependant, le fait d'avoir une moyenne et une variance couplées peut aussi être une caractéristique désirée.
 Nous avons observé au cours de l'étiquetage que le niveau d'un segment RTT et sa variance sont souvent positivement liés au cours des périodes de congestion.
 
-Pour tirer parti de la caractéristique décrite ci-dessus et augmenter la sensibilité de détection, nous proposons pour la distribution exponentielle et de Poisson un \ textit {transformation de données}: soustraire la série temporelle RTT par sa valeur minimum (baseline) pour abaisser son niveau RTT global ~ \ footnote {Notez que les mesures de temporisation sont définies sur 1000ms.
-Pour les distributions de Poisson, les valeurs RTT sont arrondies à l'entier le plus proche.
-Les modifications sont ensuite détectées pour la série temporelle RTT supprimée en base lorsque l'on suppose une distribution de Poisson et exponentielle.
-Ce paramètre est noté \ texttt {cpt \ _poisson} et \ texttt {cpt \ _exp} respectivement.
-Par souci de comparaison, nous considérons également la distribution de Poisson \ textbf {sans transformation de données} et nous l'indiquons comme \ texttt {cpt \ _poisson \ _naive}.
+Pour tirer parti de la caractéristique décrite ci-dessus et augmenter la sensibilité de détection, nous proposons pour la distribution exponentielle et de Poisson une \textit{transformation de données}: 
+soustraire la série temporelle de RTT par sa valeur minimum (baseline) pour abaisser son niveau global.
+Les changements sont ensuite détectées pour la série temporelle RTT supprimée en base lorsque l'on suppose une distribution de Poisson et exponentielle.
+Ce paramètre est noté \texttt{cpt\_poisson} et \texttt{cpt\_exp} respectivement.
+Par souci de comparaison, nous considérons également la distribution de Poisson \textbf{sans transformation de données} 
+et nous l'indiquons comme \texttt{cpt\_poisson\_naive}.
 La distribution normale et l'approche non-paramétrique sont appliquées directement sur les mesures RTT initiales.
 
-Toutes les combinaisons entre les types de distribution et les choix de pénalité sont utilisées pour détecter les points de changement dans l'ensemble de données de vérité au sol.
-Pour chaque type de distribution, nous plaçons seulement son paramètre de pénalité le plus performant en termes de score $ F_2 $ pondéré dans la figure ~ \ ref {fig_eval_eval}.
-Dans une discussion ultérieure, lorsque nous mentionnons un type de distribution spécifique, disons \ texttt {cpt \ _poisson}, nous nous référons à une configuration incluant la distribution elle-même, la transformation de données correspondante et son choix de pénalité le plus performant.
+Toutes les combinaisons entre les types de distribution et les choix de pénalité sont utilisées pour détecter les changements dans l'ensemble de données de vérité au sol.
+Pour chaque type de distribution, nous plaçons seulement son paramètre de pénalité le plus performant en termes de score $F_2$ pondéré dans la figure~\ref {fig_eval_eval}.
 
-Plus de 75 $ \% $ de changements, en termes de poids, peuvent être détectés pour plus de la moitié des séries temporelles avec l'une de ces distributions.
-Tous ces types de distribution ont une meilleure pondération $ F_2 $ que le classique $ F_2 $, indiquant que certains points de changement manqués sont en effet de peu d'importance opérationnelle.
+Plus de $ 75\%$ de changements, en termes de poids, peuvent être détectés pour plus de la moitié des séries temporelles avec l'une de ces distributions.
+Tous ces types de distribution ont une meilleure pondération $F_2$ que le classique $F_2$, indiquant que certains changement non-détectés sont en effet de peu d'importance opérationnelle.
 Cependant, il semble avoir un grand espace pour des améliorations.
 Des efforts sont particulièrement nécessaires pour augmenter la précision des résultats de la détection.
 
-La précision de \ texttt {cpt \ _normal} est particulièrement mauvaise.
-Cela confirme que \ texttt {cpt \ _normal} est en effet sur-sensible pour le type de données RTT ~ \ footnote {Notez que la meilleure pénalité de \ texttt {cpt \ _normal} est MBIC, le plus grand paramètre de pénalité adaptative. Cela signifie que la détection sensible est déjà supprimée à son maximum.
-Au contraire, le rappel de \ texttt {cpt \ _normal} est remarquable parmi tous les candidats.
-Cependant, ses scores $ F_2 $ sont les plus faibles ~ \ footnote {Avec $ F_2 $, le rappel est déjà pondéré deux fois plus important que la précision.}.
+La précision de \texttt {cpt\_normal} est particulièrement mauvaise.
+Cela confirme que \texttt{cpt\_normal} est en effet sur-sensible pour le type de données RTT.
+Au contraire, le rappel de \texttt{cpt\_normal} est remarquable parmi tous les candidats.
+Cependant, ses scores $F_2$ sont les plus faibles.
 La piètre performance globale de la détection souligne l'importance de trouver un juste équilibre entre sensibilité et pertinence.
 Il suggère également que la qualité de l'ajustement n'est pas une garantie de performances de détection.
-Pour les méthodes de repos, leurs performances sont relativement proches.
-Par rapport à \ texttt {cpt \ _poisson \ _naive} (sans transformation de données), \ texttt {cpt \ _poisson} obtient un rappel plus élevé et un rappel pondéré sans sacrifier de façon évidente la précision.
-Par conséquent, \ texttt {cpt \ _poisson} présente un léger avantage sur les performances globales.
-En fait, sans transformation de données, en supposant que la distribution exponentielle ne détecte aucun point de changement pour une grande partie des séries temporelles dans l'ensemble de données de vérité au sol.
+Pour les méthodes restantes, leurs performances sont relativement proches.
+Par rapport à \texttt{cpt\_poisson\_naive} (sans transformation de données), 
+\texttt{cpt\_poisson} obtient un rappel plus élevé sans sacrifier de façon évidente la précision.
+Par conséquent, \texttt{cpt\_poisson} présente un léger avantage sur les performances globales.
+En fait, sans transformation de données, en supposant la distribution exponentielle ne détecte aucun changement pour une grande partie des séries temporelles dans l'ensemble de données de vérité terrain.
 Ce sont toutes des preuves que la transformation de données proposée améliore les performances de détection pour la distribution de Poisson et exponentielle.
 
-Dans cette section, nous détectons les changements de chemin rencontrés par les mesures RTT collectées.
+Nous détectons aussi les changements de chemin rencontrés par les mesures RTT collectées.
 Les changements de chemin de niveau AS et IP sont pris en compte.
 Ils sont connus pour avoir un impact potentiel sur RTT.
-La mesure de trajectoire intégrée RIPE Atlas utilise un paramètre de rotation Paris ID.
-Cela crée une confusion entre les changements de chemin IP provoqués par l'équilibrage de charge et ceux dus aux changements de routage intradomaine.
-Nous abordons ce problème dans cette section.
-% afin d'explorer en profondeur la différence de sensibilité de détection avec différents paramètres et la pertinence de la détection par rapport aux changements de chemin, les événements de réseau connus pour avoir des conséquences sur RTT.
-Le but de la détection de changement de chemin n'est pas de répéter certaines des études présentées dans ~ \ ref {sec: rtt_path},
+Le but de la détection de changement de chemin n'est pas de répéter certaines des études présentées dans la section~\ref{sec:rtt_path},
 tel que quel type de changement de chemin contribue le plus au changement RTT.
-Cela aide plutôt à améliorer la compréhension de la détection des points de changement pour les mesures RTT.
+Cela aide plutôt à améliorer la compréhension de la détection de changements pour les mesures RTT.
 
-La table ~ \ ref {tab: corr_overview} détaille le nombre de correspondances entre les changements de chemin et de RTT.
-Chaque cellule indique le nombre de correspondances entre la ligne correspondante (type de changement de chemin) et la colonne (méthode de détection de changement RTT).
+Le tableau~\ref{tab:corr_overview} détaille le nombre de correspondances entre les changements de chemin et de RTT.
+Chaque cellule indique le nombre de correspondances entre la ligne (type de changement de chemin) et la colonne (méthode de détection de changement RTT).
 La dernière colonne contient le nombre total de changements de chemins de chaque type.
 De même, la dernière ligne fournit le nombre total de changements RTT détectés par les deux méthodes.
 
-La fraction des changements de chemin d'AS correspondant aux changements de RTT par l'une ou l'autre méthode de détection est beaucoup plus faible que le $ 72.5 \% $ in \ cite {Rimondini2014} rapporté.
+La fraction des changements de chemin d'AS correspondant aux changements de RTT par l'une ou l'autre méthode de détection dans cet étude 
+est beaucoup plus faible que le $72.5\%$ dans~\cite{Rimondini2014}.
 Il semble que les changements de chemin AS ont un impact moins significatif sur RTT que la compréhension précédente.
 Y a-t-il quelque chose de particulier dans notre ensemble de données ou nos méthodes?
-De plus, le nombre de changements de chemin d'AS correspondant à \ texttt {cpt \ _np} le changement de RTT n'est que de la moitié de celui avec les modifications RTT de \ texttt {cpt \ _possion}.
-Au contraire, les nombres correspondants pour les changements d'IXP et de \ AC {IRP} sont assez proches entre les deux méthodes de détection de changement RTT.
-D'où vient cette différence?
+De plus, le nombre de changements de chemin d'AS correspondant à un changement de RTT par \texttt{cpt\_np} 
+n'est que d'une moitié de celui par \texttt{cpt\_possion}. Pourquoi?
 Tous ces phénomènes sont très intrigants.
-Nous essayons d'explorer les raisons sous-jacentes dans la section suivante avec un regard en gros plan.
+Nous explorons les raisons sous-jacentes dans la section~\ref{sec:corr}.
 
 Plusieurs raisons contribuent à la grande quantité et à la fraction des changements de RTT inégalés à tous les changements de chemin.
 D'abord, les changements sur le chemin inverse ne sont pas observés.
@@ -538,7 +472,7 @@ Cela implique que les changements RTT provoqués par les changements de chemin i
 
 Deuxièmement, la congestion.
 La congestion peut être indépendante des changements de chemin et pourtant elle peut causer des variations RTT significatives.
-La figure ~ \ ref {fig: case_26328} donne un exemple typique de changements RTT probablement causés par la congestion.
+La figure ~ \ ref {fig:case_26328} donne un exemple typique de changements RTT probablement causés par la congestion.
 Il y a trois bosses qui peuvent être visuellement remarquées dans les temps RTT tracés.
 Nous disons que les deux derniers sont probablement de la congestion.
 Premièrement, ils ne correspondent à aucun changement de chemin, au moins dans la direction d'acheminement.
@@ -553,7 +487,7 @@ Nous les avons détectés avec succès avec les méthodes de détection des poin
 Cependant, une telle détection n'est pas possible avec la méthode précédemment proposée ~ \ cite {Luckie2014}.
 Il effectue une analyse spectrale sur RTT timeseries pour trouver périodiquement congestion répétée.
 Une telle congestion persistante est normalement due au manque de capacité du réseau.
-Pendant ce temps, la congestion transitoire dans la figure ~ \ ref {fig: case_26328} est plus probablement causée par des variations de trafic soudaines.
+Pendant ce temps, la congestion transitoire dans la figure ~ \ ref {fig:case_26328} est plus probablement causée par des variations de trafic soudaines.
 L'ET basé sur la mesure vise à éviter les deux types de congestion lorsqu'il existe des chemins alternatifs avec la capacité disponible.
 A cet effet, les méthodes de détection des points de changement sont en effet utiles pour notifier la présence de telles variations de performance.
 
@@ -561,58 +495,58 @@ Troisièmement, la détection sur-sensible.
 Si nous supposons hardiment que les changements de chemin sur les chemins de retour provoquent une quantité comparable de changements de RTT comme le font les changements de chemin d'acheminement, il y a encore de nombreux changements de RTT non appariés.
 Certains d'entre eux pourraient être effectivement attribués à la congestion, comme expliqué ci-dessus.
 Les modifications RTT non appariées restantes sont manifestement le résultat d'une détection trop sensible.
-Nous avons déjà révélé à partir d'une vue macroscopique, dans Section ~ \ ref {sec: cpt_trace} et ~ \ ref {sec: as_match_diff}, que \ texttt {cpt \ _poisson} a tendance à surestimer le nombre de points de changement lorsque la trace RTT est bruyante.
+Nous avons déjà révélé à partir d'une vue macroscopique, dans Section ~ \ ref {sec:cpt_trace} et ~ \ ref {sec:as_match_diff}, que \ texttt {cpt \ _poisson} a tendance à surestimer le nombre de points de changement lorsque la trace RTT est bruyante.
 Pendant ce temps, \ texttt {cpt \ _np} est capable de détecter les changements délicats de RTT.
-Des traces individuelles sont données sur la figure ~ \ ref {fig: case_sensitivity} pour illustrer la différence de sensibilité à partir d'une vue microscopique.
-Dans la figure ~ \ ref {fig: case_28002}, \ texttt {cpt \ _np} a détecté toute la congestion périodique de petite amplitude.
+Des traces individuelles sont données sur la figure ~ \ ref {fig:case_sensitivity} pour illustrer la différence de sensibilité à partir d'une vue microscopique.
+Dans la figure ~ \ ref {fig:case_28002}, \ texttt {cpt \ _np} a détecté toute la congestion périodique de petite amplitude.
 C'est en fait assez impressionnant, car ces changements sont à peine visibles pour les experts humains.
 Les points de changement marqués par \ texttt {cpt \ _np} ont en effet mis en évidence leur présence, et les ont rendus plus faciles à remarquer visuellement.
-Dans la figure ~ \ ref {fig: case_26328}, les deux méthodes ont identifié les deux grandes bosses près de la fin de la série temporelle.
+Dans la figure ~ \ ref {fig:case_26328}, les deux méthodes ont identifié les deux grandes bosses près de la fin de la série temporelle.
 La différence est que \ texttt {cpt \ _poisson} a également marqué les changements de niveau intermédiaire.
 Ces points de changement intermédiaires ne sont clairement corrélés à aucun changement de chemin.
 En plus de cela, ils sont également redondants en informant la congestion qui se produisait à ce moment-là.
-La raison d'une telle sur-sensibilité était due à son incompétence dans l'ajustement de la sensibilité de détection en fonction du niveau de variance d'entrée. Ce problème est exploré et expliqué dans la section ~ \ ref {sec: over_sensitive}.
+La raison d'une telle sur-sensibilité était due à son incompétence dans l'ajustement de la sensibilité de détection en fonction du niveau de variance d'entrée. Ce problème est exploré et expliqué dans la section ~ \ ref {sec:over_sensitive}.
 
 Cause inference
 
-Comme expliqué dans le chapitre ~ \ ref {sec: intro}, afin de mesurer la performance du chemin vers un préfixe de destination, nous devons, en premier lieu, identifier certains hôtes dans ce préfixe qui répondent à nos mesures.
+Comme expliqué dans le chapitre ~ \ ref {sec:intro}, afin de mesurer la performance du chemin vers un préfixe de destination, nous devons, en premier lieu, identifier certains hôtes dans ce préfixe qui répondent à nos mesures.
 Une approche possible les identifiant est de rechercher des hôtes écoutant sur certains ports TCP communs, par ex. 80, 443, etc., dans le trafic échangé avec ce préfixe de destination ou via un balayage de port.
 Puis RTT vers le préfixe de destination est représenté par les mesures vers les hôtes identifiés ~ \ footnote {Il existe plusieurs façons de mesurer activement le RTT via TCP. Les méthodes avec peu d'encombrement et un faible coût de mesure sont utilisées dans le balayage des ports ~ \ cite {nmap}, comme SYN (également connu sous le nom de semi-ouvert) ou furtif FIN.}.
 
 % \ marginpar {Manque de mesure directe vers certains préfixes de destination.}
-Cependant, tous les préfixes de destination sélectionnés n'ont pas ces hôtes `mesurables '~ \ footnote {préfixes sélectionnés: préfixes de destination avec un volume important ainsi sélectionné pour TE, plus de détails dans Section ~ \ ref {sec: pref_selec}.}.
-Take client SA est apparu dans la section ~ \ ref {sec: pref_selec} à titre d'exemple.
+Cependant, tous les préfixes de destination sélectionnés n'ont pas ces hôtes `mesurables '~ \ footnote {préfixes sélectionnés: préfixes de destination avec un volume important ainsi sélectionné pour TE, plus de détails dans Section ~ \ ref {sec:pref_selec}.}.
+Take client SA est apparu dans la section ~ \ ref {sec:pref_selec} à titre d'exemple.
 En moyenne, 15% de son trafic sortant impliquant des préfixes de destination $ \ sim 330 $ sont sans mesures.
 Plus de 70% du trafic "non mesuré" s'écoule vers des préfixes appartenant aux opérateurs mobiles pendant les heures de pointe.
 Dans un avenir prévisible, la proportion d'un tel trafic serait encore plus importante, compte tenu de la tendance générale à l'augmentation de l'utilisation des appareils mobiles.
 À ce stade, nous sommes confrontés au problème de \ textit {effectuant un TE basé sur des mesures sans mesure directe vers la destination}.
 
-Sans les mesures RTT vers P4 dans la figure ~ \ ref {fig: chap5_cause_infer_te}, nous n'avons aucune idée sur quand et lequel de ses chemins disponibles pourraient subir des changements et sont donc incapables de prendre des décisions TE.
+Sans les mesures RTT vers P4 dans la figure ~ \ ref {fig:chap5_cause_infer_te}, nous n'avons aucune idée sur quand et lequel de ses chemins disponibles pourraient subir des changements et sont donc incapables de prendre des décisions TE.
 Cependant, si nous étions en mesure de déduire quelle partie de l'Internet est responsable des changements RTT en utilisant les mesures disponibles, nous pourrions encore avoir une chance d'optimiser pour P4.
 Supposons que le lien entre AS2 et AS3 soit déduit (d'une certaine manière) comme étant la cause du changement RTT subi par des mesures vers P2 et P3.
 Comme un chemin vers P4 (la ligne pointillée) circule aussi par AS2 et AS3, nous pouvons alors raisonnablement supposer que la performance de transmission vers P4 sur ce chemin connaîtra un changement similaire au même moment que ceux vers P2 et P3.
 En réalisant cela, nous allons passer à des chemins alternatifs qui restent inchangés pour atteindre P4.
 C'est ainsi que la RTT change parce que l'inférence éclaire les variations de performance vers des destinations sans mesures directes et donc permet à TE.
 
-Cette idée a d'abord été inspirée par l'étude de cas dans Section ~ \ ref {sec: ripe_case_study} sur les changements RTT partagés par plusieurs séries temporelles RTT provenant de différents AS.
-Nous avons réalisé que certains changements RTT ne sont pas exclusifs aux mesures sur un chemin Internet spécifique, mais impactent plutôt plusieurs séries temporelles RTT simultanément, comme le montre la figure ~ \ ref {fig: rtt3d_mp_cls2}.
+Cette idée a d'abord été inspirée par l'étude de cas dans Section ~ \ ref {sec:ripe_case_study} sur les changements RTT partagés par plusieurs séries temporelles RTT provenant de différents AS.
+Nous avons réalisé que certains changements RTT ne sont pas exclusifs aux mesures sur un chemin Internet spécifique, mais impactent plutôt plusieurs séries temporelles RTT simultanément, comme le montre la figure ~ \ ref {fig:rtt3d_mp_cls2}.
 Optimiser le routage interdomaine contre la cause de tels changements de RTT serait alors une approche plus fondamentale et plus efficace de TE que de traiter chaque préfixe individuel et chaque chemin vers eux.
 
 Afin de déduire l'emplacement des causes, une hypothèse raisonnable est que de tels changements RTT partagés sont plus probablement causés par les parties communes de ces chemins, au lieu d'être la conséquence de la synchronisation parfaite de plusieurs problèmes dispersés dans divers endroits.
 Avec cela, il est alors possible d'affiner la portée des causes possibles avec des mesures ayant à la fois des parties communes et des parties divergentes.
-Un exemple de jeu d'inférence est donné dans la figure ~ \ ref {fig: chap5_toy_inference}.
+Un exemple de jeu d'inférence est donné dans la figure ~ \ ref {fig:chap5_toy_inference}.
 Avec l'hypothèse, nous pouvons d'abord étendre la cause aux liens 1 et 4, aux nœuds 2 et 5.
 Comme il y a une mesure sans changement de RTT, le lien traversant 1 et le nœud 2, le lien 4 et le nœud 5 sont alors plus susceptibles d'être la cause.
-Dans la section ~ \ ref {sec: inference}, nous décrirons plus formellement les hypothèses et la logique d'inférence pour l'investigation des nœuds et des liens sous tous les modèles de topologie et distributions de mesures possibles.
+Dans la section ~ \ ref {sec:inference}, nous décrirons plus formellement les hypothèses et la logique d'inférence pour l'investigation des nœuds et des liens sous tous les modèles de topologie et distributions de mesures possibles.
 
 Avec le changement RTT cause l'inférence, nous sommes intéressés à identifier la partie de l'Internet, aussi précise que possible, qui est responsable des changements RTT détectés.
 Ce que nous avons en entrée sur les plates-formes TE client est 1) les mesures RTT provenant de sources multiples vers des destinations multiples pour les utilisations TE; 2) les chemins AS sous-jacents pour ces mesures RTT ~ \ footnote {Avec le système TE réel, les sources de mesures sont les plates-formes clientes et les destinations sont les préfixes auxquels les clients envoient du trafic.
 La source des mesures peut être multiple si nous fusionnons des mesures à partir de plusieurs plates-formes clientes ou si le client a plusieurs sites avec différentes options de fournisseur.}.
 
-La figure ~ \ ref {fig: chap5_sys_design} décrit les blocs de construction logiques requis pour l'inférence du changement de RTT. La détection de point de virage (section ~ \ ref {sec: cpt_rtt}) symbolise les temporisations RTT en séquences d'événements de changement RTT.
+La figure ~ \ ref {fig:chap5_sys_design} décrit les blocs de construction logiques requis pour l'inférence du changement de RTT. La détection de point de virage (section ~ \ ref {sec:cpt_rtt}) symbolise les temporisations RTT en séquences d'événements de changement RTT.
 
 La construction de la topologie construit un graphique pour les sauts et les liaisons traversés par les mesures RTT.
-Ce graphe de topologie est une étape intermédiaire dans la conception d'une métrique d'inférence pour chaque noeud et chaque lien présents dans la topologie. Comme on le voit sur la figure ~ \ ref {fig: chap5_toy_inference}, si un nœud / lien est la cause du changement RTT, dépend non seulement des mesures qui le traversent, mais aussi de celles qui circulent. L'identification de tels ensembles de mesures pour chaque nœud / lien nécessite des connaissances sur la topologie. De plus, le graphe de topologie sert aussi à visualiser l'emplacement des changements RTT.
+Ce graphe de topologie est une étape intermédiaire dans la conception d'une métrique d'inférence pour chaque noeud et chaque lien présents dans la topologie. Comme on le voit sur la figure ~ \ ref {fig:chap5_toy_inference}, si un nœud / lien est la cause du changement RTT, dépend non seulement des mesures qui le traversent, mais aussi de celles qui circulent. L'identification de tels ensembles de mesures pour chaque nœud / lien nécessite des connaissances sur la topologie. De plus, le graphe de topologie sert aussi à visualiser l'emplacement des changements RTT.
 
 La valeur exacte de ces métriques d'inférence à chaque instant est calculée à partir de séquences d'événements de changement RTT. Ensuite, l'inférence de cause est effectuée pour chaque noeud et chaque lien en fonction de la valeur de leurs métriques d'inférence.
 % Les séquences d'événements de modification RTT instancient les métriques d'inférence sur lesquelles l'inférence de cause est effectuée.
@@ -643,7 +577,7 @@ Pour les liens restants après une exemption anticipée, leur responsabilité d�
 Pour retracer la véritable cause du changement, différents critères sont nécessaires pour les liens dans différentes configurations topologiques.
 
 Nous avons implémenté un outil de visualisation interactif pour inspecter le nombre normalisé d'événements et le résultat d'inférence de chaque lien sur la topologie au niveau AS révélée par les mesures de traceroute RIPE Atlas.
-La figure ~ \ ref {fig: case_event_count} est un instantané de l'outil dans la vue de comptage d'événements normalisée.
+La figure ~ \ ref {fig:case_event_count} est un instantané de l'outil dans la vue de comptage d'événements normalisée.
 Chaque cercle de la figure représente un AS ou un IXP appris à partir de mesures traceroute. Les sondes violet hébergent les sondes RIPE Atlas, les oranges sont des IXP, tandis que les vertes sont des AS de transit. Plus \ acp {FM} un lien a, plus la ligne correspondante est épaisse. À un intervalle de temps donné de 10 minutes (indiqué dans le coin supérieur gauche du graphique), plus le nombre d'événements de changement normalisé est grand, plus la couleur rouge sur le lien est profonde.
 
 Conclusion
