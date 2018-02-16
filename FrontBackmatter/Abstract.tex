@@ -2,14 +2,13 @@
 % Abstract
 %*******************************************************
 %\renewcommand{\abstractname}{Abstract}
-\pdfbookmark[1]{Abstract}{Abstract}
 \begingroup
 \let\clearpage\relax
 \let\cleardoublepage\relax
 \let\cleardoublepage\relax
 
 \chapter*{Abstract}
-
+\pdfbookmark[1]{Abstract}{Abstract}
 As transit price continues to drop, mulithoming has now become a common practice among many medium and even small size networks. Yet, improving the transmission performance over multiple Internet paths remains challenging.
 %Yet, how to improve the transmission performance through wise employment of multiple Internet paths remains challenging. 
 One major difficulty comes from the current Internet routing protocol \acf{BGP}.
@@ -54,8 +53,8 @@ In this dissertation, we tackled some of the most pronounced challenges in measu
 \newpage
 
 \begin{otherlanguage}{french}
-\pdfbookmark[1]{Résumé}{Résumé}
 \chapter*{Résumé}
+\pdfbookmark[1]{Résumé}{Résumé}
 Avec la baisse du prix de transit, multihoming a maintenant devenu une pratique courante parmi les réseaux de moyenne même petite taille.
 Toutefois, il reste difficile de réellement améliorer la performance de transmission via ces multiple chemin désormais disponibles.
 Une des difficultés est d’originaire du protocole de routage employé dans ce contexte : \acf{BGP}.
@@ -99,100 +98,130 @@ Les méthodes de changpoint analysis étudiées plutôt nous aident d’abord à
 Pour mieux illustrer le processus et les résultats de l’inférence, nous avons développé des outils interactifs projetant les outputs de chaque étape sur une graphe de topologie.
 
 Dans cette thèse, nous avons entrepris des défis les plus remarqués concernant l’ingénierie du trafic alimenté par la mesure dans routage Internet. Nous avons apporté des contributions sur la scalabilité, l’interprétation des données et la visibilité sur la cause de variation de performance.
-
+\vfill
 \end{otherlanguage}
 
 \newpage
 
 \begin{otherlanguage}{french}
-\pdfbookmark[1]{Condensé du Manuscrit}{Condensé du Manuscrit}
 \chapter*{Condensé du Manuscrit}
+\pdfbookmark[1]{Condensé du Manuscrit}{Condensé du Manuscrit}
 \section*{Introduction}
 Internet est une collection de réseaux gérés individuellement.
 Son système de gestion et de routage distribué lui permet de se développer rapidement.
-Cependant, la distribution du trafic sous-optimale à partir d'une vue globale est d'originaire également de ce comportement distributé.
-Ce problème se manifeste souvent par des congestion lorsqu'il existe encore de la capacité disponible.
-De nombreux efforts ont donc été consacrés à une meilleure performance de la transmission, en allégeant ou en évitant la congestion.
+Cependant, la distribution du trafic sous-optimale à partir d'une vue globale 
+est également d'originaire de ce comportement distributé.
+Ce problème se manifeste souvent par la congestion lorsqu'il existe encore de la capacité disponible.
+De nombreux efforts ont donc été consacrés à une meilleure performance de la transmission,
+en allégeant ou en évitant la congestion.
 
 La congestion se produit sur un chemin Internet partagé par plusieurs flux lorsque la demande totale dépasse la capacité de liaison.
-En évitant la concurrence vicieuse qui finit par bloquer tous les flux, le mécanisme de contrôle de la congestion de bout en bout joue un rôle important. Il améliore les performances de transmission de manière distribuée.
-Il vise à 1) utiliser pleinement la bande passante tout en 2) introduisant un minimum de retard de transmission supplémentaire (longueur de file d'attente courte) et 3) assurant un partage équitable des ressources ~\cite{Jacobson1988, mathis1997macroscopic, Cardwell2016}.
+En évitant la concurrence vicieuse qui finit par bloquer tous les flux, le mécanisme de contrôle de la congestion de bout en bout joue un rôle important. 
+Il améliore les performances de transmission de manière distribuée.
+Il vise à 1) utiliser pleinement la bande passante tout en 
+2) introduisant un minimum de delai de transmission supplémentaire (longueur de file d'attente courte) et en
+3) assurant un partage équitable des ressources~\cite{Jacobson1988, mathis1997macroscopic, Cardwell2016}.
 
-Les performances de transmission peuvent être encore améliorées avec une capacité de liaison suffisamment importante pour satisfaire la demande de tous les flux. À cette fin, il est nécessaire de dimensionner régulièrement le réseau en fonction de la croissance des demandes de trafic ~\cite {pioro2004routing}.
-Pourtant, la construction d'infrastructures ne suffit pas. Premièrement, le déploiement du réseau se déroule sur une période beaucoup plus longue que les fluctuations du trafic. Avant que la capacité supplémentaire ne soit déployée, certains liens peuvent devenir saturés alors que d'autres restent presque inactifs en raison des changements dans la demande de trafic. Deuxièmement, le surdimensionnement est coûteux, étant donné que les technologies futures réduiront considérablement le coût par unité de bande passante.
+Les performances de transmission peuvent être encore améliorées avec une capacité de liaison suffisamment importante pour satisfaire la demande de tous les flux.
+À cette fin, il est nécessaire de dimensionner régulièrement le réseau en fonction de la croissance des demandes de trafic~\cite{pioro2004routing}.
+Pourtant, la construction d'infrastructures tout seul ne suffit pas.
+Premièrement, le déploiement du réseau se déroule sur une période beaucoup plus longue que les fluctuations du trafic. 
+Avant que la capacité supplémentaire ne soit déployée, certains liens peuvent devenir saturés alors que 
+d'autres restent presque non-consommé en raison de la variation sporadique la demande de trafic. 
+Deuxièmement, le surdimensionnement est coûteux, étant donné que les technologies futures réduiront considérablement le coût par unité de bande passante.
 
 Par conséquent, des schémas de routage réactifs et flexibles sont nécessaires, complémentaires au dimensionnement du réseau.
-Ils maximisent la capacité utile réelle.
-Au sein d'un réseau (intradomaine), l'administrateur peut en premier lieu estimer/modéliser la matrice de trafic qui traverse son réseau. 
-Ensuite, chaque flux peut être divisé en plusieurs chemins pour s'adapter au mieux à la capacité disponible ~\cite {Xu2011, Jain2013}.
-Parmi différents réseaux (interdomaines), la marge d'amélioration des performances provient principalement de plusieurs chemins Internet entre les réseaux source et ceux de destination.
+Ils maximisent la capacité de réseaux qui peut être réellement utilisée.
+Au sein d'un réseau (intra-domaine), l'administrateur peut en premier lieu estimer/modéliser la matrice de trafic qui traverse son réseau. 
+Ensuite, chaque flux peut être divisé et cheminé sur plusieurs routes pour s'adapter au mieux à la capacité disponible~\cite{Xu2011, Jain2013}.
+Parmi différents réseaux (inter-domaines), la marge d'amélioration des performances provient principalement de plusieurs chemins Internet 
+entre les réseaux source et ceux de destination.
 C'est parce que la capacité de bout en bout est potentiellement élargie avec des chemins Internet plus riches.
-Une telle diversité de chemins peut déjà être obtenue via multihoming sous current \acf{BGP}. Avec le multihoming, un réseau achète l'accès au reste de l'Internet via plusieurs fournisseurs.
-De nombreuses autres propositions encouragent également la propagation de plusieurs chemins Internet, pour ne citer que quelques-un : BGP add-path~\cite{addpath}, MIRO~\cite{Xu2006}, NIRA~\ cité{Yang2007}, YAMR~\cite{Ganichev2010 }, Pathlet~\cite{Godfrey09}, IDRD~\cite{Misseri2013}, et etc.
-Cependant, dans le routage interdomaine, chaque réseau n'a toujours pas la visibilité en dehors de son propre territoire, par exemple, la capacité d'une liaison distante et la demande de trafic concurrent d'autres réseaux sur ce lien.
-Ceci est particulièrement vrai avec \ac{BGP}, le protocole de routage interdomaine de facto qui ne va pas être obsolète prochainement.
+Une telle diversité de chemins peut déjà être obtenue via multihoming sous \acf{BGP}. 
+Avec le multihoming, un réseau achète l'accès au reste de l'Internet via plusieurs fournisseurs.
+De nombreuses propositions encouragent également la propagation de plusieurs chemins Internet, 
+pour ne citer que quelques-un : BGP add-path~\cite{addpath}, MIRO~\cite{Xu2006}, NIRA~\cite{Yang2007}, YAMR~\cite{Ganichev2010 }, Pathlet~\cite{Godfrey09}, IDRD~\cite{Misseri2013}, etc.
+Cependant, dans le routage inter-domaine, chaque réseau n'a toujours pas la visibilité en dehors de son propre territoire, 
+par exemple, la capacité d'une liaison distante et la demande de trafic concurrente  provenant d'autres réseaux sur ce lien.
+Ceci est particulièrement vrai avec \ac{BGP}, le protocole de routage inter-domaine de facto qui ne va pas être obsolète prochainement.
 Par conséquent, il n'est pas possible pour les réseaux actuels de déterminer quels chemins disponibles offrent les meilleures performances vers une destination donnée.
 En d'autres termes, le défi est de savoir comment mieux utiliser la capacité Internet disponible avec un protocole agnostique de performance \ac{BGP}.
 Nous entreprenons ce défi dans cette dissertation.
 
-Un moyen simple de rendre la décision de la route sensible aux performances est la mesure. Dans l'ingénierie de leur interconnection avec les autres réseaux, Facebook et Google utilisent des instruments intégrés dans leurs applications pour apprendre les performances de bout en bout sur plusieurs chemins disponibles ~\cite {Yap2017, Schlinker2017}.
+Une approche directe de rendre la décision de la route ayant conscience de la performance est la mesure. 
+Par exemple, en connectant avec les autres réseaux, Facebook et Google utilisent des instruments intégrés dans leurs applications 
+pour apprendre les aspects performances de bout en bout sur plusieurs chemins disponibles~\cite{Yap2017, Schlinker2017}.
 Au fur et à mesure que le prix du transit diminue, le multi-homing devient plutôt une pratique courante dans de nombreux réseaux de petite et moyenne taille.
 Ces réseaux ont également un besoin immédiat d'amélioration des performances, de sorte que leurs buinesses puissent survivre.
 
-Malgré le besoin concret d'ingénierie du trafic interdomaine basée sur des mesures, de nombreuses questions restent sans réponse ou partiellement traitées.
+Malgré le besoin concret d'ingénierie du trafic inter-domaine basée sur des mesures, de nombreuses questions restent sans réponse ou partiellement traitées.
 Un réseau typique peut communiquer régulièrement avec des destinations différentes $\sim$ 100k.
 Mesurer continuellement la performance de toutes ces destinations est coûteux et n'est pas nécessaire.
 Quelles sont les destinations les plus importantes? Est-ce que ces destinations changent au fil du temps? Comment les identifier?
-En outre des mesures de volume, comment les mesures de performance doivent-elles être traitées? Ont-ils besoin de nettoyage?
-Si oui, quels sont les problèmes potentiels de qualité des données? Quelles sont les origines de ces problèmes? Comment pouvons-nous mettre en valeur et atténuer leurs impacts sur la sélection des itinéraires?
-En outre, afin de réagir dynamiquement aux changements de performance, comment détecter en premier lieu des changements significatifs dans les mesures de performance? Comment le faire sans paramètres codés en dur ou ad hoc? Comment atteindre un niveau de robustesse acceptable?
-Enfin, une fois qu'un changement de performance est détecté, comment pouvons-nous en savoir plus sur cet événement du point de vue du réseau? Où cela arrive-t-il? Cela peut-il avoir un impact sur d'autres chemins Internet actuellement utilisés?
-Nous cherchons à explorer les réponses aux questions ci-dessus dans cette thèse, afin que la construction d'un système de sélection de routes basé sur des mesures progresse dans ces domaines: extensibilité du system de mesure, interprétation des données de performance et visibilité des causes de changement de performance.
-
+En outre des mesures de volume de traffic, comment les mesures de performance doivent-elles être traitées? Ont-ils besoin de nettoyage?
+Si oui, quels sont les problèmes potentiels de qualité des données? Quelles sont les origines de ces problèmes? 
+Comment pouvons-nous mettre en valeur et atténuer leurs impacts sur la sélection des itinéraires?
+En outre, afin de réagir dynamiquement aux changements de performance, 
+comment détecter en premier lieu des changements significatifs dans les mesures de performance? 
+Comment le faire sans paramètres codés en dur ou d'une manière ad hoc? Comment atteindre un niveau de robustesse acceptable?
+Enfin, une fois qu'un changement de performance est détecté, comment pouvons-nous en savoir plus sur les aspects réseau? 
+Où cela arrive-t-il? Cela peut-il avoir un impact sur d'autres chemins Internet actuellement utilisés?
+Dans cette thèse, nous cherchons à explorer les réponses aux questions posées ci-dessus, 
+afin que la fabrication d'un système TE basé sur des mesures avance dans ces aspects: 
+scalabilité du system de mesure, interprétation des données de performance et visibilité des causes de changement de performance.
 
 \section*{Le context}
 Nous mettons en scène les travaux de cette thèse sous BGP, tout en réalisant pleinement \ac{LISP}, \ac{SDN}, etc. sont des pistes de recherche prometteuses.
 C'est parce que BGP sera encore le protocole de routage \textit {de facto} d'Internet dans un avenir prévisible.
-Et le déploiement de tout nouveau mécanisme de routage doit être incrémentiel.
-Avant la reprise de tout ce qui n'est pas BGP, BGP est ce qu'une majorité d'AS doit vivre avec.
+Et le déploiement d'un nouveau mécanisme de routage doit être incrémentiel.
+Avant la prédominance de tout ce qui n'est pas BGP, BGP est ce qu'une majorité d'\acf{AS} doit vivre avec.
 Il y a donc des besoins immédiats d'amélioration.
 
 Nous nous concentrons sur la TE pour trafic sortant dans cette thèse.
-Car la TE entrante est intrinsèquement difficile avec le BGP, en raison d'un manque de méthode efficace de guidage du trafic.
+Car la TE entrante est intrinsèquement difficile sous BGP, en raison d'un manque de méthode efficace de guidage le trafic entrant.
 
-Nous ciblons les \acf{AS} stub (potentiellement multi-hébergés).
+Nous ciblons les \ac{AS} stub (potentiellement en multi-homing).
 C'est parce que \acf{CP}, \acf{HP} et \acf{ISP}, étant les principaux types de réseaux parmi les AS stub, sont ceux qui ont le plus besoin de TE.
-De plus, la re-sélection de route dynamique dans ces réseaux ne générera pas de problèmes de convergence de routes BGP sur l'Internet.
+De plus, la re-sélection de chemin dynamique dans ces réseaux ne générera pas de problèmes de convergence de routes BGP sur l'ensemble de l'Internet.
 
 Enfin, nous supposons que l'amélioration des performances de transmission est aujourd'hui la principale motivation pour la TE sortante.
-L'acheminement du trafic sur Internet fait désormais face à moins de contraintes monétaires grâce à la baisse du prix de transit~\cite{transitprice, drpeering} et de la présence des \ac{IXP} de plus en plus dense dans le monde entier~\cite{pchixp}.
-En revanche, en vu de la demande pour la diversité géographique et topologique de connexion~\cite {Chiu2015}, un défi de performance reste à relever.
+L'acheminement du trafic sur Internet fait désormais face à moins de contraintes monétaires grâce à la baisse du prix de transit~\cite{transitprice, drpeering} 
+et de la présence des \ac{IXP} de plus en plus dense dans le monde entier~\cite{pchixp}.
+En revanche, en vu de la demande pour la diversité géographique et topologique de connexion~\cite{Chiu2015}, un défi de performance reste à relever.
 
-Afin de réaliser réellement ce gain de performance provenant de multiples chemin d'Internet, une sélection de route dynamique basée sur des mesures de performance est requise, c'est-à-dire \textit{TE basé sur des mesures}.
-\citet{Akella2008} a montré une demonstration d'un tel system de TE.
+Afin de réaliser réellement ce gain de performance provenant de multiples chemins d'Internet, 
+une sélection de route dynamique basée sur des mesures de performance est requise, c'est-à-dire \textit{TE basé sur la mesure}.
+\citet{Akella2008} a montré une preuve de concept d'un tel system.
 Seulement 100 destinations sont émulées dans ce travail.
 Ce nombre est beaucoup moins par rapport à l'échelle réelle qu'un AS stub peut faire face sur une base quotidienne.
-Dans ce travail, le meilleur itinéraire pour chaque destination est choisi en fonction de \ac{EWMA} sur des mésures de \acf {RTT} dans le passé.
-Les résultats montrent que la meilleure performance de transmission sur toutes les destinations est atteinte lorsque la décision d'itinéraire est prise selon uniquement la dernière mesure.
+Dans ce travail, le meilleur chemin pour chaque destination est choisi en fonction de \acf{EWMA} sur des mésures de \acf{RTT} dans le passé.
+Les résultats montrent que la meilleure performance de transmission sur toutes les destinations est atteinte 
+lorsque la décision d'itinéraire est prise selon uniquement la dernière mesure de \ac{RTT}.
 Cependant, compte tenu de la nature bruissante des mesures \ac{RTT}, une telle approche simpliste peut conduire à des changements de chemin extrêmement fréquents.
-En outre, traiter Internet comme une boîte noire pour les mesures de latence ne fournit pas une visibilité utile et parfois nécessaire des événements de réseau sous-jacents.
-Ces événements de réseau, par ex. les changements de chemin et la congestion sont les causes réelles d'une dégradation significative des performances et ainsi les raisons du changement de route.
+En outre, traiter Internet comme une boîte noire pour les mesures de latence ne fournit pas une visibilité des événements de réseau sous-jacents, 
+qui est utile et parfois nécessaire .
+Ces événements de réseau, par ex. les changements de chemin et la congestion sont les causes réelles 
+d'une dégradation significative des performances et ainsi les raisons du changement de route.
 
-Afin de répondre aux préoccupations ci-dessus et de réduire l'écart entre le concept et un système de travail~\cite{b6},
-Nous étudions dans cette thèse le volume de trafic, les mesures de latence sur les chemin Internet pour améliorer la scalabilité du system de mésure, l'interprétation des mesures et la visibilité des performances de l'interdomaine TE basé sur les mesures.
+Afin de répondre aux préoccupations ci-dessus prononcées et de réduire l'écart entre le concept et un système qui fonctionne~\cite{b6},
+nous étudions dans cette thèse multiples types de mesure dans des vrai réseaux et l'Internet lui même 
+pour améliorer la scalabilité du system qui collecte des mesures, l'interprétation des mesures et la visibilité sur des événements réseaux ayant impact sur la performance.
 
-Une plate-forme interdomaine TE basée sur la mesure a deux éléments constitutifs essentiels.
-Ils sont illustrés en noir sur la figure~\ref{fig:archi}: (i) mesure de la performance des chemins utilisables et (ii) décision d'itinéraire.
-La plateforme mesure les performances de bout en bout, plus précisément la latence aller-retour \acf{RTT}, sur toutes les routes disponibles vers un préfixe de destination donné.
+Une plate-forme TE (pour traffic inter-domaine) basée sur la mesure a deux éléments essentiels.
+Ils sont illustrés en noir sur la figure~\ref{fig:archi}: (i) le system qui mesure la performance des chemins utilisables et 
+(ii) l'intelligence qui selectionne des chemins.
+La performances de bout en bout est ainsi mesurée, plus précisément la latence aller-retour \acf{RTT}, 
+sur toutes les chemins disponibles vers en semble de préfixe de destination donné.
 Dans chaque préfixe de destination, quelques hôtes avec des ports ouverts, par ex. 80, 443, sont découverts puis utilisés comme destination de mesure.
-Une fois alimenté par les mesures de performance, le moteur de décision d'itinéraire choisit pour chaque destination les meilleurs itinéraires à chaque instant et les impose sur les routeurs de frontière BGP.
+Une fois alimenté par les mesures de performance, le moteur de décision choisit pour chaque destination les meilleurs chemins à chaque instant et les implémente sur les routeurs BGP.
 
 \section*{La sélection de préfixes les plus importants}
 
 Un réseau client ayant besoin de \acf{TE} interdomain est souvent de type \acf{ISP}, \acf{HP}, \acf{CP}.
 Il envoie du trafic vers un large éventail de destinations, en général entre 10k à 100k de prefixes BGP.
-Le sous-système de mesure et de décision de route illustré sur la figure~\ref{fig:archi} fait donc face à un défi qui est de suivre et d'optimiser en temps réel les performances de transmission vers toutes ces destinations.
-Cependant, il est bien connu que la plupart du volume du trafic est généralement concentré sur une petite partie des préfixes BGP~\cite {Fang1999, Feamster2003, Papagiannaki2005, Sarrar2012}.
+Le système de mesure et de décision de chemin illustré sur la figure~\ref{fig:archi} fait donc face à un défi 
+qui est de suivre et d'optimiser en temps réel les performances de transmission vers toutes ces destinations.
+Cependant, il est bien connu que la plupart du volume du trafic est généralement concentré sur une petite partie des préfixes BGP~\cite{Fang1999, Feamster2003, Papagiannaki2005, Sarrar2012}.
 Il est donc possible et raisonnable de se concentrer uniquement sur les préfixes de destination les plus importants.
 
 % \ marginpar {la proposition}
@@ -610,6 +639,8 @@ Nous avons en outre inféré les emplacements dans l'Internet qui ont potentiell
 Cette visibilité permet d'optimiser les chemin pour les préfixes que nous n'avons pas pu mesurer directement.
 Afin de mieux illustrer le processus d'inférence et les causes identifiées, 
 nous avons conçu des outils de visualisation interactifs pour tracer les métriques d'inférence et les résultats sur un graphe de topologie.
+
+\vfill
 
 \end{otherlanguage}
 \endgroup			
